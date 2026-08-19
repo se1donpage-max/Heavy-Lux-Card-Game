@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    >
+
+    <title>Heavy Lux Card</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            background: #090909;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 500px;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: 32px;
+        }
+
+        p {
+            margin: 0;
+            color: #999;
+        }
+
+        .status {
+            margin-top: 30px;
+            padding: 16px;
+            border-radius: 12px;
+            background: #151515;
+            border: 1px solid #292929;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <h1>Heavy Lux Card</h1>
+
+    <p>Онлайн-Дурак нового поколения</p>
+
+    <div class="status" id="status">
+        Сервер проверяется...
+    </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+    const status = document.getElementById("status");
+
+    fetch("/api/health")
+        .then(response => response.json())
+        .then(data => {
+            if (data.ok) {
+                status.textContent = "Сервер работает";
+            }
+        })
+        .catch(() => {
+            status.textContent = "Ошибка соединения";
+        });
+
+    const socket = io();
+
+    socket.on("connect", () => {
+        console.log("Socket connected:", socket.id);
+    });
+
+    socket.on("server:hello", (data) => {
+        console.log(data.message);
+    });
+</script>
+
+</body>
+</html>
