@@ -5,56 +5,274 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        content="width=device-width,
+                 initial-scale=1,
+                 maximum-scale=1,
+                 user-scalable=no,
+                 viewport-fit=cover"
     >
 
+    <meta name="theme-color" content="#080808">
+
     <title>Heavy Lux Card</title>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         html,
         body {
             margin: 0;
             padding: 0;
+            width: 100%;
             min-height: 100%;
-            background: #090909;
+            background: #080808;
             color: #ffffff;
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                         Roboto, Arial, sans-serif;
         }
 
         body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
             min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        button {
+            font: inherit;
         }
 
         .app {
             width: 100%;
-            max-width: 500px;
-            padding: 30px 20px;
+            max-width: 520px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            margin: 0 auto;
+            padding:
+                calc(24px + env(safe-area-inset-top))
+                18px
+                calc(24px + env(safe-area-inset-bottom));
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.8px;
+        }
+
+        .online {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+
+            padding: 7px 10px;
+
+            border: 1px solid #222;
+            border-radius: 999px;
+
+            background: #111;
+            color: #aaa;
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .online-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #777;
+        }
+
+        .profile {
+            padding: 20px;
+
+            border: 1px solid #242424;
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #171717,
+                    #0e0e0e
+                );
+
+            box-shadow:
+                0 15px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        .profile-top {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+
+            border-radius: 16px;
+
+            background: #222;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 22px;
+            font-weight: 900;
+
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .profile-rank {
+            margin-top: 4px;
+
+            color: #777;
+
+            font-size: 12px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+
+            margin-top: 18px;
+        }
+
+        .stat {
+            padding: 12px 8px;
+
+            border-radius: 12px;
+
+            background: #111;
+
             text-align: center;
         }
 
-        h1 {
-            margin: 0 0 10px;
-            font-size: 32px;
+        .stat-value {
+            font-size: 16px;
+            font-weight: 800;
         }
 
-        p {
+        .stat-label {
+            margin-top: 4px;
+
+            color: #666;
+
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .welcome {
+            margin-top: 28px;
+        }
+
+        .welcome h1 {
             margin: 0;
-            color: #999;
+
+            font-size: 30px;
+            line-height: 1.05;
+            letter-spacing: -1.2px;
+        }
+
+        .welcome p {
+            margin: 10px 0 0;
+
+            color: #777;
+
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .game-card {
+            margin-top: 22px;
+
+            padding: 22px;
+
+            border: 1px solid #242424;
+            border-radius: 20px;
+
+            background: #101010;
+        }
+
+        .game-title {
+            font-size: 21px;
+            font-weight: 900;
+        }
+
+        .game-description {
+            margin-top: 8px;
+
+            color: #777;
+
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .play-button {
+            width: 100%;
+
+            margin-top: 18px;
+            padding: 16px;
+
+            border: 0;
+            border-radius: 14px;
+
+            background: #ffffff;
+            color: #000000;
+
+            font-size: 16px;
+            font-weight: 900;
+
+            cursor: pointer;
+        }
+
+        .play-button:active {
+            transform: scale(0.98);
         }
 
         .status {
-            margin-top: 30px;
-            padding: 16px;
-            border-radius: 12px;
-            background: #151515;
-            border: 1px solid #292929;
+            margin-top: auto;
+            padding-top: 24px;
+
+            color: #555;
+
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .error {
+            color: #ff6b6b;
+        }
+
+        .loading {
+            opacity: 0.65;
         }
     </style>
 </head>
@@ -63,41 +281,521 @@
 
 <div class="app">
 
-    <h1>Heavy Lux Card</h1>
+    <div class="header">
 
-    <p>Онлайн-Дурак нового поколения</p>
+        <div class="logo">
+            HEAVY LUX CARD
+        </div>
 
-    <div class="status" id="status">
-        Сервер проверяется...
+        <div class="online">
+            <span
+                class="online-dot"
+                id="onlineDot"
+            ></span>
+
+            <span id="onlineText">
+                CONNECTING
+            </span>
+        </div>
+
+    </div>
+
+
+    <section class="profile">
+
+        <div class="profile-top">
+
+            <div
+                class="avatar"
+                id="avatar"
+            >
+                HL
+            </div>
+
+            <div>
+
+                <div
+                    class="profile-name"
+                    id="profileName"
+                >
+                    Загрузка...
+                </div>
+
+                <div
+                    class="profile-rank"
+                    id="profileRank"
+                >
+                    Игрок
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="stats">
+
+            <div class="stat">
+
+                <div
+                    class="stat-value"
+                    id="level"
+                >
+                    1
+                </div>
+
+                <div class="stat-label">
+                    Level
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div
+                    class="stat-value"
+                    id="xp"
+                >
+                    0
+                </div>
+
+                <div class="stat-label">
+                    XP
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div
+                    class="stat-value"
+                    id="money"
+                >
+                    0 ₽
+                </div>
+
+                <div class="stat-label">
+                    Balance
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="welcome">
+
+        <h1>
+            Добро пожаловать.
+        </h1>
+
+        <p>
+            Здесь начинается новая история Heavy Lux Card.
+            Живые игроки, честная игра и собственная экономика.
+        </p>
+
+    </section>
+
+
+    <section class="game-card">
+
+        <div class="game-title">
+            Дурак · 36 карт
+        </div>
+
+        <div class="game-description">
+            Онлайн-игра один на один.
+            Только реальные игроки.
+            Без AI.
+        </div>
+
+        <button
+            class="play-button"
+            id="playButton"
+        >
+            ИГРАТЬ
+        </button>
+
+    </section>
+
+
+    <div
+        class="status"
+        id="status"
+    >
+        Подключение к Heavy Lux Card...
     </div>
 
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
 
 <script>
-    const status = document.getElementById("status");
 
-    fetch("/api/health")
-        .then(response => response.json())
-        .then(data => {
-            if (data.ok) {
-                status.textContent = "Сервер работает";
+    /*
+    =====================================================
+    TELEGRAM
+    =====================================================
+    */
+
+    const tg = window.Telegram?.WebApp || null;
+
+    if (tg) {
+
+        tg.ready();
+
+        tg.expand();
+
+        if (tg.setHeaderColor) {
+            tg.setHeaderColor("#080808");
+        }
+
+        if (tg.setBackgroundColor) {
+            tg.setBackgroundColor("#080808");
+        }
+
+    }
+
+
+    /*
+    =====================================================
+    ELEMENTS
+    =====================================================
+    */
+
+    const profileName =
+        document.getElementById("profileName");
+
+    const profileRank =
+        document.getElementById("profileRank");
+
+    const avatar =
+        document.getElementById("avatar");
+
+    const level =
+        document.getElementById("level");
+
+    const xp =
+        document.getElementById("xp");
+
+    const money =
+        document.getElementById("money");
+
+    const status =
+        document.getElementById("status");
+
+    const onlineText =
+        document.getElementById("onlineText");
+
+    const onlineDot =
+        document.getElementById("onlineDot");
+
+    const playButton =
+        document.getElementById("playButton");
+
+
+    /*
+    =====================================================
+    TELEGRAM USER
+    =====================================================
+    */
+
+    function getTelegramUser() {
+
+        if (!tg) {
+            return null;
+        }
+
+        return tg.initDataUnsafe?.user || null;
+
+    }
+
+
+    /*
+    =====================================================
+    DISPLAY USER
+    =====================================================
+    */
+
+    function displayTelegramUser(user) {
+
+        if (!user) {
+
+            profileName.textContent =
+                "Откройте игру через Telegram";
+
+            profileRank.textContent =
+                "Telegram Mini App";
+
+            return;
+
+        }
+
+
+        const firstName =
+            user.first_name || "";
+
+        const lastName =
+            user.last_name || "";
+
+        const username =
+            user.username
+                ? "@" + user.username
+                : "";
+
+
+        profileName.textContent =
+            `${firstName} ${lastName}`.trim()
+            || username
+            || "Игрок";
+
+
+        profileRank.textContent =
+            username || "Игрок";
+
+
+        if (user.photo_url) {
+
+            avatar.innerHTML =
+                `<img src="${user.photo_url}" alt="">`;
+
+        } else {
+
+            const letters =
+                (
+                    (firstName[0] || "") +
+                    (lastName[0] || "")
+                ).toUpperCase();
+
+            avatar.textContent =
+                letters || "HL";
+
+        }
+
+    }
+
+
+    /*
+    =====================================================
+    SERVER AUTH
+    =====================================================
+    */
+
+    async function authenticateTelegram() {
+
+        if (!tg) {
+
+            status.textContent =
+                "Откройте Heavy Lux Card внутри Telegram.";
+
+            status.classList.add("error");
+
+            displayTelegramUser(null);
+
+            return;
+
+        }
+
+
+        const initData =
+            tg.initData;
+
+
+        if (!initData) {
+
+            status.textContent =
+                "Telegram не передал данные авторизации.";
+
+            status.classList.add("error");
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch("/api/auth/telegram", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        initData
+                    })
+
+                });
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok || !data.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Telegram authorization failed"
+                );
+
             }
-        })
-        .catch(() => {
-            status.textContent = "Ошибка соединения";
-        });
 
-    const socket = io();
+
+            const player =
+                data.player;
+
+
+            profileName.textContent =
+                (
+                    `${player.firstName} ${player.lastName}`
+                ).trim()
+                || (
+                    player.username
+                        ? "@" + player.username
+                        : "Игрок"
+                );
+
+
+            profileRank.textContent =
+                player.username
+                    ? "@" + player.username
+                    : "Игрок";
+
+
+            const initials =
+                (
+                    (player.firstName?.[0] || "") +
+                    (player.lastName?.[0] || "")
+                ).toUpperCase();
+
+
+            avatar.textContent =
+                initials || "HL";
+
+
+            level.textContent =
+                "1";
+
+            xp.textContent =
+                "0";
+
+            money.textContent =
+                "0 ₽";
+
+
+            status.textContent =
+                "Авторизация успешна";
+
+            status.classList.remove("error");
+
+
+            console.log(
+                "Heavy Lux Card player:",
+                player
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+            status.textContent =
+                "Ошибка авторизации Telegram";
+
+            status.classList.add("error");
+
+        }
+
+    }
+
+
+    /*
+    =====================================================
+    SOCKET.IO
+    =====================================================
+    */
+
+    const socket =
+        io();
+
 
     socket.on("connect", () => {
-        console.log("Socket connected:", socket.id);
+
+        onlineText.textContent =
+            "ONLINE";
+
+        onlineDot.style.background =
+            "#ffffff";
+
     });
 
-    socket.on("server:hello", (data) => {
-        console.log(data.message);
+
+    socket.on("disconnect", () => {
+
+        onlineText.textContent =
+            "OFFLINE";
+
+        onlineDot.style.background =
+            "#777";
+
     });
+
+
+    socket.on("server:hello", (data) => {
+
+        console.log(
+            "Server:",
+            data
+        );
+
+    });
+
+
+    /*
+    =====================================================
+    PLAY BUTTON
+    =====================================================
+    */
+
+    playButton.addEventListener(
+        "click",
+        () => {
+
+            if (tg?.HapticFeedback) {
+
+                tg.HapticFeedback.impactOccurred(
+                    "medium"
+                );
+
+            }
+
+            alert(
+                "Игровые комнаты подключим следующим этапом."
+            );
+
+        }
+    );
+
+
+    /*
+    =====================================================
+    START
+    =====================================================
+    */
+
+    displayTelegramUser(
+        getTelegramUser()
+    );
+
+    authenticateTelegram();
+
 </script>
 
 </body>
