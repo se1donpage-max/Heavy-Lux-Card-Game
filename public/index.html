@@ -586,6 +586,217 @@
 
     async function authenticateTelegram() {
 
+    status.classList.remove("error");
+    status.textContent = "Проверяем Telegram...";
+
+    if (!window.Telegram || !window.Telegram.WebApp) {
+
+        status.textContent =
+            "Telegram WebApp API не найден.";
+
+        status.classList.add("error");
+
+        profileName.textContent =
+            "Ошибка Telegram";
+
+        profileRank.textContent =
+            "WebApp API не найден";
+
+        return;
+    }
+
+    const telegramApp = window.Telegram.WebApp;
+
+    telegramApp.ready();
+    telegramApp.expand();
+
+    const initData = telegramApp.initData;
+
+    console.log("Telegram initData:", initData);
+
+    if (!initData) {
+
+        status.textContent =
+            "Telegram не передал initData.";
+
+        status.classList.add("error");
+
+        profileName.textContent =
+            "Нет данных Telegram";
+
+        profileRank.textContent =
+            "Открой игру через Mini App";
+
+        return;
+    }
+
+    status.textContent =
+        "Авторизация на сервере...";
+
+    try {
+
+        const controller =
+            new AbortController();
+
+        const timeout =
+            setTimeout(() => {
+                controller.abort();
+            }, 10000);
+
+
+        const response =
+            await fetch("/api/auth/telegram", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    initData: initData
+                }),
+
+                signal: controller.signal
+
+            });
+
+
+        clearTimeout(timeout);
+
+
+        const text =
+            await response.text();
+
+        console.log(
+            "Auth response:",
+            response.status,
+            text
+        );
+
+
+        let data;
+
+        try {
+
+            data = JSON.parse(text);
+
+        } catch {
+
+            throw new Error(
+                "Сервер вернул не JSON: " + text
+            );
+
+        }
+
+
+        if (!response.ok || !data.ok) {
+
+            throw new Error(
+                data.error ||
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        const player =
+            data.player;
+
+
+        const firstName =
+            player.firstName || "";
+
+        const lastName =
+            player.lastName || "";
+
+        const username =
+            player.username || "";
+
+
+        profileName.textContent =
+            `${firstName} ${lastName}`.trim()
+            || (
+                username
+                    ? "@" + username
+                    : "Игрок"
+            );
+
+
+        profileRank.textContent =
+            username
+                ? "@" + username
+                : "Игрок";
+
+
+        const initials =
+            (
+                (firstName[0] || "") +
+                (lastName[0] || "")
+            ).toUpperCase();
+
+
+        avatar.textContent =
+            initials || "HL";
+
+
+        level.textContent =
+            "1";
+
+        xp.textContent =
+            "0";
+
+        money.textContent =
+            "0 ₽";
+
+
+        status.textContent =
+            "Авторизация успешна";
+
+
+        status.classList.remove("error");
+
+
+        console.log(
+            "HEAVY LUX PLAYER:",
+            player
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Telegram authorization error:",
+            error
+        );
+
+
+        if (error.name === "AbortError") {
+
+            status.textContent =
+                "Сервер не ответил за 10 секунд.";
+
+        } else {
+
+            status.textContent =
+                "Ошибка: " + error.message;
+
+        }
+
+
+        status.classList.add("error");
+
+
+        profileName.textContent =
+            "Ошибка авторизации";
+
+        profileRank.textContent =
+            "Смотрите сообщение ниже";
+
+    }
+
+}
+
         if (!tg) {
 
             status.textContent =
