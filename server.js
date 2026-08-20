@@ -743,7 +743,6 @@ function maxTableCards(room) {
 /* =========================================================
    ATTACK
 ========================================================= */
-
 function attackCard(player, cardId) {
     const room =
         getRoom(player.roomId);
@@ -765,16 +764,27 @@ function attackCard(player, cardId) {
     if (room.phase !== "attack") {
         return {
             ok: false,
-            error:
-                "Сейчас нельзя атаковать."
+            error: "Сейчас нельзя атаковать."
         };
     }
 
     if (room.attackerId !== player.playerId) {
         return {
             ok: false,
-            error:
-                "Сейчас ход противника."
+            error: "Сейчас ход противника."
+        };
+    }
+
+    const roomPlayer =
+        roomPlayerById(
+            room,
+            player.playerId
+        );
+
+    if (!roomPlayer) {
+        return {
+            ok: false,
+            error: "Игрок не найден в комнате."
         };
     }
 
@@ -784,44 +794,51 @@ function attackCard(player, cardId) {
     ) {
         return {
             ok: false,
-            error:
-                "Нельзя подкинуть больше карт."
+            error: "Нельзя подкинуть больше карт."
         };
     }
 
     const card =
         findCard(
-            player,
+            roomPlayer,
             cardId
         );
 
     if (!card) {
         return {
             ok: false,
-            error:
-                "Этой карты нет у вас."
+            error: "Этой карты нет у вас."
         };
     }
 
     if (!validAttackCard(room, card)) {
         return {
             ok: false,
-            error:
-                "Такую карту нельзя подкинуть."
+            error: "Такую карту нельзя подкинуть."
         };
     }
 
     const removed =
         removeCard(
-            player,
+            roomPlayer,
             cardId
         );
+
+    if (!removed) {
+        return {
+            ok: false,
+            error: "Не удалось взять карту из руки."
+        };
+    }
 
     room.table.push({
         attack: removed,
         defense: null
     });
 
+    /*
+     * После атаки защищается второй игрок.
+     */
     room.phase = "defense";
 
     room.moves.push({
