@@ -419,7 +419,6 @@ button {
     display: flex;
 
     justify-content: center;
-
     align-items: center;
 
     gap: 12px;
@@ -477,6 +476,10 @@ button {
     cursor: pointer;
 
     user-select: none;
+
+    transition:
+        transform .12s ease,
+        opacity .12s ease;
 }
 
 .card-item.red {
@@ -485,6 +488,15 @@ button {
 
 .card-item:hover {
     transform: translateY(-2px);
+}
+
+.card-item:active {
+    transform: scale(.96);
+}
+
+.card-item.disabled {
+    opacity: .35;
+    cursor: default;
 }
 
 .card-rank {
@@ -1564,7 +1576,7 @@ function renderGame(state) {
                 "ВАШ ХОД";
 
             turnDescription.textContent =
-                "Все карты отбиты — нажмите «БИТО»";
+                "Все карты отбиты — подкиньте ещё или нажмите «БИТО»";
 
         } else {
 
@@ -1572,7 +1584,7 @@ function renderGame(state) {
                 "ХОД ПРОТИВНИКА";
 
             turnDescription.textContent =
-                "Ожидайте, пока атакующий нажмёт «БИТО»";
+                "Ожидайте, пока атакующий подкинет карту или нажмёт «БИТО»";
         }
 
     } else {
@@ -1638,18 +1650,12 @@ function renderGame(state) {
        ACTION BUTTONS
     ===================================================== */
 
-    /*
-     * ВЗЯТЬ
-     */
     takeBtn.style.display =
         state.canTake
             ? "block"
             : "none";
 
 
-    /*
-     * БИТО
-     */
     bitoBtn.style.display =
         state.canBito
             ? "block"
@@ -1664,7 +1670,15 @@ function renderGame(state) {
     } else if (state.canBito) {
 
         actionNote.textContent =
-            "Все карты отбиты.";
+            "Все карты отбиты. Можно подкинуть ещё или закончить розыгрыш.";
+
+    } else if (
+        state.canAttack &&
+        state.table.length > 0
+    ) {
+
+        actionNote.textContent =
+            "Можно подкинуть карту с номиналом, который уже есть на столе.";
 
     } else {
 
@@ -1830,6 +1844,15 @@ function renderHand(state) {
             </div>
         `;
 
+        /*
+         * Сервер всё равно проверяет
+         * возможность хода.
+         *
+         * Здесь разрешаем клик:
+         * - при обычной атаке;
+         * - после отбоя, когда можно
+         *   подкинуть ещё.
+         */
         element.onclick =
             () => handleCardClick(card);
 
@@ -1856,11 +1879,17 @@ function handleCardClick(card) {
     }
 
 
-    /* ATTACK */
+    /* =====================================================
+       ATTACK / ADDITIONAL ATTACK
+    ===================================================== */
 
     if (
-        currentGame.phase === "attack" &&
-        currentGame.turn === "YOUR_TURN"
+        (
+            currentGame.phase === "attack" ||
+            currentGame.phase === "bito"
+        ) &&
+        currentGame.turn === "YOUR_TURN" &&
+        currentGame.canAttack
     ) {
 
         socket.emit(
@@ -1872,7 +1901,9 @@ function handleCardClick(card) {
     }
 
 
-    /* DEFENSE */
+    /* =====================================================
+       DEFENSE
+    ===================================================== */
 
     if (
         currentGame.phase === "defense" &&
