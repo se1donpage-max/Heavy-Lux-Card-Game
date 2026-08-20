@@ -11,12 +11,18 @@ const server = http.createServer(app);
 
 const PORT = process.env.PORT || 10000;
 
+/*
+=========================================================
+MIDDLEWARE
+=========================================================
+*/
+
 app.use(cors());
 app.use(express.json());
 
 /*
 =========================================================
-DATABASE
+POSTGRESQL
 =========================================================
 */
 
@@ -71,7 +77,7 @@ const io = new Server(server, {
 
 /*
 =========================================================
-DATA
+GAME DATA
 =========================================================
 */
 
@@ -79,7 +85,7 @@ const players = new Map();
 const rooms = new Map();
 
 /*
-player:
+PLAYER
 
 {
     playerId,
@@ -91,7 +97,7 @@ player:
     roomId
 }
 
-room:
+ROOM
 
 {
     id,
@@ -144,13 +150,20 @@ function parseTelegramUser(initData) {
 
     try {
         const params = new URLSearchParams(initData);
-        const user = params.get("user");
+        const userJson = params.get("user");
 
-        if (!user) {
+        if (!userJson) {
             return null;
         }
 
-        return JSON.parse(user);
+        const user = JSON.parse(userJson);
+
+        if (!user || !user.id) {
+            return null;
+        }
+
+        return user;
+
     } catch (error) {
         console.error(
             "Telegram user parse error:",
@@ -163,11 +176,31 @@ function parseTelegramUser(initData) {
 
 /*
 =========================================================
+PLAYER FIND
+=========================================================
+*/
+
+function findPlayerByTelegramId(telegramId) {
+    for (const player of players.values()) {
+        if (
+            player.telegramId &&
+            player.telegramId === telegramId
+        ) {
+            return player;
+        }
+    }
+
+    return null;
+}
+
+/*
+=========================================================
 AUTHENTICATION
 =========================================================
 */
 
 function authenticate(socket) {
+
     const initData =
         socket.handshake.auth?.initData || "";
 
@@ -175,43 +208,41 @@ function authenticate(socket) {
         parseTelegramUser(initData);
 
     /*
-    Telegram
+    =====================================================
+    TELEGRAM
+    =====================================================
     */
 
-    if (
-        telegramUser &&
-        telegramUser.id
-    ) {
+    if (telegramUser) {
+
         const telegramId =
             String(telegramUser.id);
 
-        let player = null;
-
-        for (const item of players.values()) {
-            if (
-                item.telegramId === telegramId
-            ) {
-                player = item;
-                break;
-            }
-        }
+        let player =
+            findPlayerByTelegramId(
+                telegramId
+            );
 
         if (!player) {
+
             player = {
-                playerId: createId(12),
+                playerId:
+                    createId(12),
 
                 telegramId,
 
-                name: cleanName(
-                    telegramUser.first_name ||
-                    telegramUser.username ||
-                    "Игрок"
-                ),
+                name:
+                    cleanName(
+                        telegramUser.first_name ||
+                        telegramUser.username ||
+                        "Игрок"
+                    ),
 
                 username:
                     telegramUser.username || "",
 
-                socketId: socket.id,
+                socketId:
+                    socket.id,
 
                 connected: true,
 
@@ -222,15 +253,28 @@ function authenticate(socket) {
                 player.playerId,
                 player
             );
-        } else {
-            player.socketId = socket.id;
-            player.connected = true;
 
-            player.name = cleanName(
-                telegramUser.first_name ||
-                telegramUser.username ||
-                player.name
-            );
+        } else {
+
+            /*
+            Игрок уже существует.
+
+            Обновляем только
+            текущее соединение.
+            */
+
+            player.socketId =
+                socket.id;
+
+            player.connected =
+                true;
+
+            player.name =
+                cleanName(
+                    telegramUser.first_name ||
+                    telegramUser.username ||
+                    player.name
+                );
 
             player.username =
                 telegramUser.username ||
@@ -244,19 +288,27 @@ function authenticate(socket) {
     }
 
     /*
-    Тест вне Telegram
+    =====================================================
+    TEST MODE
+    =====================================================
     */
 
     const testPlayerId =
-        socket.handshake.auth?.testPlayerId ||
-        `test_${socket.id}`;
+        String(
+            socket.handshake.auth?.testPlayerId ||
+            `test_${socket.id}`
+        );
 
     let player =
-        players.get(testPlayerId);
+        players.get(
+            testPlayerId
+        );
 
     if (!player) {
+
         player = {
-            playerId: testPlayerId,
+            playerId:
+                testPlayerId,
 
             telegramId: null,
 
@@ -266,7 +318,8 @@ function authenticate(socket) {
 
             username: "",
 
-            socketId: socket.id,
+            socketId:
+                socket.id,
 
             connected: true,
 
@@ -277,9 +330,14 @@ function authenticate(socket) {
             player.playerId,
             player
         );
+
     } else {
-        player.socketId = socket.id;
-        player.connected = true;
+
+        player.socketId =
+            socket.id;
+
+        player.connected =
+            true;
     }
 
     return player;
@@ -292,7 +350,9 @@ DATABASE
 */
 
 async function initDatabase() {
+
     if (!pool) {
+
         console.log(
             "PostgreSQL: DATABASE_URL not configured"
         );
@@ -301,6 +361,7 @@ async function initDatabase() {
     }
 
     try {
+
         await pool.query(`
             CREATE TABLE IF NOT EXISTS players (
                 player_id TEXT PRIMARY KEY,
@@ -315,7 +376,9 @@ async function initDatabase() {
         console.log(
             "PostgreSQL: ready"
         );
+
     } catch (error) {
+
         console.error(
             "PostgreSQL initialization error:",
             error
@@ -324,11 +387,13 @@ async function initDatabase() {
 }
 
 async function savePlayer(player) {
+
     if (!pool) {
         return;
     }
 
     try {
+
         await pool.query(
             `
             INSERT INTO players
@@ -356,7 +421,9 @@ async function savePlayer(player) {
                 player.name
             ]
         );
+
     } catch (error) {
+
         console.error(
             "savePlayer error:",
             error
@@ -366,15 +433,17 @@ async function savePlayer(player) {
 
 /*
 =========================================================
-ROOM PUBLIC STATE
+PUBLIC ROOM
 =========================================================
 */
 
 function publicRoom(room) {
+
     return {
         id: room.id,
 
-        status: room.status,
+        status:
+            room.status,
 
         playersCount:
             room.players.length,
@@ -382,11 +451,18 @@ function publicRoom(room) {
         maxPlayers: 2,
 
         players:
-            room.players.map((p) => ({
-                playerId: p.playerId,
-                name: p.name,
-                connected: p.connected
-            }))
+            room.players.map(
+                (player) => ({
+                    playerId:
+                        player.playerId,
+
+                    name:
+                        player.name,
+
+                    connected:
+                        player.connected
+                })
+            )
     };
 }
 
@@ -397,69 +473,92 @@ GAME STATE
 */
 
 function gameState(room, playerId) {
+
     const me =
         room.players.find(
-            (p) =>
-                p.playerId === playerId
+            (player) =>
+                player.playerId ===
+                playerId
         );
 
     const opponent =
         room.players.find(
-            (p) =>
-                p.playerId !== playerId
+            (player) =>
+                player.playerId !==
+                playerId
         );
 
     let turn = "WAITING";
 
     if (
-        room.status === "playing"
+        room.status === "playing" &&
+        room.turnPlayerId
     ) {
-        if (
+
+        turn =
             room.turnPlayerId ===
             playerId
-        ) {
-            turn = "YOUR_TURN";
-        } else {
-            turn = "OPPONENT_TURN";
-        }
+                ? "YOUR_TURN"
+                : "OPPONENT_TURN";
     }
 
     return {
-        roomId: room.id,
 
-        status: room.status,
+        roomId:
+            room.id,
+
+        status:
+            room.status,
 
         turn,
 
         turnPlayerId:
             room.turnPlayerId,
 
-        me: me
-            ? {
-                playerId: me.playerId,
-                name: me.name,
-                connected: me.connected
-            }
-            : null,
+        me:
+            me
+                ? {
+                    playerId:
+                        me.playerId,
 
-        opponent: opponent
-            ? {
-                playerId:
-                    opponent.playerId,
-                name: opponent.name,
-                connected:
-                    opponent.connected
-            }
-            : null,
+                    name:
+                        me.name,
+
+                    connected:
+                        me.connected
+                }
+                : null,
+
+        opponent:
+            opponent
+                ? {
+                    playerId:
+                        opponent.playerId,
+
+                    name:
+                        opponent.name,
+
+                    connected:
+                        opponent.connected
+                }
+                : null,
 
         players:
-            room.players.map((p) => ({
-                playerId: p.playerId,
-                name: p.name,
-                connected: p.connected
-            })),
+            room.players.map(
+                (player) => ({
+                    playerId:
+                        player.playerId,
 
-        moves: room.moves
+                    name:
+                        player.name,
+
+                    connected:
+                        player.connected
+                })
+            ),
+
+        moves:
+            room.moves
     };
 }
 
@@ -470,34 +569,46 @@ SEND ROOM STATE
 */
 
 function sendRoomState(room) {
+
     if (!room) {
         return;
     }
 
-    room.players.forEach((roomPlayer) => {
+    for (
+        const roomPlayer
+        of room.players
+    ) {
+
         const player =
             players.get(
                 roomPlayer.playerId
             );
 
         if (!player) {
-            return;
+            continue;
         }
 
         if (!player.socketId) {
-            return;
+            continue;
         }
 
-        io.to(
-            player.socketId
-        ).emit(
+        const socket =
+            io.sockets.sockets.get(
+                player.socketId
+            );
+
+        if (!socket) {
+            continue;
+        }
+
+        socket.emit(
             "game_state",
             gameState(
                 room,
                 player.playerId
             )
         );
-    });
+    }
 }
 
 /*
@@ -507,10 +618,13 @@ ROOM LIST
 */
 
 function sendRoomList() {
+
     const list =
         Array.from(
             rooms.values()
-        ).map(publicRoom);
+        ).map(
+            publicRoom
+        );
 
     io.emit(
         "rooms_list",
@@ -525,7 +639,9 @@ CREATE ROOM
 */
 
 function createRoom(player) {
+
     if (player.roomId) {
+
         return {
             ok: false,
             error:
@@ -536,15 +652,19 @@ function createRoom(player) {
     let roomId;
 
     do {
+
         roomId =
             createId(6)
                 .toUpperCase();
+
     } while (
         rooms.has(roomId)
     );
 
     const room = {
-        id: roomId,
+
+        id:
+            roomId,
 
         players: [
             {
@@ -561,14 +681,11 @@ function createRoom(player) {
             }
         ],
 
-        status: "waiting",
+        status:
+            "waiting",
 
-        /*
-        Пока один игрок —
-        хода нет.
-        */
-
-        turnPlayerId: null,
+        turnPlayerId:
+            null,
 
         moves: []
     };
@@ -597,15 +714,19 @@ function joinRoom(
     player,
     roomId
 ) {
-    roomId =
+
+    const normalizedRoomId =
         String(roomId || "")
             .trim()
             .toUpperCase();
 
     const room =
-        rooms.get(roomId);
+        rooms.get(
+            normalizedRoomId
+        );
 
     if (!room) {
+
         return {
             ok: false,
             error:
@@ -614,6 +735,7 @@ function joinRoom(
     }
 
     if (player.roomId) {
+
         return {
             ok: false,
             error:
@@ -624,6 +746,7 @@ function joinRoom(
     if (
         room.players.length >= 2
     ) {
+
         return {
             ok: false,
             error:
@@ -631,7 +754,13 @@ function joinRoom(
         };
     }
 
+    /*
+    Второй игрок добавляется
+    только здесь.
+    */
+
     room.players.push({
+
         playerId:
             player.playerId,
 
@@ -648,24 +777,12 @@ function joinRoom(
         room.id;
 
     /*
-    =====================================================
-    САМОЕ ВАЖНОЕ
-
-    Первый игрок получает первый ход.
-
-    Не socket.id.
-    Не клиент.
-    Не случайное значение.
-
-    Именно playerId первого игрока.
-    =====================================================
+    Первый игрок ВСЕГДА
+    получает первый ход.
     */
 
-    const firstPlayer =
-        room.players[0];
-
     room.turnPlayerId =
-        firstPlayer.playerId;
+        room.players[0].playerId;
 
     room.status =
         "playing";
@@ -685,6 +802,7 @@ SWITCH TURN
 */
 
 function switchTurn(room) {
+
     if (
         !room ||
         room.players.length !== 2
@@ -694,12 +812,13 @@ function switchTurn(room) {
 
     const currentIndex =
         room.players.findIndex(
-            (p) =>
-                p.playerId ===
+            (player) =>
+                player.playerId ===
                 room.turnPlayerId
         );
 
     if (currentIndex === -1) {
+
         room.turnPlayerId =
             room.players[0].playerId;
 
@@ -712,14 +831,13 @@ function switchTurn(room) {
             : 0;
 
     room.turnPlayerId =
-        room.players[
-            nextIndex
-        ].playerId;
+        room.players[nextIndex]
+            .playerId;
 }
 
 /*
 =========================================================
-MAKE TEST MOVE
+MAKE MOVE
 =========================================================
 */
 
@@ -727,7 +845,9 @@ function makeMove(
     player,
     data
 ) {
+
     if (!player.roomId) {
+
         return {
             ok: false,
             error:
@@ -741,6 +861,7 @@ function makeMove(
         );
 
     if (!room) {
+
         return {
             ok: false,
             error:
@@ -752,6 +873,7 @@ function makeMove(
         room.status !==
         "playing"
     ) {
+
         return {
             ok: false,
             error:
@@ -760,14 +882,16 @@ function makeMove(
     }
 
     /*
-    Сервер проверяет,
-    действительно ли игрок имеет ход.
+    Сервер является
+    единственным источником
+    истины по ходу.
     */
 
     if (
         room.turnPlayerId !==
         player.playerId
     ) {
+
         return {
             ok: false,
             error:
@@ -776,19 +900,17 @@ function makeMove(
     }
 
     room.moves.push({
+
         playerId:
             player.playerId,
 
         type:
-            data?.type || "test",
+            data?.type ||
+            "test",
 
         timestamp:
             Date.now()
     });
-
-    /*
-    Передаём ход второму игроку.
-    */
 
     switchTurn(room);
 
@@ -799,13 +921,15 @@ function makeMove(
 
 /*
 =========================================================
-SOCKET MIDDLEWARE
+SOCKET AUTH MIDDLEWARE
 =========================================================
 */
 
 io.use(
     (socket, next) => {
+
         try {
+
             const player =
                 authenticate(socket);
 
@@ -813,9 +937,11 @@ io.use(
                 player.playerId;
 
             next();
+
         } catch (error) {
+
             console.error(
-                "Socket auth error:",
+                "Socket authentication error:",
                 error
             );
 
@@ -844,6 +970,7 @@ io.on(
             );
 
         if (!player) {
+
             socket.disconnect(
                 true
             );
@@ -860,7 +987,8 @@ io.on(
         console.log(
             "Player connected:",
             player.playerId,
-            player.name
+            player.name,
+            socket.id
         );
 
         /*
@@ -880,8 +1008,8 @@ io.on(
 
                 const roomPlayer =
                     room.players.find(
-                        (p) =>
-                            p.playerId ===
+                        (item) =>
+                            item.playerId ===
                             player.playerId
                     );
 
@@ -899,14 +1027,6 @@ io.on(
 
                 socket.join(
                     room.id
-                );
-
-                socket.emit(
-                    "game_state",
-                    gameState(
-                        room,
-                        player.playerId
-                    )
                 );
 
                 sendRoomState(
@@ -1003,6 +1123,11 @@ io.on(
                     publicRoom(room)
                 );
 
+                /*
+                Сразу отправляем
+                WAITING состояние.
+                */
+
                 sendRoomState(
                     room
                 );
@@ -1011,7 +1136,9 @@ io.on(
 
                 console.log(
                     "Room created:",
-                    room.id
+                    room.id,
+                    "owner:",
+                    player.playerId
                 );
             }
         );
@@ -1050,34 +1177,36 @@ io.on(
                 );
 
                 /*
-                ОЧЕНЬ ВАЖНО:
-
-                Здесь сразу отправляем
-                состояние обоим игрокам.
-
-                Игрок №1:
-                YOUR_TURN
-
-                Игрок №2:
-                OPPONENT_TURN
+                Теперь сервер уже знает
+                обоих игроков и конкретный
+                playerId первого игрока.
                 */
+
+                console.log(
+                    "ROOM START:",
+                    room.id
+                );
+
+                console.log(
+                    "PLAYER 1:",
+                    room.players[0].playerId
+                );
+
+                console.log(
+                    "PLAYER 2:",
+                    room.players[1].playerId
+                );
+
+                console.log(
+                    "TURN:",
+                    room.turnPlayerId
+                );
 
                 sendRoomState(
                     room
                 );
 
                 sendRoomList();
-
-                console.log(
-                    "Player joined:",
-                    player.name,
-                    room.id
-                );
-
-                console.log(
-                    "Current turn:",
-                    room.turnPlayerId
-                );
             }
         );
 
@@ -1116,11 +1245,6 @@ io.on(
                     return;
                 }
 
-                /*
-                Отправляем новое состояние
-                обоим игрокам.
-                */
-
                 sendRoomState(
                     room
                 );
@@ -1137,91 +1261,10 @@ io.on(
             "leave_room",
             () => {
 
-                const roomId =
-                    player.roomId;
-
-                if (!roomId) {
-                    return;
-                }
-
-                const room =
-                    rooms.get(
-                        roomId
-                    );
-
-                if (!room) {
-
-                    player.roomId =
-                        null;
-
-                    socket.emit(
-                        "left_room"
-                    );
-
-                    return;
-                }
-
-                room.players =
-                    room.players.filter(
-                        (p) =>
-                            p.playerId !==
-                            player.playerId
-                    );
-
-                player.roomId =
-                    null;
-
-                socket.leave(
-                    room.id
+                leaveRoom(
+                    player,
+                    socket
                 );
-
-                /*
-                Если никого нет —
-                удаляем комнату.
-                */
-
-                if (
-                    room.players.length ===
-                    0
-                ) {
-
-                    rooms.delete(
-                        room.id
-                    );
-
-                } else {
-
-                    /*
-                    Остался один игрок.
-                    Возвращаем комнату
-                    в ожидание.
-                    */
-
-                    room.status =
-                        "waiting";
-
-                    room.turnPlayerId =
-                        null;
-
-                    room.moves = [];
-
-                    room.players[0]
-                        .connected = true;
-                }
-
-                socket.emit(
-                    "left_room"
-                );
-
-                sendRoomList();
-
-                if (
-                    rooms.has(room.id)
-                ) {
-                    sendRoomState(
-                        room
-                    );
-                }
             }
         );
 
@@ -1233,7 +1276,7 @@ io.on(
 
         socket.on(
             "disconnect",
-            () => {
+            (reason) => {
 
                 const current =
                     players.get(
@@ -1245,10 +1288,8 @@ io.on(
                 }
 
                 /*
-                Если уже произошло
-                новое подключение,
-                старый socket ничего
-                не меняет.
+                Старый socket не должен
+                сбрасывать новое соединение.
                 */
 
                 if (
@@ -1263,7 +1304,8 @@ io.on(
 
                 console.log(
                     "Player disconnected:",
-                    current.playerId
+                    current.playerId,
+                    reason
                 );
 
                 if (
@@ -1279,8 +1321,8 @@ io.on(
 
                         const roomPlayer =
                             room.players.find(
-                                (p) =>
-                                    p.playerId ===
+                                (item) =>
+                                    item.playerId ===
                                     current.playerId
                             );
 
@@ -1288,13 +1330,14 @@ io.on(
 
                             roomPlayer.connected =
                                 false;
+
+                            roomPlayer.socketId =
+                                null;
                         }
 
                         /*
-                        Комнату НЕ удаляем.
-
-                        Игрок сможет
-                        переподключиться.
+                        Комнату сохраняем.
+                        Игрок может вернуться.
                         */
 
                         sendRoomState(
@@ -1309,16 +1352,107 @@ io.on(
 
 /*
 =========================================================
-HTTP ROUTES
+LEAVE ROOM HELPER
 =========================================================
 */
 
-/*
-Главная страница.
+function leaveRoom(
+    player,
+    socket
+) {
 
-ВАЖНО:
-index.html должен лежать рядом
-с server.js.
+    const roomId =
+        player.roomId;
+
+    if (!roomId) {
+
+        socket.emit(
+            "left_room"
+        );
+
+        return;
+    }
+
+    const room =
+        rooms.get(
+            roomId
+        );
+
+    if (!room) {
+
+        player.roomId =
+            null;
+
+        socket.emit(
+            "left_room"
+        );
+
+        sendRoomList();
+
+        return;
+    }
+
+    room.players =
+        room.players.filter(
+            (item) =>
+                item.playerId !==
+                player.playerId
+        );
+
+    player.roomId =
+        null;
+
+    player.connected =
+        true;
+
+    socket.leave(
+        room.id
+    );
+
+    if (
+        room.players.length === 0
+    ) {
+
+        rooms.delete(
+            room.id
+        );
+
+    } else {
+
+        /*
+        Остался один игрок.
+        Комната снова ждёт соперника.
+        */
+
+        room.status =
+            "waiting";
+
+        room.turnPlayerId =
+            null;
+
+        room.moves = [];
+    }
+
+    socket.emit(
+        "left_room"
+    );
+
+    sendRoomList();
+
+    if (
+        rooms.has(room.id)
+    ) {
+
+        sendRoomState(
+            room
+        );
+    }
+}
+
+/*
+=========================================================
+HTTP
+=========================================================
 */
 
 app.get(
@@ -1333,10 +1467,6 @@ app.get(
         );
     }
 );
-
-/*
-Health check.
-*/
 
 app.get(
     "/api/health",
@@ -1364,6 +1494,7 @@ app.get(
         }
 
         res.json({
+
             ok: true,
 
             service:
@@ -1376,6 +1507,9 @@ app.get(
 
             players:
                 players.size,
+
+            socket:
+                "ready",
 
             time:
                 new Date().toISOString()
@@ -1399,12 +1533,16 @@ async function start() {
         () => {
 
             console.log(
-                "Heavy Lux Card server started on port",
-                PORT
+                "================================"
             );
 
             console.log(
-                "Socket.IO: ready"
+                "Heavy Lux Card server started"
+            );
+
+            console.log(
+                "Port:",
+                PORT
             );
 
             console.log(
@@ -1412,7 +1550,22 @@ async function start() {
             );
 
             console.log(
+                "Socket.IO: ready"
+            );
+
+            console.log(
+                "PostgreSQL:",
+                pool
+                    ? "configured"
+                    : "disabled"
+            );
+
+            console.log(
                 "Telegram authentication: configured"
+            );
+
+            console.log(
+                "================================"
             );
         }
     );
