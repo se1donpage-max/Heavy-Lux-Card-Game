@@ -12,23 +12,39 @@
                  viewport-fit=cover"
     >
 
+    <meta name="theme-color" content="#080808">
+
     <title>Heavy Lux Card</title>
 
+    <!-- Telegram Mini App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
 
     <style>
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         html,
         body {
             margin: 0;
             padding: 0;
+            width: 100%;
             min-height: 100%;
+
             background: #080808;
-            color: #fff;
-            font-family: Arial, sans-serif;
+            color: #ffffff;
+
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
         }
 
         body {
@@ -39,33 +55,48 @@
         .app {
             width: 100%;
             max-width: 520px;
-            margin: auto;
-            padding: 24px 18px;
+
+            margin: 0 auto;
+
+            padding:
+                calc(24px + env(safe-area-inset-top))
+                18px
+                calc(24px + env(safe-area-inset-bottom));
         }
 
         h1 {
             margin: 0 0 8px;
+
             font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -1px;
         }
 
         .subtitle {
-            color: #777;
             margin-bottom: 24px;
+
+            color: #777;
+
+            font-size: 14px;
         }
 
         .panel {
             padding: 18px;
+
             border: 1px solid #252525;
-            border-radius: 16px;
-            background: #111;
+            border-radius: 18px;
+
+            background: #111111;
         }
 
         .step {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 13px 0;
-            border-bottom: 1px solid #222;
+
+            min-height: 52px;
+
+            border-bottom: 1px solid #222222;
         }
 
         .step:last-child {
@@ -76,15 +107,17 @@
             width: 28px;
             height: 28px;
             min-width: 28px;
+
             border-radius: 50%;
+
             background: #252525;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            font-size: 13px;
-            font-weight: bold;
+            font-size: 12px;
+            font-weight: 800;
         }
 
         .name {
@@ -94,44 +127,33 @@
 
         .result {
             margin-left: auto;
-            font-size: 12px;
-            color: #777;
+
+            font-size: 11px;
+            font-weight: 800;
         }
 
         .ok {
-            color: #fff;
+            color: #ffffff;
         }
 
         .bad {
-            color: #ff6464;
+            color: #ff6262;
         }
 
         .waiting {
-            color: #777;
-        }
-
-        .details {
-            margin-top: 18px;
-            padding: 14px;
-
-            border-radius: 12px;
-            background: #0b0b0b;
-
-            color: #777;
-            font-size: 11px;
-            line-height: 1.6;
-
-            word-break: break-word;
+            color: #777777;
         }
 
         .profile {
+            display: none;
+
             margin-top: 18px;
             padding: 18px;
 
-            border-radius: 16px;
-            background: #111;
+            border: 1px solid #252525;
+            border-radius: 18px;
 
-            display: none;
+            background: #111111;
         }
 
         .profile.visible {
@@ -139,29 +161,69 @@
         }
 
         .profile-name {
-            font-size: 19px;
-            font-weight: 800;
+            font-size: 20px;
+            font-weight: 900;
         }
 
         .profile-id {
             margin-top: 7px;
+
             color: #777;
+
             font-size: 12px;
         }
 
-        button {
+        .profile-status {
+            margin-top: 14px;
+
+            color: #aaa;
+
+            font-size: 12px;
+        }
+
+        .details {
+            margin-top: 18px;
+            padding: 14px;
+
+            border-radius: 12px;
+
+            background: #0d0d0d;
+
+            color: #777;
+
+            font-size: 11px;
+            line-height: 1.6;
+
+            word-break: break-word;
+        }
+
+        .button {
             width: 100%;
+
             margin-top: 18px;
             padding: 15px;
 
             border: 0;
-            border-radius: 12px;
+            border-radius: 14px;
 
-            background: #fff;
-            color: #000;
+            background: #ffffff;
+            color: #000000;
 
             font-size: 15px;
-            font-weight: 800;
+            font-weight: 900;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        .footer {
+            margin-top: 22px;
+
+            color: #444;
+
+            font-size: 10px;
+            text-align: center;
         }
     </style>
 </head>
@@ -173,68 +235,121 @@
     <h1>Heavy Lux Card</h1>
 
     <div class="subtitle">
-        Диагностика Mini App
+        Telegram Mini App · диагностика соединения
     </div>
+
+
+    <!-- =================================================
+         DIAGNOSTICS
+    ================================================== -->
 
     <div class="panel">
 
         <div class="step">
-            <div class="icon">1</div>
-            <div class="name">Telegram WebApp</div>
+
+            <div class="icon">
+                1
+            </div>
+
+            <div class="name">
+                Telegram WebApp
+            </div>
+
             <div
                 class="result waiting"
                 id="telegramStatus"
             >
                 CHECKING
             </div>
+
         </div>
 
+
         <div class="step">
-            <div class="icon">2</div>
-            <div class="name">Telegram initData</div>
+
+            <div class="icon">
+                2
+            </div>
+
+            <div class="name">
+                Telegram initData
+            </div>
+
             <div
                 class="result waiting"
                 id="initDataStatus"
             >
                 WAITING
             </div>
+
         </div>
 
+
         <div class="step">
-            <div class="icon">3</div>
-            <div class="name">Socket.IO</div>
+
+            <div class="icon">
+                3
+            </div>
+
+            <div class="name">
+                Socket.IO
+            </div>
+
             <div
                 class="result waiting"
                 id="socketStatus"
             >
                 WAITING
             </div>
+
         </div>
 
+
         <div class="step">
-            <div class="icon">4</div>
-            <div class="name">Render API</div>
+
+            <div class="icon">
+                4
+            </div>
+
+            <div class="name">
+                Render API
+            </div>
+
             <div
                 class="result waiting"
                 id="serverStatus"
             >
                 WAITING
             </div>
+
         </div>
 
+
         <div class="step">
-            <div class="icon">5</div>
-            <div class="name">Telegram Auth</div>
+
+            <div class="icon">
+                5
+            </div>
+
+            <div class="name">
+                Telegram Auth
+            </div>
+
             <div
                 class="result waiting"
                 id="authStatus"
             >
                 WAITING
             </div>
+
         </div>
 
     </div>
 
+
+    <!-- =================================================
+         DETAILS
+    ================================================== -->
 
     <div
         class="details"
@@ -243,6 +358,10 @@
         Запуск диагностики...
     </div>
 
+
+    <!-- =================================================
+         PLAYER
+    ================================================== -->
 
     <div
         class="profile"
@@ -263,14 +382,27 @@
             —
         </div>
 
+        <div
+            class="profile-status"
+            id="profileStatus"
+        >
+            Авторизация выполнена
+        </div>
+
     </div>
 
 
     <button
+        class="button"
         id="reloadButton"
     >
         ПОВТОРИТЬ ПРОВЕРКУ
     </button>
+
+
+    <div class="footer">
+        Heavy Lux Card · Online
+    </div>
 
 </div>
 
@@ -289,34 +421,54 @@
     */
 
     const telegramStatus =
-        document.getElementById("telegramStatus");
+        document.getElementById(
+            "telegramStatus"
+        );
 
     const initDataStatus =
-        document.getElementById("initDataStatus");
+        document.getElementById(
+            "initDataStatus"
+        );
 
     const socketStatus =
-        document.getElementById("socketStatus");
+        document.getElementById(
+            "socketStatus"
+        );
 
     const serverStatus =
-        document.getElementById("serverStatus");
+        document.getElementById(
+            "serverStatus"
+        );
 
     const authStatus =
-        document.getElementById("authStatus");
+        document.getElementById(
+            "authStatus"
+        );
 
     const details =
-        document.getElementById("details");
+        document.getElementById(
+            "details"
+        );
 
     const profile =
-        document.getElementById("profile");
+        document.getElementById(
+            "profile"
+        );
 
     const profileName =
-        document.getElementById("profileName");
+        document.getElementById(
+            "profileName"
+        );
 
     const profileId =
-        document.getElementById("profileId");
+        document.getElementById(
+            "profileId"
+        );
 
     const reloadButton =
-        document.getElementById("reloadButton");
+        document.getElementById(
+            "reloadButton"
+        );
 
 
     /*
@@ -325,7 +477,11 @@
     =====================================================
     */
 
-    function setStatus(element, text, type) {
+    function setStatus(
+        element,
+        text,
+        type
+    ) {
 
         element.textContent = text;
 
@@ -340,7 +496,7 @@
     }
 
 
-    function log(message) {
+    function showDetails(message) {
 
         console.log(
             "[Heavy Lux Card]",
@@ -355,7 +511,7 @@
 
     /*
     =====================================================
-    1. TELEGRAM WEB APP
+    TELEGRAM
     =====================================================
     */
 
@@ -363,11 +519,15 @@
 
     try {
 
-        tg =
+        if (
             window.Telegram &&
             window.Telegram.WebApp
-                ? window.Telegram.WebApp
-                : null;
+        ) {
+
+            tg =
+                window.Telegram.WebApp;
+
+        }
 
 
         if (!tg) {
@@ -378,9 +538,8 @@
                 "bad"
             );
 
-            log(
-                "Telegram WebApp API не найден. " +
-                "Проверьте, что приложение открыто именно внутри Telegram."
+            showDetails(
+                "Telegram WebApp API не найден."
             );
 
             return;
@@ -391,6 +550,30 @@
         tg.ready();
 
         tg.expand();
+
+
+        if (
+            typeof tg.setBackgroundColor ===
+            "function"
+        ) {
+
+            tg.setBackgroundColor(
+                "#080808"
+            );
+
+        }
+
+
+        if (
+            typeof tg.setHeaderColor ===
+            "function"
+        ) {
+
+            tg.setHeaderColor(
+                "#080808"
+            );
+
+        }
 
 
         setStatus(
@@ -408,8 +591,8 @@
             "bad"
         );
 
-        log(
-            "Ошибка Telegram WebApp: " +
+        showDetails(
+            "Telegram WebApp error: " +
             error.message
         );
 
@@ -420,7 +603,7 @@
 
     /*
     =====================================================
-    2. INIT DATA
+    TELEGRAM INIT DATA
     =====================================================
     */
 
@@ -436,8 +619,9 @@
             "bad"
         );
 
-        log(
-            "Telegram WebApp найден, но tg.initData пустой."
+        showDetails(
+            "Telegram WebApp работает, " +
+            "но initData отсутствует."
         );
 
     } else {
@@ -448,7 +632,7 @@
             "ok"
         );
 
-        log(
+        showDetails(
             "Telegram initData получен."
         );
 
@@ -457,7 +641,7 @@
 
     /*
     =====================================================
-    3. SOCKET.IO
+    SOCKET.IO
     =====================================================
     */
 
@@ -472,8 +656,8 @@
             "bad"
         );
 
-        log(
-            "Socket.IO client не загружен."
+        showDetails(
+            "Socket.IO client не найден."
         );
 
     } else {
@@ -494,7 +678,7 @@
                         "ok"
                     );
 
-                    log(
+                    showDetails(
                         "Socket.IO подключён. ID: " +
                         socket.id
                     );
@@ -513,8 +697,8 @@
                         "bad"
                     );
 
-                    log(
-                        "Socket.IO ошибка: " +
+                    showDetails(
+                        "Socket.IO error: " +
                         error.message
                     );
 
@@ -532,8 +716,8 @@
                         "bad"
                     );
 
-                    log(
-                        "Socket.IO отключён: " +
+                    showDetails(
+                        "Socket.IO disconnected: " +
                         reason
                     );
 
@@ -549,8 +733,8 @@
                 "bad"
             );
 
-            log(
-                "Не удалось запустить Socket.IO: " +
+            showDetails(
+                "Socket.IO запуск: " +
                 error.message
             );
 
@@ -561,13 +745,20 @@
 
     /*
     =====================================================
-    4. SERVER API
+    SERVER HEALTH
     =====================================================
     */
 
-    fetch("/api/health")
+    fetch(
+        "/api/health",
+        {
+            method: "GET",
+            cache: "no-store"
+        }
+    )
 
-        .then(function (response) {
+    .then(
+        function (response) {
 
             if (!response.ok) {
 
@@ -580,9 +771,11 @@
 
             return response.json();
 
-        })
+        }
+    )
 
-        .then(function (data) {
+    .then(
+        function (data) {
 
             if (!data.ok) {
 
@@ -600,7 +793,7 @@
             );
 
 
-            log(
+            showDetails(
                 "Render API работает. " +
                 "Telegram configured: " +
                 data.telegram
@@ -609,7 +802,7 @@
 
             /*
             =============================================
-            5. TELEGRAM AUTH
+            TELEGRAM AUTH
             =============================================
             */
 
@@ -621,12 +814,12 @@
                     "bad"
                 );
 
-                log(
-                    "Авторизацию выполнить нельзя: " +
+                showDetails(
+                    "Авторизация остановлена: " +
                     "Telegram initData отсутствует."
                 );
 
-                return;
+                return null;
 
             }
 
@@ -649,60 +842,68 @@
                     },
 
                     body: JSON.stringify({
-                        initData: initData
+                        initData:
+                            initData
                     })
                 }
             );
 
-        })
+        }
+    )
 
-        .then(function (response) {
+    .then(
+        function (response) {
 
             if (!response) {
                 return null;
             }
 
+
             return response
                 .text()
-                .then(function (text) {
+                .then(
+                    function (text) {
 
-                    let data;
+                        let data;
 
-                    try {
+                        try {
 
-                        data =
-                            JSON.parse(text);
+                            data =
+                                JSON.parse(text);
 
-                    } catch {
+                        } catch {
 
-                        throw new Error(
-                            "Server returned: " +
-                            text
-                        );
+                            throw new Error(
+                                "Сервер вернул не JSON: " +
+                                text
+                            );
+
+                        }
+
+
+                        if (
+                            !response.ok ||
+                            !data.ok
+                        ) {
+
+                            throw new Error(
+                                data.error ||
+                                "Telegram auth failed"
+                            );
+
+                        }
+
+
+                        return data;
 
                     }
+                );
 
+        }
+    )
 
-                    if (
-                        !response.ok ||
-                        !data.ok
-                    ) {
-
-                        throw new Error(
-                            data.error ||
-                            "Authorization failed"
-                        );
-
-                    }
-
-
-                    return data;
-
-                });
-
-        })
-
-        .then(function (data) {
+    .then(
+        function (data) {
 
             if (!data) {
                 return;
@@ -720,19 +921,26 @@
                 data.player;
 
 
-            const name =
-                (
-                    player.firstName +
-                    " " +
-                    player.lastName
-                ).trim();
+            const firstName =
+                player.firstName || "";
+
+            const lastName =
+                player.lastName || "";
+
+            const username =
+                player.username || "";
+
+
+            const fullName =
+                `${firstName} ${lastName}`
+                    .trim();
 
 
             profileName.textContent =
-                name ||
+                fullName ||
                 (
-                    player.username
-                        ? "@" + player.username
+                    username
+                        ? "@" + username
                         : "Игрок"
                 );
 
@@ -747,20 +955,21 @@
             );
 
 
-            log(
+            showDetails(
                 "Авторизация успешна. " +
-                "Telegram ID: " +
+                "Игрок: " +
                 player.telegramId
             );
 
-        })
+        }
+    )
 
-        .catch(function (error) {
+    .catch(
+        function (error) {
 
-            setStatus(
-                serverStatus,
-                "ERROR",
-                "bad"
+            console.error(
+                "Heavy Lux Card error:",
+                error
             );
 
 
@@ -771,12 +980,13 @@
             );
 
 
-            log(
-                "ОШИБКА: " +
+            showDetails(
+                "Ошибка: " +
                 error.message
             );
 
-        });
+        }
+    );
 
 
     /*
@@ -793,20 +1003,6 @@
 
         }
     );
-
-})();
-
-</script>
-
-
-<!-- Socket.IO client -->
-<script src="/socket.io/socket.io.js"></script>
-
-<script>
-
-(function () {
-
-    // весь основной JavaScript
 
 })();
 
