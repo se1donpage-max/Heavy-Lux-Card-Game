@@ -1,5 +1,6 @@
 const express = require("express");
 const http = require("http");
+const path = require("path");
 const cors = require("cors");
 const crypto = require("crypto");
 const { Server } = require("socket.io");
@@ -12,11 +13,12 @@ const PORT = process.env.PORT || 10000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
 
-/* =========================================================
-   POSTGRESQL
-========================================================= */
+/*
+=========================================================
+DATABASE
+=========================================================
+*/
 
 let pool = null;
 
@@ -28,145 +30,273 @@ if (process.env.DATABASE_URL) {
         }
     });
 
-    pool.on("error", (err) => {
-        console.error("PostgreSQL error:", err);
+    pool.on("error", (error) => {
+        console.error("PostgreSQL error:", error);
     });
 }
 
-/* =========================================================
-   SOCKET.IO
-========================================================= */
+/*
+=========================================================
+STATIC FILES
+=========================================================
+*/
+
+app.use(express.static(__dirname));
+
+/*
+=========================================================
+SOCKET.IO
+=========================================================
+*/
 
 const io = new Server(server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"]
     },
-    transports: ["websocket", "polling"],
+
+    transports: [
+        "websocket",
+        "polling"
+    ],
+
     pingInterval: 25000,
-    pingTimeout: 20000
+    pingTimeout: 20000,
+
+    connectionStateRecovery: {
+        maxDisconnectionDuration: 2 * 60 * 1000,
+        skipMiddlewares: true
+    }
 });
 
-/* =========================================================
-   CONFIG
-========================================================= */
-
-const MAX_ROOMS = 1000;
-const MAX_CHAT_MESSAGES = 50;
-
 /*
-    Комната хранится в памяти сервера.
-
-    Это нормально для текущего этапа:
-    PostgreSQL будет использоваться для игроков/профилей.
-
-    Позже при необходимости можно вынести комнаты
-    в Redis или PostgreSQL.
+=========================================================
+DATA
+=========================================================
 */
 
-/* =========================================================
-   ROOMS
-========================================================= */
-
+const players = new Map();
 const rooms = new Map();
 
 /*
-room = {
-    id,
-    hostPlayerId,
-    players: [
-        {
-            playerId,
-            socketId,
-            name,
-            connected
-        }
-    ],
+player:
 
-    status: "waiting" | "playing" | "finished",
-
-    turnPlayerId,
-
-    game: {
-        startedAt,
-        moves
-    },
-
-    chat: []
-}
-*/
-
-/* =========================================================
-   PLAYERS
-========================================================= */
-
-const players = new Map();
-
-/*
-player = {
+{
     playerId,
     telegramId,
     name,
+    username,
     socketId,
     connected,
     roomId
 }
+
+room:
+
+{
+    id,
+    players: [],
+    status,
+    turnPlayerId,
+    moves
+}
 */
 
-/* =========================================================
-   HELPERS
-========================================================= */
+/*
+=========================================================
+HELPERS
+=========================================================
+*/
 
-function generateId(length = 8) {
+function createId(length = 8) {
     return crypto
         .randomBytes(16)
         .toString("hex")
         .slice(0, length);
 }
 
-function normalizeName(name) {
-    if (!name) {
-        return "Игрок";
-    }
-
-    return String(name)
+function cleanName(name) {
+    const value = String(name || "")
         .trim()
-        .slice(0, 24);
+        .slice(0, 30);
+
+    return value || "Игрок";
 }
 
 function getPlayer(playerId) {
-    return players.get(playerId) || null;
+    return players.get(playerId);
 }
 
 function getRoom(roomId) {
-    return rooms.get(roomId) || null;
+    return rooms.get(roomId);
 }
 
-function getRoomPlayers(room) {
-    return room.players.map((player) => ({
-        playerId: player.playerId,
-        name: player.name,
-        connected: player.connected
-    }));
+/*
+=========================================================
+TELEGRAM USER
+=========================================================
+*/
+
+function parseTelegramUser(initData) {
+    if (!initData) {
+        return null;
+    }
+
+    try {
+        const params = new URLSearchParams(initData);
+        const user = params.get("user");
+
+        if (!user) {
+            return null;
+        }
+
+        return JSON.parse(user);
+    } catch (error) {
+        console.error(
+            "Telegram user parse error:",
+            error
+        );
+
+        return null;
+    }
 }
 
-function getPublicRoom(room) {
-    return {
-        id: room.id,
-        status: room.status,
-        playersCount: room.players.length,
-        maxPlayers: 2,
-        players: getRoomPlayers(room)
-    };
+/*
+=========================================================
+AUTHENTICATION
+=========================================================
+*/
+
+function authenticate(socket) {
+    const initData =
+        socket.handshake.auth?.initData || "";
+
+    const telegramUser =
+        parseTelegramUser(initData);
+
+    /*
+    Telegram
+    */
+
+    if (
+        telegramUser &&
+        telegramUser.id
+    ) {
+        const telegramId =
+            String(telegramUser.id);
+
+        let player = null;
+
+        for (const item of players.values()) {
+            if (
+                item.telegramId === telegramId
+            ) {
+                player = item;
+                break;
+            }
+        }
+
+        if (!player) {
+            player = {
+                playerId: createId(12),
+
+                telegramId,
+
+                name: cleanName(
+                    telegramUser.first_name ||
+                    telegramUser.username ||
+                    "Игрок"
+                ),
+
+                username:
+                    telegramUser.username || "",
+
+                socketId: socket.id,
+
+                connected: true,
+
+                roomId: null
+            };
+
+            players.set(
+                player.playerId,
+                player
+            );
+        } else {
+            player.socketId = socket.id;
+            player.connected = true;
+
+            player.name = cleanName(
+                telegramUser.first_name ||
+                telegramUser.username ||
+                player.name
+            );
+
+            player.username =
+                telegramUser.username ||
+                player.username ||
+                "";
+        }
+
+        savePlayer(player);
+
+        return player;
+    }
+
+    /*
+    Тест вне Telegram
+    */
+
+    const testPlayerId =
+        socket.handshake.auth?.testPlayerId ||
+        `test_${socket.id}`;
+
+    let player =
+        players.get(testPlayerId);
+
+    if (!player) {
+        player = {
+            playerId: testPlayerId,
+
+            telegramId: null,
+
+            name:
+                "Игрок " +
+                testPlayerId.slice(-4),
+
+            username: "",
+
+            socketId: socket.id,
+
+            connected: true,
+
+            roomId: null
+        };
+
+        players.set(
+            player.playerId,
+            player
+        );
+    } else {
+        player.socketId = socket.id;
+        player.connected = true;
+    }
+
+    return player;
 }
 
-/* =========================================================
-   DATABASE
-========================================================= */
+/*
+=========================================================
+DATABASE
+=========================================================
+*/
 
 async function initDatabase() {
     if (!pool) {
-        console.log("PostgreSQL: DATABASE_URL not configured");
+        console.log(
+            "PostgreSQL: DATABASE_URL not configured"
+        );
+
         return;
     }
 
@@ -176,16 +306,20 @@ async function initDatabase() {
                 player_id TEXT PRIMARY KEY,
                 telegram_id TEXT UNIQUE,
                 username TEXT,
-                first_name TEXT,
-                last_name TEXT,
+                player_name TEXT,
                 created_at TIMESTAMP DEFAULT NOW(),
                 updated_at TIMESTAMP DEFAULT NOW()
             )
         `);
 
-        console.log("PostgreSQL: ready");
+        console.log(
+            "PostgreSQL: ready"
+        );
     } catch (error) {
-        console.error("PostgreSQL initialization error:", error);
+        console.error(
+            "PostgreSQL initialization error:",
+            error
+        );
     }
 }
 
@@ -197,182 +331,93 @@ async function savePlayer(player) {
     try {
         await pool.query(
             `
-            INSERT INTO players (
+            INSERT INTO players
+            (
                 player_id,
                 telegram_id,
                 username,
-                first_name,
-                last_name,
+                player_name,
                 updated_at
             )
-            VALUES ($1, $2, $3, $4, $5, NOW())
+            VALUES
+            ($1, $2, $3, $4, NOW())
 
             ON CONFLICT (player_id)
             DO UPDATE SET
+                telegram_id = EXCLUDED.telegram_id,
                 username = EXCLUDED.username,
-                first_name = EXCLUDED.first_name,
-                last_name = EXCLUDED.last_name,
+                player_name = EXCLUDED.player_name,
                 updated_at = NOW()
             `,
             [
                 player.playerId,
                 player.telegramId,
-                player.username || "",
-                player.firstName || "",
-                player.lastName || ""
+                player.username,
+                player.name
             ]
         );
     } catch (error) {
-        console.error("savePlayer error:", error);
-    }
-}
-
-/* =========================================================
-   TELEGRAM
-========================================================= */
-
-function getTelegramUserFromInitData(initData) {
-    if (!initData) {
-        return null;
-    }
-
-    try {
-        const params = new URLSearchParams(initData);
-
-        const userRaw = params.get("user");
-
-        if (!userRaw) {
-            return null;
-        }
-
-        return JSON.parse(userRaw);
-    } catch (error) {
-        console.error("Telegram initData parse error:", error);
-        return null;
+        console.error(
+            "savePlayer error:",
+            error
+        );
     }
 }
 
 /*
-    На текущем этапе мы принимаем Telegram WebApp user.
-
-    В production обязательно можно включить полноценную
-    проверку hash initData через BOT_TOKEN.
-
-    Чтобы текущая версия не ломалась при тестировании
-    через Telegram, user берётся из initData.
+=========================================================
+ROOM PUBLIC STATE
+=========================================================
 */
 
-function authenticatePlayer(socket) {
-    const initData =
-        socket.handshake.auth?.initData ||
-        "";
+function publicRoom(room) {
+    return {
+        id: room.id,
 
-    const telegramUser =
-        getTelegramUserFromInitData(initData);
+        status: room.status,
 
-    /*
-        Если Telegram user есть — используем его.
-    */
+        playersCount:
+            room.players.length,
 
-    if (telegramUser && telegramUser.id) {
-        const telegramId = String(telegramUser.id);
+        maxPlayers: 2,
 
-        let player = null;
-
-        for (const existing of players.values()) {
-            if (existing.telegramId === telegramId) {
-                player = existing;
-                break;
-            }
-        }
-
-        if (!player) {
-            player = {
-                playerId: generateId(12),
-                telegramId,
-                username: telegramUser.username || "",
-                firstName: telegramUser.first_name || "",
-                lastName: telegramUser.last_name || "",
-                name: normalizeName(
-                    telegramUser.first_name ||
-                    telegramUser.username ||
-                    "Игрок"
-                ),
-                socketId: socket.id,
-                connected: true,
-                roomId: null
-            };
-
-            players.set(player.playerId, player);
-        } else {
-            player.socketId = socket.id;
-            player.connected = true;
-
-            player.name = normalizeName(
-                telegramUser.first_name ||
-                telegramUser.username ||
-                player.name
-            );
-        }
-
-        savePlayer(player);
-
-        return player;
-    }
-
-    /*
-        Резервный режим для тестирования.
-    */
-
-    const testId =
-        socket.handshake.auth?.testPlayerId ||
-        `test_${socket.id}`;
-
-    let player = players.get(testId);
-
-    if (!player) {
-        player = {
-            playerId: testId,
-            telegramId: null,
-            username: "",
-            firstName: "",
-            lastName: "",
-            name: `Игрок ${testId.slice(-4)}`,
-            socketId: socket.id,
-            connected: true,
-            roomId: null
-        };
-
-        players.set(player.playerId, player);
-    } else {
-        player.socketId = socket.id;
-        player.connected = true;
-    }
-
-    return player;
+        players:
+            room.players.map((p) => ({
+                playerId: p.playerId,
+                name: p.name,
+                connected: p.connected
+            }))
+    };
 }
 
-/* =========================================================
-   GAME STATE
-========================================================= */
+/*
+=========================================================
+GAME STATE
+=========================================================
+*/
 
-function getGameState(room, playerId) {
-    if (!room) {
-        return null;
-    }
+function gameState(room, playerId) {
+    const me =
+        room.players.find(
+            (p) =>
+                p.playerId === playerId
+        );
 
-    const me = room.players.find(
-        (player) => player.playerId === playerId
-    );
-
-    const opponent = room.players.find(
-        (player) => player.playerId !== playerId
-    );
+    const opponent =
+        room.players.find(
+            (p) =>
+                p.playerId !== playerId
+        );
 
     let turn = "WAITING";
 
-    if (room.status === "playing") {
-        if (room.turnPlayerId === playerId) {
+    if (
+        room.status === "playing"
+    ) {
+        if (
+            room.turnPlayerId ===
+            playerId
+        ) {
             turn = "YOUR_TURN";
         } else {
             turn = "OPPONENT_TURN";
@@ -386,7 +431,8 @@ function getGameState(room, playerId) {
 
         turn,
 
-        turnPlayerId: room.turnPlayerId,
+        turnPlayerId:
+            room.turnPlayerId,
 
         me: me
             ? {
@@ -398,90 +444,119 @@ function getGameState(room, playerId) {
 
         opponent: opponent
             ? {
-                playerId: opponent.playerId,
+                playerId:
+                    opponent.playerId,
                 name: opponent.name,
-                connected: opponent.connected
+                connected:
+                    opponent.connected
             }
             : null,
 
-        players: getRoomPlayers(room),
+        players:
+            room.players.map((p) => ({
+                playerId: p.playerId,
+                name: p.name,
+                connected: p.connected
+            })),
 
-        moves: room.game.moves
+        moves: room.moves
     };
 }
 
-/* =========================================================
-   SEND ROOM STATE
-========================================================= */
+/*
+=========================================================
+SEND ROOM STATE
+=========================================================
+*/
 
-function emitRoomState(room) {
+function sendRoomState(room) {
     if (!room) {
         return;
     }
 
-    for (const roomPlayer of room.players) {
-        const player = players.get(roomPlayer.playerId);
+    room.players.forEach((roomPlayer) => {
+        const player =
+            players.get(
+                roomPlayer.playerId
+            );
 
         if (!player) {
-            continue;
+            return;
         }
 
         if (!player.socketId) {
-            continue;
+            return;
         }
 
-        io.to(player.socketId).emit(
+        io.to(
+            player.socketId
+        ).emit(
             "game_state",
-            getGameState(room, player.playerId)
+            gameState(
+                room,
+                player.playerId
+            )
         );
-    }
+    });
 }
 
-/* =========================================================
-   ROOM LIST
-========================================================= */
+/*
+=========================================================
+ROOM LIST
+=========================================================
+*/
 
-function emitRoomList() {
-    const list = [];
+function sendRoomList() {
+    const list =
+        Array.from(
+            rooms.values()
+        ).map(publicRoom);
 
-    for (const room of rooms.values()) {
-        list.push(getPublicRoom(room));
-    }
-
-    io.emit("rooms_list", list);
+    io.emit(
+        "rooms_list",
+        list
+    );
 }
 
-/* =========================================================
-   CREATE ROOM
-========================================================= */
+/*
+=========================================================
+CREATE ROOM
+=========================================================
+*/
 
 function createRoom(player) {
-    if (rooms.size >= MAX_ROOMS) {
-        return {
-            ok: false,
-            error: "Слишком много комнат."
-        };
-    }
-
     if (player.roomId) {
         return {
             ok: false,
-            error: "Вы уже находитесь в комнате."
+            error:
+                "Вы уже находитесь в комнате."
         };
     }
 
-    const roomId = generateId(6).toUpperCase();
+    let roomId;
+
+    do {
+        roomId =
+            createId(6)
+                .toUpperCase();
+    } while (
+        rooms.has(roomId)
+    );
 
     const room = {
         id: roomId,
 
-        hostPlayerId: player.playerId,
-
         players: [
             {
-                playerId: player.playerId,
-                socketId: player.socketId,
-                name: player.name,
+                playerId:
+                    player.playerId,
+
+                name:
+                    player.name,
+
+                socketId:
+                    player.socketId,
+
                 connected: true
             }
         ],
@@ -489,27 +564,22 @@ function createRoom(player) {
         status: "waiting",
 
         /*
-            ВАЖНО:
-
-            Здесь НЕТ turnPlayerId.
-
-            Пока второй игрок не вошёл,
-            ход не начинается.
+        Пока один игрок —
+        хода нет.
         */
 
         turnPlayerId: null,
 
-        game: {
-            startedAt: null,
-            moves: []
-        },
-
-        chat: []
+        moves: []
     };
 
-    rooms.set(roomId, room);
+    rooms.set(
+        room.id,
+        room
+    );
 
-    player.roomId = roomId;
+    player.roomId =
+        room.id;
 
     return {
         ok: true,
@@ -517,81 +587,90 @@ function createRoom(player) {
     };
 }
 
-/* =========================================================
-   JOIN ROOM
-========================================================= */
+/*
+=========================================================
+JOIN ROOM
+=========================================================
+*/
 
-function joinRoom(player, roomId) {
-    if (!roomId) {
-        return {
-            ok: false,
-            error: "Не указан ID комнаты."
-        };
-    }
+function joinRoom(
+    player,
+    roomId
+) {
+    roomId =
+        String(roomId || "")
+            .trim()
+            .toUpperCase();
 
-    roomId = String(roomId).trim().toUpperCase();
-
-    const room = rooms.get(roomId);
+    const room =
+        rooms.get(roomId);
 
     if (!room) {
         return {
             ok: false,
-            error: "Комната не найдена."
+            error:
+                "Комната не найдена."
         };
     }
 
     if (player.roomId) {
         return {
             ok: false,
-            error: "Вы уже находитесь в комнате."
+            error:
+                "Вы уже находитесь в комнате."
         };
     }
 
-    if (room.players.length >= 2) {
+    if (
+        room.players.length >= 2
+    ) {
         return {
             ok: false,
-            error: "Комната уже заполнена."
+            error:
+                "Комната уже заполнена."
         };
     }
 
-    /*
-        Второй игрок.
-    */
-
     room.players.push({
-        playerId: player.playerId,
-        socketId: player.socketId,
-        name: player.name,
+        playerId:
+            player.playerId,
+
+        name:
+            player.name,
+
+        socketId:
+            player.socketId,
+
         connected: true
     });
 
-    player.roomId = room.id;
+    player.roomId =
+        room.id;
 
     /*
-        =====================================================
-        КРИТИЧЕСКИЙ МОМЕНТ
-        =====================================================
+    =====================================================
+    САМОЕ ВАЖНОЕ
 
-        Первый игрок всегда получает первый ход.
+    Первый игрок получает первый ход.
 
-        Не socket.id.
+    Не socket.id.
+    Не клиент.
+    Не случайное значение.
 
-        Не клиент.
-
-        Не случайное значение.
-
-        Сервер хранит конкретный playerId.
+    Именно playerId первого игрока.
+    =====================================================
     */
 
-    const firstPlayer = room.players[0];
+    const firstPlayer =
+        room.players[0];
 
-    room.turnPlayerId = firstPlayer.playerId;
+    room.turnPlayerId =
+        firstPlayer.playerId;
 
-    room.status = "playing";
+    room.status =
+        "playing";
 
-    room.game.startedAt = Date.now();
-
-    room.game.moves = [];
+    room.moves = [];
 
     return {
         ok: true,
@@ -599,72 +678,25 @@ function joinRoom(player, roomId) {
     };
 }
 
-/* =========================================================
-   LEAVE ROOM
-========================================================= */
-
-function leaveRoom(player) {
-    if (!player.roomId) {
-        return;
-    }
-
-    const room = rooms.get(player.roomId);
-
-    if (!room) {
-        player.roomId = null;
-        return;
-    }
-
-    room.players = room.players.filter(
-        (p) => p.playerId !== player.playerId
-    );
-
-    player.roomId = null;
-
-    /*
-        Если в комнате никого не осталось —
-        удаляем комнату.
-    */
-
-    if (room.players.length === 0) {
-        rooms.delete(room.id);
-        emitRoomList();
-        return;
-    }
-
-    /*
-        Если один игрок остался —
-        возвращаем комнату в ожидание.
-    */
-
-    room.status = "waiting";
-
-    room.turnPlayerId = null;
-
-    room.game.startedAt = null;
-
-    room.game.moves = [];
-
-    room.hostPlayerId =
-        room.players[0].playerId;
-
-    emitRoomState(room);
-    emitRoomList();
-}
-
-/* =========================================================
-   SWITCH TURN
-========================================================= */
+/*
+=========================================================
+SWITCH TURN
+=========================================================
+*/
 
 function switchTurn(room) {
-    if (!room || room.players.length !== 2) {
+    if (
+        !room ||
+        room.players.length !== 2
+    ) {
         return;
     }
 
     const currentIndex =
         room.players.findIndex(
-            (player) =>
-                player.playerId === room.turnPlayerId
+            (p) =>
+                p.playerId ===
+                room.turnPlayerId
         );
 
     if (currentIndex === -1) {
@@ -680,70 +712,82 @@ function switchTurn(room) {
             : 0;
 
     room.turnPlayerId =
-        room.players[nextIndex].playerId;
+        room.players[
+            nextIndex
+        ].playerId;
 }
 
-/* =========================================================
-   MAKE MOVE
-========================================================= */
+/*
+=========================================================
+MAKE TEST MOVE
+=========================================================
+*/
 
-function makeMove(player, moveData) {
+function makeMove(
+    player,
+    data
+) {
     if (!player.roomId) {
         return {
             ok: false,
-            error: "Вы не находитесь в комнате."
+            error:
+                "Вы не находитесь в комнате."
         };
     }
 
-    const room = rooms.get(player.roomId);
+    const room =
+        rooms.get(
+            player.roomId
+        );
 
     if (!room) {
         return {
             ok: false,
-            error: "Комната не найдена."
+            error:
+                "Комната не найдена."
         };
     }
 
-    if (room.status !== "playing") {
+    if (
+        room.status !==
+        "playing"
+    ) {
         return {
             ok: false,
-            error: "Игра ещё не началась."
+            error:
+                "Игра ещё не началась."
         };
     }
 
     /*
-        СЕРВЕРНАЯ ПРОВЕРКА ХОДА
+    Сервер проверяет,
+    действительно ли игрок имеет ход.
     */
 
-    if (room.turnPlayerId !== player.playerId) {
+    if (
+        room.turnPlayerId !==
+        player.playerId
+    ) {
         return {
             ok: false,
-            error: "Сейчас ход противника."
+            error:
+                "Сейчас ход противника."
         };
     }
 
-    /*
-        Сохраняем ход.
-    */
+    room.moves.push({
+        playerId:
+            player.playerId,
 
-    room.game.moves.push({
-        playerId: player.playerId,
-        move: moveData || {},
-        timestamp: Date.now()
+        type:
+            data?.type || "test",
+
+        timestamp:
+            Date.now()
     });
 
     /*
-        Для тестирования просто переключаем ход.
-
-        Позже здесь будет полноценная логика Дурака:
-        - карты
-        - атака
-        - защита
-        - битые карты
-        - взятие
-        - колода
-        - победа
-        - поражение
+    Передаём ход второму игроку.
     */
 
     switchTurn(room);
@@ -753,429 +797,625 @@ function makeMove(player, moveData) {
     };
 }
 
-/* =========================================================
-   SOCKET AUTH
-========================================================= */
+/*
+=========================================================
+SOCKET MIDDLEWARE
+=========================================================
+*/
 
-io.use((socket, next) => {
-    try {
-        const player = authenticatePlayer(socket);
+io.use(
+    (socket, next) => {
+        try {
+            const player =
+                authenticate(socket);
 
-        socket.playerId = player.playerId;
+            socket.playerId =
+                player.playerId;
 
-        next();
-    } catch (error) {
-        console.error("Socket authentication error:", error);
-
-        next(
-            new Error("Authentication failed")
-        );
-    }
-});
-
-/* =========================================================
-   SOCKET CONNECTION
-========================================================= */
-
-io.on("connection", (socket) => {
-    const player = getPlayer(socket.playerId);
-
-    if (!player) {
-        socket.disconnect(true);
-        return;
-    }
-
-    player.socketId = socket.id;
-    player.connected = true;
-
-    console.log(
-        `Player connected: ${player.playerId} / ${player.name}`
-    );
-
-    /*
-        Если игрок уже был в комнате —
-        восстанавливаем его соединение.
-    */
-
-    if (player.roomId) {
-        const room = rooms.get(player.roomId);
-
-        if (room) {
-            const roomPlayer = room.players.find(
-                (p) =>
-                    p.playerId === player.playerId
+            next();
+        } catch (error) {
+            console.error(
+                "Socket auth error:",
+                error
             );
 
-            if (roomPlayer) {
-                roomPlayer.socketId = socket.id;
-                roomPlayer.connected = true;
-                roomPlayer.name = player.name;
-            }
-
-            socket.join(room.id);
-
-            socket.emit(
-                "game_state",
-                getGameState(
-                    room,
-                    player.playerId
+            next(
+                new Error(
+                    "Authentication failed"
                 )
             );
-
-            emitRoomState(room);
         }
     }
+);
 
-    /*
-        =====================================================
-        GET PROFILE
-        =====================================================
-    */
+/*
+=========================================================
+SOCKET CONNECTION
+=========================================================
+*/
 
-    socket.on("get_profile", () => {
-        socket.emit("profile", {
-            playerId: player.playerId,
-            telegramId: player.telegramId,
-            name: player.name,
-            username: player.username,
-            firstName: player.firstName,
-            lastName: player.lastName
-        });
-    });
+io.on(
+    "connection",
+    (socket) => {
 
-    /*
-        =====================================================
-        GET ROOMS
-        =====================================================
-    */
-
-    socket.on("get_rooms", () => {
-        const list = [];
-
-        for (const room of rooms.values()) {
-            list.push(getPublicRoom(room));
-        }
-
-        socket.emit("rooms_list", list);
-    });
-
-    /*
-        =====================================================
-        CREATE ROOM
-        =====================================================
-    */
-
-    socket.on("create_room", () => {
-        const result = createRoom(player);
-
-        if (!result.ok) {
-            socket.emit("error_message", result.error);
-            return;
-        }
-
-        const room = result.room;
-
-        socket.join(room.id);
-
-        socket.emit(
-            "room_created",
-            getPublicRoom(room)
-        );
-
-        emitRoomState(room);
-        emitRoomList();
-
-        console.log(
-            `Room created: ${room.id} by ${player.name}`
-        );
-    });
-
-    /*
-        =====================================================
-        JOIN ROOM
-        =====================================================
-    */
-
-    socket.on("join_room", (roomId) => {
-        const result =
-            joinRoom(
-                player,
-                roomId
+        const player =
+            getPlayer(
+                socket.playerId
             );
 
-        if (!result.ok) {
-            socket.emit(
-                "error_message",
-                result.error
+        if (!player) {
+            socket.disconnect(
+                true
             );
 
             return;
         }
 
-        const room = result.room;
+        player.socketId =
+            socket.id;
 
-        socket.join(room.id);
-
-        /*
-            ВАЖНО:
-            После входа второго игрока
-            оба клиента получают НОВОЕ состояние.
-
-            Первый:
-                YOUR_TURN
-
-            Второй:
-                OPPONENT_TURN
-        */
-
-        emitRoomState(room);
-        emitRoomList();
+        player.connected =
+            true;
 
         console.log(
-            `Player ${player.name} joined room ${room.id}`
-        );
-
-        console.log(
-            `TURN -> ${room.turnPlayerId}`
-        );
-    });
-
-    /*
-        =====================================================
-        LEAVE ROOM
-        =====================================================
-    */
-
-    socket.on("leave_room", () => {
-        const oldRoomId = player.roomId;
-
-        leaveRoom(player);
-
-        if (oldRoomId) {
-            socket.leave(oldRoomId);
-        }
-
-        socket.emit("left_room");
-    });
-
-    /*
-        =====================================================
-        MAKE MOVE
-        =====================================================
-    */
-
-    socket.on("make_move", (moveData) => {
-        const result =
-            makeMove(
-                player,
-                moveData
-            );
-
-        if (!result.ok) {
-            socket.emit(
-                "move_error",
-                result.error
-            );
-
-            return;
-        }
-
-        const room =
-            rooms.get(player.roomId);
-
-        if (!room) {
-            return;
-        }
-
-        /*
-            После хода оба получают новое состояние.
-        */
-
-        emitRoomState(room);
-
-        console.log(
-            `MOVE room=${room.id} player=${player.playerId}`
-        );
-
-        console.log(
-            `NEXT TURN=${room.turnPlayerId}`
-        );
-    });
-
-    /*
-        =====================================================
-        CHAT
-        =====================================================
-    */
-
-    socket.on("chat_message", (text) => {
-        if (!player.roomId) {
-            return;
-        }
-
-        const room =
-            rooms.get(player.roomId);
-
-        if (!room) {
-            return;
-        }
-
-        const message =
-            String(text || "")
-                .trim()
-                .slice(0, 200);
-
-        if (!message) {
-            return;
-        }
-
-        const chatMessage = {
-            id: generateId(10),
-            playerId: player.playerId,
-            name: player.name,
-            text: message,
-            timestamp: Date.now()
-        };
-
-        room.chat.push(chatMessage);
-
-        if (
-            room.chat.length >
-            MAX_CHAT_MESSAGES
-        ) {
-            room.chat.shift();
-        }
-
-        io.to(room.id).emit(
-            "chat_message",
-            chatMessage
-        );
-    });
-
-    /*
-        =====================================================
-        DISCONNECT
-        =====================================================
-    */
-
-    socket.on("disconnect", () => {
-        const currentPlayer =
-            players.get(player.playerId);
-
-        if (!currentPlayer) {
-            return;
-        }
-
-        /*
-            Проверяем, что это действительно
-            последнее соединение игрока.
-
-            Это важно при переподключении.
-        */
-
-        if (
-            currentPlayer.socketId !==
-            socket.id
-        ) {
-            return;
-        }
-
-        currentPlayer.connected = false;
-
-        console.log(
-            `Player disconnected: ${player.playerId}`
+            "Player connected:",
+            player.playerId,
+            player.name
         );
 
         /*
-            Игрок НЕ удаляется из комнаты.
-
-            Благодаря этому он сможет
-            переподключиться и продолжить.
+        =================================================
+        RECONNECT
+        =================================================
         */
 
-        if (currentPlayer.roomId) {
+        if (player.roomId) {
+
             const room =
                 rooms.get(
-                    currentPlayer.roomId
+                    player.roomId
                 );
 
             if (room) {
+
                 const roomPlayer =
                     room.players.find(
                         (p) =>
                             p.playerId ===
-                            currentPlayer.playerId
+                            player.playerId
                     );
 
                 if (roomPlayer) {
-                    roomPlayer.connected = false;
+
+                    roomPlayer.socketId =
+                        socket.id;
+
+                    roomPlayer.connected =
+                        true;
+
+                    roomPlayer.name =
+                        player.name;
                 }
 
-                emitRoomState(room);
+                socket.join(
+                    room.id
+                );
+
+                socket.emit(
+                    "game_state",
+                    gameState(
+                        room,
+                        player.playerId
+                    )
+                );
+
+                sendRoomState(
+                    room
+                );
             }
         }
-    });
-});
 
-/* =========================================================
-   HTTP ROUTES
-========================================================= */
+        /*
+        =================================================
+        PROFILE
+        =================================================
+        */
 
-app.get("/", (req, res) => {
-    res.sendFile(
-        require("path").join(
-            __dirname,
-            "index.html"
-        )
-    );
-});
+        socket.on(
+            "get_profile",
+            () => {
 
-app.get("/api/health", async (req, res) => {
-    let database = "disabled";
+                socket.emit(
+                    "profile",
+                    {
+                        playerId:
+                            player.playerId,
 
-    if (pool) {
-        try {
-            await pool.query("SELECT 1");
-            database = "connected";
-        } catch (error) {
-            database = "error";
-        }
+                        telegramId:
+                            player.telegramId,
+
+                        name:
+                            player.name,
+
+                        username:
+                            player.username
+                    }
+                );
+            }
+        );
+
+        /*
+        =================================================
+        ROOMS
+        =================================================
+        */
+
+        socket.on(
+            "get_rooms",
+            () => {
+
+                socket.emit(
+                    "rooms_list",
+
+                    Array.from(
+                        rooms.values()
+                    ).map(
+                        publicRoom
+                    )
+                );
+            }
+        );
+
+        /*
+        =================================================
+        CREATE ROOM
+        =================================================
+        */
+
+        socket.on(
+            "create_room",
+            () => {
+
+                const result =
+                    createRoom(
+                        player
+                    );
+
+                if (!result.ok) {
+
+                    socket.emit(
+                        "error_message",
+                        result.error
+                    );
+
+                    return;
+                }
+
+                const room =
+                    result.room;
+
+                socket.join(
+                    room.id
+                );
+
+                socket.emit(
+                    "room_created",
+                    publicRoom(room)
+                );
+
+                sendRoomState(
+                    room
+                );
+
+                sendRoomList();
+
+                console.log(
+                    "Room created:",
+                    room.id
+                );
+            }
+        );
+
+        /*
+        =================================================
+        JOIN ROOM
+        =================================================
+        */
+
+        socket.on(
+            "join_room",
+            (roomId) => {
+
+                const result =
+                    joinRoom(
+                        player,
+                        roomId
+                    );
+
+                if (!result.ok) {
+
+                    socket.emit(
+                        "error_message",
+                        result.error
+                    );
+
+                    return;
+                }
+
+                const room =
+                    result.room;
+
+                socket.join(
+                    room.id
+                );
+
+                /*
+                ОЧЕНЬ ВАЖНО:
+
+                Здесь сразу отправляем
+                состояние обоим игрокам.
+
+                Игрок №1:
+                YOUR_TURN
+
+                Игрок №2:
+                OPPONENT_TURN
+                */
+
+                sendRoomState(
+                    room
+                );
+
+                sendRoomList();
+
+                console.log(
+                    "Player joined:",
+                    player.name,
+                    room.id
+                );
+
+                console.log(
+                    "Current turn:",
+                    room.turnPlayerId
+                );
+            }
+        );
+
+        /*
+        =================================================
+        MAKE MOVE
+        =================================================
+        */
+
+        socket.on(
+            "make_move",
+            (data) => {
+
+                const result =
+                    makeMove(
+                        player,
+                        data
+                    );
+
+                if (!result.ok) {
+
+                    socket.emit(
+                        "move_error",
+                        result.error
+                    );
+
+                    return;
+                }
+
+                const room =
+                    rooms.get(
+                        player.roomId
+                    );
+
+                if (!room) {
+                    return;
+                }
+
+                /*
+                Отправляем новое состояние
+                обоим игрокам.
+                */
+
+                sendRoomState(
+                    room
+                );
+            }
+        );
+
+        /*
+        =================================================
+        LEAVE ROOM
+        =================================================
+        */
+
+        socket.on(
+            "leave_room",
+            () => {
+
+                const roomId =
+                    player.roomId;
+
+                if (!roomId) {
+                    return;
+                }
+
+                const room =
+                    rooms.get(
+                        roomId
+                    );
+
+                if (!room) {
+
+                    player.roomId =
+                        null;
+
+                    socket.emit(
+                        "left_room"
+                    );
+
+                    return;
+                }
+
+                room.players =
+                    room.players.filter(
+                        (p) =>
+                            p.playerId !==
+                            player.playerId
+                    );
+
+                player.roomId =
+                    null;
+
+                socket.leave(
+                    room.id
+                );
+
+                /*
+                Если никого нет —
+                удаляем комнату.
+                */
+
+                if (
+                    room.players.length ===
+                    0
+                ) {
+
+                    rooms.delete(
+                        room.id
+                    );
+
+                } else {
+
+                    /*
+                    Остался один игрок.
+                    Возвращаем комнату
+                    в ожидание.
+                    */
+
+                    room.status =
+                        "waiting";
+
+                    room.turnPlayerId =
+                        null;
+
+                    room.moves = [];
+
+                    room.players[0]
+                        .connected = true;
+                }
+
+                socket.emit(
+                    "left_room"
+                );
+
+                sendRoomList();
+
+                if (
+                    rooms.has(room.id)
+                ) {
+                    sendRoomState(
+                        room
+                    );
+                }
+            }
+        );
+
+        /*
+        =================================================
+        DISCONNECT
+        =================================================
+        */
+
+        socket.on(
+            "disconnect",
+            () => {
+
+                const current =
+                    players.get(
+                        player.playerId
+                    );
+
+                if (!current) {
+                    return;
+                }
+
+                /*
+                Если уже произошло
+                новое подключение,
+                старый socket ничего
+                не меняет.
+                */
+
+                if (
+                    current.socketId !==
+                    socket.id
+                ) {
+                    return;
+                }
+
+                current.connected =
+                    false;
+
+                console.log(
+                    "Player disconnected:",
+                    current.playerId
+                );
+
+                if (
+                    current.roomId
+                ) {
+
+                    const room =
+                        rooms.get(
+                            current.roomId
+                        );
+
+                    if (room) {
+
+                        const roomPlayer =
+                            room.players.find(
+                                (p) =>
+                                    p.playerId ===
+                                    current.playerId
+                            );
+
+                        if (roomPlayer) {
+
+                            roomPlayer.connected =
+                                false;
+                        }
+
+                        /*
+                        Комнату НЕ удаляем.
+
+                        Игрок сможет
+                        переподключиться.
+                        */
+
+                        sendRoomState(
+                            room
+                        );
+                    }
+                }
+            }
+        );
     }
+);
 
-    res.json({
-        ok: true,
-        service: "Heavy Lux Card",
-        database,
-        rooms: rooms.size,
-        players: players.size,
-        time: new Date().toISOString()
-    });
-});
+/*
+=========================================================
+HTTP ROUTES
+=========================================================
+*/
 
-/* =========================================================
-   START
-========================================================= */
+/*
+Главная страница.
 
-async function startServer() {
+ВАЖНО:
+index.html должен лежать рядом
+с server.js.
+*/
+
+app.get(
+    "/",
+    (req, res) => {
+
+        res.sendFile(
+            path.join(
+                __dirname,
+                "index.html"
+            )
+        );
+    }
+);
+
+/*
+Health check.
+*/
+
+app.get(
+    "/api/health",
+    async (req, res) => {
+
+        let database =
+            "disabled";
+
+        if (pool) {
+
+            try {
+
+                await pool.query(
+                    "SELECT 1"
+                );
+
+                database =
+                    "connected";
+
+            } catch (error) {
+
+                database =
+                    "error";
+            }
+        }
+
+        res.json({
+            ok: true,
+
+            service:
+                "Heavy Lux Card",
+
+            database,
+
+            rooms:
+                rooms.size,
+
+            players:
+                players.size,
+
+            time:
+                new Date().toISOString()
+        });
+    }
+);
+
+/*
+=========================================================
+START
+=========================================================
+*/
+
+async function start() {
+
     await initDatabase();
 
     server.listen(
         PORT,
         "0.0.0.0",
         () => {
+
             console.log(
-                `Heavy Lux Card server started on port ${PORT}`
+                "Heavy Lux Card server started on port",
+                PORT
             );
 
             console.log(
-                `Telegram authentication: configured`
+                "Socket.IO: ready"
             );
 
             console.log(
-                `Socket.IO: ready`
+                "HTTP: ready"
+            );
+
+            console.log(
+                "Telegram authentication: configured"
             );
         }
     );
 }
 
-startServer();
+start();
