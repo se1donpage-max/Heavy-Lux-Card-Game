@@ -7,7 +7,11 @@
 
 <meta
     name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    content="width=device-width,
+             initial-scale=1,
+             maximum-scale=1,
+             user-scalable=no,
+             viewport-fit=cover"
 >
 
 <title>Heavy Lux Card</title>
@@ -99,7 +103,7 @@ HEADER
 
 /*
 =========================================================
-CARD / BLOCK
+CARD
 =========================================================
 */
 
@@ -124,7 +128,7 @@ CARD / BLOCK
 
 /*
 =========================================================
-BUTTON
+BUTTONS
 =========================================================
 */
 
@@ -160,10 +164,10 @@ BUTTON
 }
 
 .btn.take {
-    background: #301010;
+    background: #401313;
     color: #ff7777;
 
-    border: 1px solid #5a2020;
+    border: 1px solid #642020;
 }
 
 .btn.beat {
@@ -172,8 +176,7 @@ BUTTON
 }
 
 .btn:disabled {
-    opacity: .3;
-    cursor: default;
+    opacity: .35;
 }
 
 /*
@@ -333,8 +336,12 @@ TRUMP
 .trump-value {
     margin-top: 4px;
 
-    font-size: 25px;
+    font-size: 27px;
     font-weight: 900;
+}
+
+.trump-value.red {
+    color: #ff4d4d;
 }
 
 /*
@@ -388,6 +395,14 @@ TURN
 }
 
 .turn.your {
+    border-color: #666;
+}
+
+.turn.attack {
+    border-color: #888;
+}
+
+.turn.defense {
     border-color: #555;
 }
 
@@ -417,7 +432,12 @@ TABLE
 
     border-radius: 16px;
 
-    background: #080808;
+    background:
+        radial-gradient(
+            circle at center,
+            #151515 0%,
+            #080808 75%
+        );
 
     border: 1px solid #242424;
 }
@@ -444,11 +464,11 @@ TABLE
 
     gap: 12px;
 
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .arrow {
-    color: #777;
+    color: #666;
 
     font-size: 20px;
 }
@@ -472,8 +492,10 @@ CARDS
 }
 
 .card-item {
-    width: 57px;
-    height: 78px;
+    width: 58px;
+    height: 82px;
+
+    flex: 0 0 58px;
 
     border-radius: 11px;
 
@@ -494,34 +516,82 @@ CARDS
     font-weight: 900;
 
     box-shadow:
-        0 4px 10px
-        rgba(0,0,0,.3);
-
-    cursor: pointer;
+        0 5px 12px
+        rgba(0,0,0,.35);
 
     user-select: none;
+
+    transition:
+        transform .12s ease,
+        opacity .12s ease;
+}
+
+.card-item.clickable {
+    cursor: pointer;
+}
+
+.card-item.clickable:active {
+    transform:
+        translateY(-5px)
+        scale(.97);
 }
 
 .card-item.red {
-    color: #d22;
-}
-
-.card-item.disabled {
-    opacity: .45;
-    cursor: default;
+    color: #d51e1e;
 }
 
 .card-rank {
     font-size: 22px;
+    line-height: 1;
 }
 
 .card-suit {
-    font-size: 20px;
+    margin-top: 4px;
+
+    font-size: 21px;
+    line-height: 1;
 }
 
 /*
 =========================================================
-ACTION PANEL
+TABLE CARD
+=========================================================
+*/
+
+.table-card {
+    width: 58px;
+    height: 82px;
+
+    border-radius: 11px;
+
+    background: #f5f5f5;
+
+    color: #111;
+
+    border: 2px solid #fff;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-weight: 900;
+
+    box-shadow:
+        0 5px 12px
+        rgba(0,0,0,.4);
+}
+
+.table-card.red {
+    color: #d51e1e;
+}
+
+/*
+=========================================================
+ACTIONS
 =========================================================
 */
 
@@ -529,14 +599,13 @@ ACTION PANEL
     margin-top: 12px;
 }
 
-.action-note {
-    text-align: center;
+.action-row {
+    display: flex;
+    gap: 8px;
+}
 
-    color: #666;
-
-    font-size: 11px;
-
-    margin-top: 7px;
+.action-row .btn {
+    flex: 1;
 }
 
 /*
@@ -578,20 +647,6 @@ RESULT
 
 /*
 =========================================================
-WAITING
-=========================================================
-*/
-
-.waiting {
-    padding: 18px 0;
-
-    text-align: center;
-
-    color: #777;
-}
-
-/*
-=========================================================
 MOVES
 =========================================================
 */
@@ -608,6 +663,20 @@ MOVES
     color: #777;
 
     font-size: 11px;
+}
+
+/*
+=========================================================
+WAITING
+=========================================================
+*/
+
+.waiting {
+    padding: 18px 0;
+
+    text-align: center;
+
+    color: #777;
 }
 
 /*
@@ -715,7 +784,7 @@ TOAST
             id="createBtn"
             class="btn"
         >
-            СОЗДАТЬ КОМНАТУ
+            Создать комнату
         </button>
 
     </div>
@@ -740,7 +809,7 @@ TOAST
                 id="joinBtn"
                 class="btn"
             >
-                ВОЙТИ
+                Войти
             </button>
 
         </div>
@@ -751,15 +820,13 @@ TOAST
     <div class="card">
 
         <div class="title">
-            Открытые комнаты
+            Комнаты
         </div>
 
         <div id="rooms">
-
             <div class="waiting">
                 Загрузка...
             </div>
-
         </div>
 
     </div>
@@ -794,11 +861,11 @@ TOAST
             id="roomStatus"
             class="center"
         >
-            Ожидание второго игрока...
+            Ожидание игрока...
         </div>
 
 
-        <!-- TRUMP -->
+        <!-- КОЗЫРЬ -->
 
         <div
             id="trump"
@@ -820,7 +887,7 @@ TOAST
         </div>
 
 
-        <!-- OPPONENT -->
+        <!-- ПРОТИВНИК -->
 
         <div
             id="opponent"
@@ -845,7 +912,7 @@ TOAST
         </div>
 
 
-        <!-- TURN -->
+        <!-- ХОД -->
 
         <div
             id="turn"
@@ -869,7 +936,7 @@ TOAST
         </div>
 
 
-        <!-- RESULT -->
+        <!-- РЕЗУЛЬТАТ -->
 
         <div
             id="result"
@@ -893,7 +960,7 @@ TOAST
         </div>
 
 
-        <!-- TABLE -->
+        <!-- СТОЛ -->
 
         <div class="title">
             Стол
@@ -911,45 +978,46 @@ TOAST
         </div>
 
 
-        <!-- ACTIONS -->
+        <!-- ДЕЙСТВИЯ -->
 
         <div
             id="actions"
             class="actions"
         >
 
-            <button
-                id="takeBtn"
-                class="btn take"
-                style="display:none;"
-            >
-                ВЗЯТЬ
-            </button>
-
-            <button
-                id="beatBtn"
-                class="btn beat"
-                style="display:none;"
-            >
-                БИТО
-            </button>
-
             <div
-                id="actionNote"
-                class="action-note"
+                id="actionRow"
+                class="action-row"
             >
+
+                <button
+                    id="takeBtn"
+                    class="btn take"
+                    style="display:none;"
+                >
+                    ВЗЯТЬ
+                </button>
+
+                <button
+                    id="beatBtn"
+                    class="btn beat"
+                    style="display:none;"
+                >
+                    БИТО
+                </button>
+
             </div>
 
         </div>
 
 
-        <!-- HAND -->
+        <!-- МОИ КАРТЫ -->
 
-        <div
-            class="title"
-            style="margin-top:16px;"
-        >
+        <div class="title"
+             style="margin-top:16px;">
+
             Мои карты
+
         </div>
 
         <div
@@ -958,8 +1026,6 @@ TOAST
         >
         </div>
 
-
-        <!-- DECK -->
 
         <div
             id="deckInfo"
@@ -974,13 +1040,13 @@ TOAST
         </div>
 
 
-        <!-- HISTORY -->
+        <!-- ИСТОРИЯ -->
 
-        <div
-            class="title"
-            style="margin-top:17px;"
-        >
+        <div class="title"
+             style="margin-top:17px;">
+
             История
+
         </div>
 
         <div
@@ -994,7 +1060,7 @@ TOAST
             id="leaveBtn"
             class="btn danger"
         >
-            ПОКИНУТЬ КОМНАТУ
+            Покинуть комнату
         </button>
 
     </div>
@@ -1048,82 +1114,129 @@ DOM
 */
 
 const lobby =
-    document.getElementById("lobby");
+    document.getElementById(
+        "lobby"
+    );
 
 const roomScreen =
-    document.getElementById("roomScreen");
+    document.getElementById(
+        "roomScreen"
+    );
 
 const connection =
-    document.getElementById("connection");
+    document.getElementById(
+        "connection"
+    );
 
 const profileName =
-    document.getElementById("profileName");
+    document.getElementById(
+        "profileName"
+    );
 
 const profileId =
-    document.getElementById("profileId");
+    document.getElementById(
+        "profileId"
+    );
 
 const rooms =
-    document.getElementById("rooms");
+    document.getElementById(
+        "rooms"
+    );
 
 const bigCode =
-    document.getElementById("bigCode");
+    document.getElementById(
+        "bigCode"
+    );
 
 const roomStatus =
-    document.getElementById("roomStatus");
+    document.getElementById(
+        "roomStatus"
+    );
 
 const trump =
-    document.getElementById("trump");
+    document.getElementById(
+        "trump"
+    );
 
 const trumpValue =
-    document.getElementById("trumpValue");
+    document.getElementById(
+        "trumpValue"
+    );
 
 const opponent =
-    document.getElementById("opponent");
+    document.getElementById(
+        "opponent"
+    );
 
 const opponentName =
-    document.getElementById("opponentName");
+    document.getElementById(
+        "opponentName"
+    );
 
 const opponentCount =
-    document.getElementById("opponentCount");
+    document.getElementById(
+        "opponentCount"
+    );
 
 const turn =
-    document.getElementById("turn");
+    document.getElementById(
+        "turn"
+    );
 
 const turnTitle =
-    document.getElementById("turnTitle");
+    document.getElementById(
+        "turnTitle"
+    );
 
 const turnDescription =
-    document.getElementById("turnDescription");
+    document.getElementById(
+        "turnDescription"
+    );
 
 const result =
-    document.getElementById("result");
+    document.getElementById(
+        "result"
+    );
 
 const resultTitle =
-    document.getElementById("resultTitle");
+    document.getElementById(
+        "resultTitle"
+    );
 
 const resultDescription =
-    document.getElementById("resultDescription");
+    document.getElementById(
+        "resultDescription"
+    );
 
 const table =
-    document.getElementById("table");
+    document.getElementById(
+        "table"
+    );
 
 const hand =
-    document.getElementById("hand");
+    document.getElementById(
+        "hand"
+    );
 
 const deckInfo =
-    document.getElementById("deckInfo");
+    document.getElementById(
+        "deckInfo"
+    );
 
 const moves =
-    document.getElementById("moves");
+    document.getElementById(
+        "moves"
+    );
 
 const takeBtn =
-    document.getElementById("takeBtn");
+    document.getElementById(
+        "takeBtn"
+    );
 
 const beatBtn =
-    document.getElementById("beatBtn");
-
-const actionNote =
-    document.getElementById("actionNote");
+    document.getElementById(
+        "beatBtn"
+    );
 
 
 /*
@@ -1193,7 +1306,12 @@ function socketAuth() {
         /*
         TEST MODE.
 
-        В каждом браузере свой ID.
+        Один браузер =
+        один тестовый игрок.
+
+        Для второго игрока
+        открывай второй браузер
+        или приватное окно.
         */
 
         let id =
@@ -1235,6 +1353,7 @@ function connect() {
         io(
             window.location.origin,
             {
+
                 auth:
                     socketAuth(),
 
@@ -1260,10 +1379,6 @@ function connect() {
         );
 
 
-    /*
-    CONNECTED
-    */
-
     socket.on(
         "connect",
         () => {
@@ -1286,10 +1401,6 @@ function connect() {
     );
 
 
-    /*
-    DISCONNECTED
-    */
-
     socket.on(
         "disconnect",
         () => {
@@ -1304,20 +1415,17 @@ function connect() {
     );
 
 
-    /*
-    ERROR
-    */
-
     socket.on(
         "connect_error",
-        error => {
+        (error) => {
 
             console.error(
+                "Socket error:",
                 error
             );
 
             connection.textContent =
-                "Ошибка соединения";
+                "Ошибка подключения";
 
             connection.classList.remove(
                 "online"
@@ -1332,7 +1440,7 @@ function connect() {
 
     socket.on(
         "profile",
-        data => {
+        (data) => {
 
             profile =
                 data;
@@ -1354,7 +1462,7 @@ function connect() {
 
     socket.on(
         "rooms_list",
-        list => {
+        (list) => {
 
             renderRooms(
                 list
@@ -1364,12 +1472,12 @@ function connect() {
 
 
     /*
-    ROOM CREATED
+    CREATED
     */
 
     socket.on(
         "room_created",
-        room => {
+        (room) => {
 
             openRoom();
 
@@ -1389,7 +1497,7 @@ function connect() {
 
     socket.on(
         "game_state",
-        state => {
+        (state) => {
 
             currentGame =
                 state;
@@ -1404,12 +1512,12 @@ function connect() {
 
 
     /*
-    SERVER ERROR
+    ERRORS
     */
 
     socket.on(
         "error_message",
-        message => {
+        (message) => {
 
             showToast(
                 message
@@ -1420,7 +1528,7 @@ function connect() {
 
     socket.on(
         "game_error",
-        message => {
+        (message) => {
 
             showToast(
                 message
@@ -1477,7 +1585,7 @@ function renderRooms(list) {
     rooms.innerHTML = "";
 
     list.forEach(
-        room => {
+        (room) => {
 
             const full =
                 room.playersCount >= 2;
@@ -1513,7 +1621,7 @@ function renderRooms(list) {
                     ${
                         playing
                             ? "Игра идёт"
-                            : "Ожидание второго игрока"
+                            : "Ожидание игрока"
                     }
 
                 </div>
@@ -1526,7 +1634,7 @@ function renderRooms(list) {
                             : ""
                     }
                 >
-                    ВОЙТИ
+                    Войти
                 </button>
                 `;
 
@@ -1589,7 +1697,7 @@ function closeRoom() {
 
 /*
 =========================================================
-RENDER GAME
+GAME RENDER
 =========================================================
 */
 
@@ -1604,7 +1712,7 @@ function renderGame(state) {
 
 
     /*
-    ROOM STATUS
+    STATUS
     */
 
     if (
@@ -1644,6 +1752,13 @@ function renderGame(state) {
         trumpValue.textContent =
             state.trumpSuit;
 
+        trumpValue.classList.toggle(
+            "red",
+            isRed(
+                state.trumpSuit
+            )
+        );
+
     } else {
 
         trump.style.display =
@@ -1681,12 +1796,15 @@ function renderGame(state) {
     */
 
     turn.classList.remove(
-        "your"
+        "your",
+        "attack",
+        "defense"
     );
 
+
     if (
-        state.status !==
-        "playing"
+        state.status ===
+        "waiting"
     ) {
 
         turnTitle.textContent =
@@ -1696,38 +1814,34 @@ function renderGame(state) {
             "Ожидаем второго игрока";
 
     } else if (
+        state.status ===
+        "finished"
+    ) {
+
+        turnTitle.textContent =
+            "ИГРА ЗАВЕРШЕНА";
+
+        turnDescription.textContent =
+            "Партия закончена";
+
+    } else if (
         state.phase ===
         "attack"
     ) {
 
         if (
-            state.turn ===
-            "YOUR_TURN"
+            state.canAttack
         ) {
 
             turn.classList.add(
-                "your"
+                "your",
+                "attack"
             );
 
             turnTitle.textContent =
                 "ВАШ ХОД";
 
-            /*
-            Если на столе есть карты
-            и все они отбиты —
-            атакующий выбирает:
-            подкинуть или БИТО.
-            */
-
             if (
-                state.allDefended &&
-                state.table.length > 0
-            ) {
-
-                turnDescription.textContent =
-                    "Подкиньте карту или нажмите «БИТО»";
-
-            } else if (
                 state.table.length === 0
             ) {
 
@@ -1737,7 +1851,7 @@ function renderGame(state) {
             } else {
 
                 turnDescription.textContent =
-                    "Подкиньте карту";
+                    "Выберите карту для подкидывания";
             }
 
         } else {
@@ -1746,9 +1860,7 @@ function renderGame(state) {
                 "ХОД ПРОТИВНИКА";
 
             turnDescription.textContent =
-                state.allDefended
-                    ? "Противник решает: подкинуть или БИТО"
-                    : "Ожидайте атаки";
+                "Ожидайте атаки";
         }
 
     } else if (
@@ -1757,19 +1869,37 @@ function renderGame(state) {
     ) {
 
         if (
-            state.turn ===
-            "YOUR_TURN"
+            state.canDefend
         ) {
 
             turn.classList.add(
-                "your"
+                "your",
+                "defense"
             );
 
-            turnTitle.textContent =
-                "ЗАЩИЩАЙТЕСЬ";
+            const allDefended =
+                state.table.length > 0 &&
+                state.table.every(
+                    (pair) =>
+                        !!pair.defense
+                );
 
-            turnDescription.textContent =
-                "Отбейте карту или нажмите «ВЗЯТЬ»";
+            if (allDefended) {
+
+                turnTitle.textContent =
+                    "ВСЁ ОТБИТО";
+
+                turnDescription.textContent =
+                    "Нажмите «БИТО»";
+
+            } else {
+
+                turnTitle.textContent =
+                    "ЗАЩИЩАЙТЕСЬ";
+
+                turnDescription.textContent =
+                    "Выберите карту, чтобы отбиться, или нажмите «ВЗЯТЬ»";
+            }
 
         } else {
 
@@ -1779,14 +1909,6 @@ function renderGame(state) {
             turnDescription.textContent =
                 "Противник защищается";
         }
-
-    } else {
-
-        turnTitle.textContent =
-            "ОЖИДАНИЕ";
-
-        turnDescription.textContent =
-            "Обработка хода...";
     }
 
 
@@ -1814,13 +1936,23 @@ function renderGame(state) {
             resultDescription.textContent =
                 "Вы выиграли партию.";
 
-        } else {
+        } else if (
+            state.winnerId
+        ) {
 
             resultTitle.textContent =
                 "ПОРАЖЕНИЕ";
 
             resultDescription.textContent =
                 "Вы проиграли партию.";
+
+        } else {
+
+            resultTitle.textContent =
+                "ИГРА ЗАВЕРШЕНА";
+
+            resultDescription.textContent =
+                "";
         }
 
     } else {
@@ -1850,7 +1982,7 @@ function renderGame(state) {
 
 
     /*
-    HISTORY
+    MOVES
     */
 
     renderMoves(
@@ -1859,57 +1991,94 @@ function renderGame(state) {
 
 
     /*
-    TAKE
+    ACTION BUTTONS
     */
 
-    const canTake =
-        state.status === "playing" &&
-        state.phase === "defense" &&
-        state.turn === "YOUR_TURN" &&
-        state.canTake;
+    renderActions(
+        state
+    );
+}
+
+
+/*
+=========================================================
+ACTIONS
+=========================================================
+*/
+
+function renderActions(state) {
+
+    /*
+    По умолчанию
+    всё скрываем.
+    */
 
     takeBtn.style.display =
-        canTake
-            ? "block"
-            : "none";
+        "none";
+
+    beatBtn.style.display =
+        "none";
+
+
+    if (
+        state.status !==
+        "playing"
+    ) {
+
+        return;
+    }
+
+
+    if (
+        state.phase !==
+        "defense"
+    ) {
+
+        return;
+    }
+
+
+    if (
+        !state.canDefend
+    ) {
+
+        return;
+    }
+
+
+    const hasUnbeaten =
+        state.table.some(
+            (pair) =>
+                !pair.defense
+        );
+
+    const allDefended =
+        state.table.length > 0 &&
+        state.table.every(
+            (pair) =>
+                !!pair.defense
+        );
+
+
+    /*
+    ВЗЯТЬ
+    */
+
+    if (hasUnbeaten) {
+
+        takeBtn.style.display =
+            "block";
+    }
 
 
     /*
     БИТО
     */
 
-    const canBeat =
-        state.status === "playing" &&
-        state.phase === "attack" &&
-        state.turn === "YOUR_TURN" &&
-        state.allDefended &&
-        state.table.length > 0 &&
-        state.canBeat;
+    if (allDefended) {
 
-    beatBtn.style.display =
-        canBeat
-            ? "block"
-            : "none";
-
-
-    /*
-    NOTE
-    */
-
-    if (canTake) {
-
-        actionNote.textContent =
-            "Не можете отбить карту? Заберите весь стол.";
-
-    } else if (canBeat) {
-
-        actionNote.textContent =
-            "Все карты отбиты. Можно закончить раунд.";
-
-    } else {
-
-        actionNote.textContent =
-            "";
+        beatBtn.style.display =
+            "block";
     }
 }
 
@@ -1933,9 +2102,13 @@ function renderTable(state) {
             `
             <div class="table-empty">
                 ${
-                    state.phase === "attack"
-                        ? "Ожидание атаки"
-                        : "Нет карт"
+                    state.status === "playing"
+                        ? (
+                            state.phase === "attack"
+                                ? "Ожидание атаки"
+                                : "Карты отсутствуют"
+                        )
+                        : "Стол пуст"
                 }
             </div>
             `;
@@ -1943,8 +2116,9 @@ function renderTable(state) {
         return;
     }
 
+
     state.table.forEach(
-        pair => {
+        (pair) => {
 
             const row =
                 document.createElement(
@@ -1954,57 +2128,79 @@ function renderTable(state) {
             row.className =
                 "pair";
 
-            row.innerHTML =
-                `
-                <div class="card-item ${isRed(pair.attack.suit) ? "red" : ""}">
-                    <div class="card-rank">
-                        ${escapeHtml(pair.attack.rank)}
-                    </div>
 
-                    <div class="card-suit">
-                        ${escapeHtml(pair.attack.suit)}
-                    </div>
-                </div>
+            /*
+            ATTACK CARD
+            */
 
-                <div class="arrow">
-                    ${pair.defense ? "→" : "?"}
-                </div>
-                `;
+            row.appendChild(
+                createCardElement(
+                    pair.attack,
+                    true
+                )
+            );
+
+
+            /*
+            ARROW
+            */
+
+            const arrow =
+                document.createElement(
+                    "div"
+                );
+
+            arrow.className =
+                "arrow";
+
+            arrow.textContent =
+                pair.defense
+                    ? "→"
+                    : "×";
+
+            row.appendChild(
+                arrow
+            );
+
+
+            /*
+            DEFENSE CARD
+            */
 
             if (
                 pair.defense
             ) {
 
-                const defense =
+                row.appendChild(
+                    createTableCard(
+                        pair.defense
+                    )
+                );
+
+            } else {
+
+                const empty =
                     document.createElement(
                         "div"
                     );
 
-                defense.className =
-                    "card-item " +
-                    (
-                        isRed(
-                            pair.defense.suit
-                        )
-                            ? "red"
-                            : ""
-                    );
+                empty.style.width =
+                    "58px";
 
-                defense.innerHTML =
-                    `
-                    <div class="card-rank">
-                        ${escapeHtml(pair.defense.rank)}
-                    </div>
+                empty.style.height =
+                    "82px";
 
-                    <div class="card-suit">
-                        ${escapeHtml(pair.defense.suit)}
-                    </div>
-                    `;
+                empty.style.border =
+                    "2px dashed #333";
+
+                empty.style.borderRadius =
+                    "11px";
 
                 row.appendChild(
-                    defense
+                    empty
                 );
             }
+
 
             table.appendChild(
                 row
@@ -2025,79 +2221,120 @@ function renderHand(state) {
     hand.innerHTML = "";
 
     if (
-        !state.hand ||
-        !state.hand.length
+        !Array.isArray(
+            state.hand
+        )
     ) {
-
-        hand.innerHTML =
-            `
-            <div class="waiting">
-                Карт нет
-            </div>
-            `;
 
         return;
     }
 
+
     state.hand.forEach(
-        card => {
+        (card) => {
 
             const element =
-                document.createElement(
-                    "div"
+                createCardElement(
+                    card,
+                    false
                 );
 
-            element.className =
-                "card-item " +
+
+            const clickable =
                 (
-                    isRed(card.suit)
-                        ? "red"
-                        : ""
+                    state.status ===
+                    "playing"
+                ) &&
+                (
+                    state.canAttack ||
+                    state.canDefend
                 );
 
-            element.innerHTML =
-                `
-                <div class="card-rank">
-                    ${escapeHtml(card.rank)}
-                </div>
 
-                <div class="card-suit">
-                    ${escapeHtml(card.suit)}
-                </div>
-                `;
-
-            /*
-            Только текущий игрок
-            может нажимать карты.
-            */
-
-            const canClick =
-                state.status === "playing" &&
-                state.turn === "YOUR_TURN";
-
-            if (!canClick) {
+            if (clickable) {
 
                 element.classList.add(
-                    "disabled"
+                    "clickable"
                 );
+
+                element.onclick =
+                    () => {
+
+                        handleCardClick(
+                            card
+                        );
+                    };
             }
 
-            element.onclick =
-                () => {
-
-                    if (!canClick) {
-                        return;
-                    }
-
-                    handleCardClick(
-                        card
-                    );
-                };
 
             hand.appendChild(
                 element
             );
         }
+    );
+}
+
+
+/*
+=========================================================
+CREATE HAND CARD
+=========================================================
+*/
+
+function createCardElement(
+    card,
+    tableCard
+) {
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+    element.className =
+        tableCard
+            ? "table-card"
+            : "card-item";
+
+
+    if (
+        isRed(
+            card.suit
+        )
+    ) {
+
+        element.classList.add(
+            "red"
+        );
+    }
+
+
+    element.innerHTML =
+        `
+        <div class="card-rank">
+            ${escapeHtml(card.rank)}
+        </div>
+
+        <div class="card-suit">
+            ${escapeHtml(card.suit)}
+        </div>
+        `;
+
+    return element;
+}
+
+
+/*
+=========================================================
+CREATE TABLE CARD
+=========================================================
+*/
+
+function createTableCard(card) {
+
+    return createCardElement(
+        card,
+        true
     );
 }
 
@@ -2121,15 +2358,15 @@ function handleCardClick(card) {
         return;
     }
 
+
     /*
-    ATTACK
+    АТАКА / ПОДКИДЫВАНИЕ
     */
 
     if (
         currentGame.phase ===
         "attack" &&
-        currentGame.turn ===
-        "YOUR_TURN"
+        currentGame.canAttack
     ) {
 
         socket.emit(
@@ -2140,28 +2377,29 @@ function handleCardClick(card) {
         return;
     }
 
+
     /*
-    DEFENSE
+    ЗАЩИТА
     */
 
     if (
         currentGame.phase ===
         "defense" &&
-        currentGame.turn ===
-        "YOUR_TURN"
+        currentGame.canDefend
     ) {
 
         const target =
             currentGame.table.find(
-                pair =>
+                (pair) =>
                     !pair.defense
             );
 
         if (!target) {
 
-            showToast(
-                "Все карты уже отбиты"
-            );
+            /*
+            Если всё отбито —
+            карта уже не нужна.
+            */
 
             return;
         }
@@ -2169,6 +2407,7 @@ function handleCardClick(card) {
         socket.emit(
             "defend_card",
             {
+
                 attackId:
                     target.attack.id,
 
@@ -2189,10 +2428,7 @@ TAKE
 takeBtn.onclick =
     () => {
 
-        if (
-            !socket ||
-            !currentGame
-        ) {
+        if (!socket) {
             return;
         }
 
@@ -2204,17 +2440,14 @@ takeBtn.onclick =
 
 /*
 =========================================================
-БИТО
+BEAT
 =========================================================
 */
 
 beatBtn.onclick =
     () => {
 
-        if (
-            !socket ||
-            !currentGame
-        ) {
+        if (!socket) {
             return;
         }
 
@@ -2226,7 +2459,7 @@ beatBtn.onclick =
 
 /*
 =========================================================
-CREATE
+CREATE ROOM
 =========================================================
 */
 
@@ -2257,7 +2490,7 @@ document
 
 /*
 =========================================================
-JOIN
+JOIN ROOM
 =========================================================
 */
 
@@ -2300,7 +2533,7 @@ document
     )
     .addEventListener(
         "keydown",
-        event => {
+        (event) => {
 
             if (
                 event.key ===
@@ -2344,6 +2577,108 @@ document
 
 /*
 =========================================================
+MOVES
+=========================================================
+*/
+
+function renderMoves(state) {
+
+    moves.innerHTML = "";
+
+    if (
+        !state.moves ||
+        !state.moves.length
+    ) {
+
+        moves.innerHTML =
+            `
+            <div class="waiting">
+                Ходов пока нет
+            </div>
+            `;
+
+        return;
+    }
+
+
+    const lastMoves =
+        state.moves.slice(-15);
+
+
+    lastMoves.forEach(
+        (move) => {
+
+            const element =
+                document.createElement(
+                    "div"
+                );
+
+            element.className =
+                "move";
+
+
+            let text =
+                "Действие";
+
+
+            if (
+                move.type ===
+                "start"
+            ) {
+
+                text =
+                    "Игра началась";
+
+            } else if (
+                move.type ===
+                "attack"
+            ) {
+
+                text =
+                    "Атака: " +
+                    move.card;
+
+            } else if (
+                move.type ===
+                "defend"
+            ) {
+
+                text =
+                    "Защита: " +
+                    move.card;
+
+            } else if (
+                move.type ===
+                "take"
+            ) {
+
+                text =
+                    "Игрок взял карты";
+
+            } else if (
+                move.type ===
+                "beat"
+            ) {
+
+                text =
+                    "БИТО";
+
+            }
+
+
+            element.textContent =
+                text;
+
+            moves.appendChild(
+                element
+            );
+        }
+    );
+}
+
+
+/*
+=========================================================
 HELPERS
 =========================================================
 */
@@ -2355,6 +2690,7 @@ function isRed(suit) {
         suit === "♦"
     );
 }
+
 
 function escapeHtml(value) {
 
