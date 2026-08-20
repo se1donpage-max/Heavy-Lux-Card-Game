@@ -31,12 +31,16 @@ html,
 body {
     margin: 0;
     padding: 0;
-
+    width: 100%;
     min-height: 100%;
-
-    background: #070707;
-    color: #fff;
-
+    background:
+        radial-gradient(
+            circle at top,
+            #222831 0%,
+            #101216 45%,
+            #08090c 100%
+        );
+    color: #ffffff;
     font-family:
         -apple-system,
         BlinkMacSystemFont,
@@ -47,30 +51,28 @@ body {
 
 body {
     min-height: 100vh;
-}
-
-button,
-input {
-    font: inherit;
+    overflow-x: hidden;
 }
 
 button {
-    border: 0;
+    font: inherit;
+}
+
+.hidden {
+    display: none !important;
 }
 
 .app {
     width: 100%;
-    max-width: 620px;
-
+    max-width: 650px;
+    margin: 0 auto;
     min-height: 100vh;
-
-    margin: auto;
-
     padding:
-        calc(16px + env(safe-area-inset-top))
+        max(14px, env(safe-area-inset-top))
         14px
-        calc(25px + env(safe-area-inset-bottom));
+        max(20px, env(safe-area-inset-bottom));
 }
+
 
 /* =========================================================
    HEADER
@@ -78,517 +80,524 @@ button {
 
 .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-
-    margin-bottom: 15px;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
 }
 
 .logo {
-    font-size: 19px;
+    font-size: 22px;
     font-weight: 900;
     letter-spacing: 1px;
 }
 
-.connection {
-    font-size: 11px;
-    color: #777;
+.logo span {
+    opacity: .55;
 }
 
-.connection.online {
-    color: #5cff91;
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+
+.avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2b2f38;
+    font-weight: 800;
+}
+
+.player-name {
+    max-width: 130px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 
 /* =========================================================
-   CARD
+   PANELS
 ========================================================= */
 
-.card {
-    background: #111;
+.panel {
+    background:
+        rgba(25, 28, 34, .92);
 
-    border: 1px solid #242424;
+    border:
+        1px solid
+        rgba(255,255,255,.08);
 
-    border-radius: 18px;
+    border-radius: 20px;
 
-    padding: 16px;
+    padding: 18px;
 
-    margin-bottom: 12px;
+    box-shadow:
+        0 15px 40px
+        rgba(0,0,0,.25);
+
+    margin-bottom: 14px;
 }
 
 .title {
-    font-size: 17px;
+    font-size: 22px;
     font-weight: 900;
-
-    margin-bottom: 13px;
+    margin-bottom: 6px;
 }
 
+.subtitle {
+    color: #8f96a3;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+
 /* =========================================================
-   BUTTON
+   STAKES
+========================================================= */
+
+.stakes-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.stakes-title strong {
+    font-size: 17px;
+}
+
+.stakes-title span {
+    color: #858c98;
+    font-size: 12px;
+}
+
+.stakes-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+}
+
+.stake-card {
+    position: relative;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    background:
+        linear-gradient(
+            145deg,
+            #20242c,
+            #15171d
+        );
+
+    color: #fff;
+
+    min-height: 78px;
+
+    border-radius: 16px;
+
+    padding: 14px;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        transform .12s ease,
+        border-color .12s ease,
+        background .12s ease;
+}
+
+.stake-card:active {
+    transform: scale(.98);
+}
+
+.stake-card.selected {
+    border-color: #ffffff;
+
+    background:
+        linear-gradient(
+            145deg,
+            #303641,
+            #1a1d23
+        );
+}
+
+.stake-value {
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.stake-label {
+    margin-top: 4px;
+    color: #8e96a3;
+    font-size: 12px;
+}
+
+.stake-status {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: #555;
+}
+
+.stake-status.active {
+    background: #6ee7a1;
+}
+
+
+/* =========================================================
+   BUTTONS
 ========================================================= */
 
 .btn {
     width: 100%;
 
-    padding: 14px;
+    border: 0;
+    border-radius: 14px;
 
-    margin-top: 9px;
+    min-height: 52px;
 
-    border-radius: 13px;
+    padding: 12px 16px;
 
-    background: #fff;
-    color: #000;
+    color: #fff;
 
-    font-weight: 900;
+    background: #2c313b;
+
+    font-weight: 800;
 
     cursor: pointer;
 }
 
-.btn.secondary {
-    background: #1d1d1d;
-    color: #fff;
-
-    border: 1px solid #303030;
+.btn:active {
+    transform: scale(.985);
 }
 
-.btn.take {
-    background: #2a1010;
-    color: #ff7777;
-
-    border: 1px solid #551c1c;
-}
-
-.btn.bito {
-    background: #102817;
-    color: #65ff9b;
-
-    border: 1px solid #205a35;
+.btn.primary {
+    background: #ffffff;
+    color: #111318;
 }
 
 .btn.danger {
-    background: #2a1010;
-    color: #ff6666;
-
-    border: 1px solid #451818;
+    background: #47252a;
 }
 
 .btn:disabled {
     opacity: .35;
+    cursor: default;
 }
+
+.actions {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+}
+
 
 /* =========================================================
-   PROFILE
+   ROOM LIST
 ========================================================= */
 
-.profile-name {
-    font-size: 23px;
-    font-weight: 900;
-}
-
-.profile-id {
-    margin-top: 4px;
-
-    color: #666;
-    font-size: 10px;
-}
-
-/* =========================================================
-   JOIN
-========================================================= */
-
-.join {
-    display: flex;
+.room-list {
+    display: grid;
     gap: 8px;
 }
 
-.join input {
-    flex: 1;
-    min-width: 0;
-
-    padding: 13px;
-
-    border-radius: 13px;
-
-    border: 1px solid #303030;
-
-    outline: none;
-
-    background: #080808;
-    color: #fff;
-
-    text-transform: uppercase;
-}
-
-.join .btn {
-    width: 100px;
-    margin-top: 0;
-}
-
-/* =========================================================
-   ROOMS
-========================================================= */
-
 .room {
-    padding: 13px;
-
-    margin-top: 9px;
-
-    border-radius: 13px;
-
-    background: #0b0b0b;
-
-    border: 1px solid #292929;
-}
-
-.room-head {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-}
+    gap: 10px;
 
-.room-code {
-    font-size: 18px;
-    font-weight: 900;
+    background: #171a20;
 
-    letter-spacing: 2px;
+    border:
+        1px solid
+        rgba(255,255,255,.06);
+
+    border-radius: 14px;
+
+    padding: 12px;
 }
 
 .room-info {
-    margin-top: 6px;
-
-    font-size: 11px;
-    color: #777;
+    min-width: 0;
 }
 
-/* =========================================================
-   SCREENS
-========================================================= */
-
-.room-screen {
-    display: none;
-}
-
-.room-screen.active {
-    display: block;
-}
-
-.lobby.hidden {
-    display: none;
-}
-
-/* =========================================================
-   ROOM
-========================================================= */
-
-.big-code {
-    text-align: center;
-
-    font-size: 30px;
+.room-stake {
     font-weight: 900;
-
-    letter-spacing: 5px;
-
-    margin: 7px 0 14px;
 }
 
-.center {
-    text-align: center;
+.room-id {
+    color: #777f8b;
+    font-size: 11px;
+    margin-top: 3px;
 }
+
+.room-players {
+    color: #969eaa;
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.room .btn {
+    width: auto;
+    min-width: 90px;
+    min-height: 42px;
+}
+
 
 /* =========================================================
-   TRUMP
+   GAME
 ========================================================= */
+
+.game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.game-stake {
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.game-status {
+    color: #8f96a3;
+    font-size: 12px;
+}
+
+.player-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: #171a20;
+
+    border-radius: 14px;
+
+    padding: 12px;
+}
+
+.player-side {
+    min-width: 0;
+}
+
+.player-side strong {
+    display: block;
+
+    max-width: 180px;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cards-count {
+    color: #858d9a;
+    font-size: 12px;
+    margin-top: 3px;
+}
 
 .trump {
     text-align: center;
-
-    margin: 12px 0;
-
-    padding: 11px;
-
-    border-radius: 13px;
-
-    background: #171717;
-
-    border: 1px solid #2e2e2e;
 }
 
 .trump-label {
-    color: #777;
+    color: #777f8c;
     font-size: 10px;
 }
 
 .trump-value {
-    margin-top: 4px;
-
-    font-size: 28px;
+    font-size: 25px;
     font-weight: 900;
 }
 
-/* =========================================================
-   OPPONENT
-========================================================= */
-
-.opponent {
-    display: flex;
-
-    justify-content: space-between;
-    align-items: center;
-
-    padding: 11px;
-
-    border-radius: 13px;
-
-    background: #0b0b0b;
-
-    border: 1px solid #292929;
-}
-
-.opponent-name {
-    font-weight: 800;
-}
-
-.opponent-count {
-    color: #777;
-    font-size: 12px;
-}
-
-/* =========================================================
-   TURN
-========================================================= */
-
-.turn {
-    margin: 12px 0;
-
-    padding: 18px;
-
-    text-align: center;
-
-    border-radius: 15px;
-
-    background: #0b0b0b;
-
-    border: 1px solid #292929;
-}
-
-.turn.your {
-    border-color: #666;
-}
-
-.turn-title {
-    font-size: 23px;
-    font-weight: 900;
-}
-
-.turn-description {
-    margin-top: 5px;
-
-    color: #777;
-
-    font-size: 11px;
-}
 
 /* =========================================================
    TABLE
 ========================================================= */
 
 .table {
-    min-height: 120px;
+    min-height: 250px;
 
-    padding: 12px;
+    margin:
+        14px 0;
 
-    border-radius: 16px;
+    border-radius: 20px;
 
-    background: #080808;
+    background:
+        radial-gradient(
+            circle at center,
+            #202b25,
+            #101512
+        );
 
-    border: 1px solid #242424;
+    border:
+        1px solid
+        rgba(255,255,255,.07);
+
+    padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
 }
 
 .table-empty {
-    min-height: 95px;
-
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
-
-    color: #555;
-
-    font-size: 12px;
+    text-align: center;
+    color: #59616d;
+    font-size: 13px;
 }
 
 .pair {
     display: flex;
-
     justify-content: center;
-    align-items: center;
-
-    gap: 12px;
-
-    margin-bottom: 12px;
+    gap: 10px;
 }
 
-.arrow {
-    color: #777;
-    font-size: 18px;
-}
+.card {
+    width: 68px;
+    height: 92px;
 
-/* =========================================================
-   CARDS
-========================================================= */
-
-.hand {
-    display: flex;
-
-    flex-wrap: wrap;
-
-    justify-content: center;
-
-    gap: 8px;
-
-    margin-top: 12px;
-}
-
-.card-item {
-    width: 57px;
-    height: 78px;
-
-    border-radius: 11px;
+    border-radius: 10px;
 
     background: #f5f5f5;
-
     color: #111;
 
-    border: 2px solid #fff;
-
     display: flex;
-
-    flex-direction: column;
-
+    align-items: center;
     justify-content: center;
 
-    align-items: center;
-
+    font-size: 24px;
     font-weight: 900;
 
     box-shadow:
-        0 4px 10px
-        rgba(0,0,0,.35);
+        0 8px 15px
+        rgba(0,0,0,.25);
 
     cursor: pointer;
 
     user-select: none;
-
-    transition:
-        transform .12s ease,
-        opacity .12s ease;
 }
 
-.card-item.red {
-    color: #d21e1e;
+.card.red {
+    color: #c62828;
 }
 
-.card-item:hover {
-    transform: translateY(-2px);
+.card.back {
+    background:
+        repeating-linear-gradient(
+            45deg,
+            #292e38,
+            #292e38 4px,
+            #20242c 4px,
+            #20242c 8px
+        );
+
+    color: transparent;
 }
 
-.card-item:active {
-    transform: scale(.96);
+.card.selected {
+    outline:
+        3px solid
+        #ffffff;
+
+    transform:
+        translateY(-5px);
 }
 
-.card-item.disabled {
-    opacity: .35;
-    cursor: default;
+.card.small {
+    width: 54px;
+    height: 74px;
+    font-size: 19px;
 }
 
-.card-rank {
-    font-size: 22px;
-}
-
-.card-suit {
-    font-size: 20px;
-}
 
 /* =========================================================
-   ACTIONS
+   HAND
 ========================================================= */
 
-.actions {
-    margin-top: 12px;
+.hand {
+    display: flex;
+    gap: 7px;
+
+    overflow-x: auto;
+
+    padding:
+        8px
+        2px
+        12px;
+
+    scrollbar-width: none;
 }
 
-.action-note {
-    margin-top: 8px;
-
-    color: #666;
-
-    text-align: center;
-
-    font-size: 11px;
-}
-
-/* =========================================================
-   MOVES
-========================================================= */
-
-.moves {
-    margin-top: 14px;
-}
-
-.move {
-    padding: 7px 0;
-
-    border-bottom: 1px solid #222;
-
-    color: #777;
-
-    font-size: 11px;
-}
-
-/* =========================================================
-   RESULT
-========================================================= */
-
-.result {
+.hand::-webkit-scrollbar {
     display: none;
-
-    padding: 20px;
-
-    text-align: center;
-
-    border-radius: 16px;
-
-    background: #171717;
-
-    border: 1px solid #333;
-
-    margin-bottom: 12px;
 }
 
-.result.active {
-    display: block;
+.hand .card {
+    flex:
+        0 0 auto;
 }
 
-.result-title {
-    font-size: 28px;
-    font-weight: 900;
-}
-
-.result-description {
-    margin-top: 7px;
-
-    color: #888;
-}
 
 /* =========================================================
-   WAITING
+   GAME ACTIONS
 ========================================================= */
 
-.waiting {
-    padding: 18px 0;
+.game-actions {
+    display: grid;
 
-    text-align: center;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
 
-    color: #777;
+    gap: 8px;
 }
+
+.game-actions .btn {
+    min-height: 48px;
+}
+
+
+/* =========================================================
+   INFO
+========================================================= */
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+
+    padding: 8px 0;
+
+    color: #8e96a3;
+
+    font-size: 13px;
+}
+
+.info-row strong {
+    color: #fff;
+}
+
 
 /* =========================================================
    TOAST
@@ -597,34 +606,89 @@ button {
 .toast {
     position: fixed;
 
-    left: 14px;
-    right: 14px;
+    left: 50%;
 
     bottom:
         calc(
-            17px +
+            20px +
             env(safe-area-inset-bottom)
         );
 
-    padding: 13px;
+    transform:
+        translateX(-50%)
+        translateY(20px);
 
-    border-radius: 13px;
+    opacity: 0;
 
-    background: #fff;
-    color: #000;
-
-    font-size: 13px;
-    font-weight: 800;
-
-    text-align: center;
-
-    display: none;
+    pointer-events: none;
 
     z-index: 1000;
+
+    max-width:
+        calc(100% - 30px);
+
+    background:
+        #252a33;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    border-radius: 14px;
+
+    padding: 12px 16px;
+
+    font-size: 13px;
+
+    transition:
+        opacity .2s ease,
+        transform .2s ease;
 }
 
 .toast.show {
-    display: block;
+    opacity: 1;
+
+    transform:
+        translateX(-50%)
+        translateY(0);
+}
+
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+.result {
+    text-align: center;
+    padding: 15px 0;
+}
+
+.result-title {
+    font-size: 28px;
+    font-weight: 900;
+}
+
+.result-subtitle {
+    margin-top: 6px;
+    color: #8f96a3;
+}
+
+
+/* =========================================================
+   DESKTOP
+========================================================= */
+
+@media (min-width: 600px) {
+
+    .stakes-grid {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+    }
+
+    .card {
+        width: 76px;
+        height: 105px;
+    }
 }
 
 </style>
@@ -635,332 +699,340 @@ button {
 
 <div class="app">
 
-<div class="header">
+    <header class="header">
 
-    <div class="logo">
-        HEAVY LUX CARD
-    </div>
+        <div class="logo">
+            HEAVY <span>LUX</span> CARD
+        </div>
 
-    <div
-        id="connection"
-        class="connection"
+        <div class="profile">
+
+            <div
+                id="avatar"
+                class="avatar"
+            >
+                ?
+            </div>
+
+            <div
+                id="playerName"
+                class="player-name"
+            >
+                Игрок
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         LOBBY
+    ====================================================== -->
+
+    <section
+        id="lobby"
     >
-        Подключение...
-    </div>
 
-</div>
+        <div class="panel">
 
-
-<!-- =====================================================
-     LOBBY
-====================================================== -->
-
-<div
-    id="lobby"
-    class="lobby"
->
-
-    <div class="card">
-
-        <div class="title">
-            Профиль
-        </div>
-
-        <div
-            id="profileName"
-            class="profile-name"
-        >
-            Загрузка...
-        </div>
-
-        <div
-            id="profileId"
-            class="profile-id"
-        >
-            —
-        </div>
-
-    </div>
-
-
-    <div class="card">
-
-        <div class="title">
-            Дурак 1×1
-        </div>
-
-        <button
-            id="createBtn"
-            class="btn"
-        >
-            СОЗДАТЬ КОМНАТУ
-        </button>
-
-    </div>
-
-
-    <div class="card">
-
-        <div class="title">
-            Войти по коду
-        </div>
-
-        <div class="join">
-
-            <input
-                id="roomInput"
-                maxlength="6"
-                placeholder="КОД"
-                autocomplete="off"
-            >
-
-            <button
-                id="joinBtn"
-                class="btn"
-            >
-                ВОЙТИ
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <div class="card">
-
-        <div class="title">
-            Комнаты
-        </div>
-
-        <div id="rooms">
-            <div class="waiting">
-                Загрузка...
+            <div class="title">
+                Выберите ставку
             </div>
-        </div>
 
-    </div>
-
-</div>
-
-
-<!-- =====================================================
-     ROOM
-====================================================== -->
-
-<div
-    id="roomScreen"
-    class="room-screen"
->
-
-    <div class="card">
-
-        <div class="title">
-            ДУРАК 1×1
-        </div>
-
-        <div
-            id="bigCode"
-            class="big-code"
-        >
-            ------
-        </div>
-
-
-        <div
-            id="roomStatus"
-            class="center"
-        >
-            Ожидание игрока...
-        </div>
-
-
-        <div
-            id="trump"
-            class="trump"
-            style="display:none;"
-        >
-
-            <div class="trump-label">
-                КОЗЫРЬ
+            <div class="subtitle">
+                Игры разделены по столам.
+                Ставка фиксируется за комнатой.
             </div>
 
             <div
-                id="trumpValue"
-                class="trump-value"
-            >
-                —
-            </div>
-
-        </div>
-
-
-        <div
-            id="opponent"
-            class="opponent"
-            style="display:none;"
-        >
-
-            <div
-                id="opponentName"
-                class="opponent-name"
-            >
-                Противник
-            </div>
-
-            <div
-                id="opponentCount"
-                class="opponent-count"
-            >
-                6 карт
-            </div>
-
-        </div>
-
-
-        <div
-            id="turn"
-            class="turn"
-        >
-
-            <div
-                id="turnTitle"
-                class="turn-title"
-            >
-                ОЖИДАНИЕ
-            </div>
-
-            <div
-                id="turnDescription"
-                class="turn-description"
-            >
-                Ожидаем второго игрока
-            </div>
-
-        </div>
-
-
-        <div
-            id="result"
-            class="result"
-        >
-
-            <div
-                id="resultTitle"
-                class="result-title"
-            >
-                —
-            </div>
-
-            <div
-                id="resultDescription"
-                class="result-description"
-            >
-                —
-            </div>
-
-        </div>
-
-
-        <div class="title">
-            СТОЛ
-        </div>
-
-        <div
-            id="table"
-            class="table"
-        >
-
-            <div class="table-empty">
-                Пока нет карт
-            </div>
-
-        </div>
-
-
-        <!-- ACTIONS -->
-
-        <div
-            id="actions"
-            class="actions"
-        >
-
-            <button
-                id="takeBtn"
-                class="btn take"
-                style="display:none;"
-            >
-                ВЗЯТЬ
-            </button>
-
-
-            <button
-                id="bitoBtn"
-                class="btn bito"
-                style="display:none;"
-            >
-                БИТО
-            </button>
-
-
-            <div
-                id="actionNote"
-                class="action-note"
+                id="stakesGrid"
+                class="stakes-grid"
+                style="margin-top:16px"
             ></div>
 
+            <div class="actions">
+
+                <button
+                    id="createBtn"
+                    class="btn primary"
+                >
+                    Создать игру
+                </button>
+
+            </div>
+
         </div>
 
 
         <div
-            class="title"
-            style="margin-top:18px;"
+            id="roomsPanel"
+            class="panel"
         >
-            МОИ КАРТЫ
+
+            <div class="stakes-title">
+
+                <strong>
+                    Открытые столы
+                </strong>
+
+                <span id="roomCount">
+                    0
+                </span>
+
+            </div>
+
+            <div
+                id="roomList"
+                class="room-list"
+            >
+                <div
+                    class="subtitle"
+                >
+                    Сейчас открытых игр нет.
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         GAME
+    ====================================================== -->
+
+    <section
+        id="game"
+        class="hidden"
+    >
+
+        <div class="panel">
+
+            <div class="game-header">
+
+                <div>
+
+                    <div
+                        id="gameStake"
+                        class="game-stake"
+                    >
+                        Ставка 100
+                    </div>
+
+                    <div
+                        id="gameStatus"
+                        class="game-status"
+                    >
+                        Ожидание игрока
+                    </div>
+
+                </div>
+
+                <button
+                    id="leaveBtn"
+                    class="btn danger"
+                    style="width:auto;min-height:40px"
+                >
+                    Выйти
+                </button>
+
+            </div>
+
+
+            <div class="player-bar">
+
+                <div class="player-side">
+
+                    <strong
+                        id="opponentName"
+                    >
+                        Ожидание игрока
+                    </strong>
+
+                    <div
+                        id="opponentCards"
+                        class="cards-count"
+                    >
+                        Карт: 0
+                    </div>
+
+                </div>
+
+
+                <div class="trump">
+
+                    <div class="trump-label">
+                        КОЗЫРЬ
+                    </div>
+
+                    <div
+                        id="trump"
+                        class="trump-value"
+                    >
+                        —
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="player-side"
+                    style="text-align:right"
+                >
+
+                    <strong
+                        id="meName"
+                    >
+                        Вы
+                    </strong>
+
+                    <div
+                        id="myCardsCount"
+                        class="cards-count"
+                    >
+                        Карт: 0
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="table"
+                class="table"
+            >
+
+                <div
+                    class="table-empty"
+                >
+                    Ожидание начала игры
+                </div>
+
+            </div>
+
+
+            <div
+                id="turnText"
+                class="subtitle"
+                style="text-align:center;margin-bottom:10px"
+            >
+                Ожидание игрока
+            </div>
+
+
+            <div
+                id="hand"
+                class="hand"
+            ></div>
+
+
+            <div
+                class="game-actions"
+            >
+
+                <button
+                    id="takeBtn"
+                    class="btn"
+                >
+                    ВЗЯТЬ
+                </button>
+
+                <button
+                    id="bitoBtn"
+                    class="btn primary"
+                >
+                    БИТО
+                </button>
+
+            </div>
+
         </div>
 
 
         <div
-            id="hand"
-            class="hand"
-        ></div>
-
-
-        <div
-            id="deckInfo"
-            class="center"
-            style="
-                margin-top:12px;
-                color:#666;
-                font-size:11px;
-            "
+            id="gameInfo"
+            class="panel"
         >
-            Колода: —
+
+            <div class="info-row">
+
+                <span>
+                    Ставка
+                </span>
+
+                <strong
+                    id="infoStake"
+                >
+                    100
+                </strong>
+
+            </div>
+
+            <div class="info-row">
+
+                <span>
+                    Карт в колоде
+                </span>
+
+                <strong
+                    id="deckCount"
+                >
+                    36
+                </strong>
+
+            </div>
+
+            <div class="info-row">
+
+                <span>
+                    Максимум на столе
+                </span>
+
+                <strong
+                    id="roundLimit"
+                >
+                    0
+                </strong>
+
+            </div>
+
         </div>
 
 
         <div
-            class="title"
-            style="margin-top:17px;"
+            id="resultPanel"
+            class="panel hidden"
         >
-            ИСТОРИЯ
+
+            <div class="result">
+
+                <div
+                    id="resultTitle"
+                    class="result-title"
+                >
+                    Игра окончена
+                </div>
+
+                <div
+                    id="resultSubtitle"
+                    class="result-subtitle"
+                >
+                </div>
+
+            </div>
+
+            <button
+                id="backLobbyBtn"
+                class="btn primary"
+            >
+                В лобби
+            </button>
+
         </div>
 
-
-        <div
-            id="moves"
-            class="moves"
-        ></div>
-
-
-        <button
-            id="leaveBtn"
-            class="btn danger"
-        >
-            ПОКИНУТЬ КОМНАТУ
-        </button>
-
-    </div>
-
-</div>
+    </section>
 
 </div>
 
@@ -968,7 +1040,8 @@ button {
 <div
     id="toast"
     class="toast"
-></div>
+>
+</div>
 
 
 <script>
@@ -977,12 +1050,17 @@ button {
    TELEGRAM
 ========================================================= */
 
-const telegram =
-    window.Telegram?.WebApp || null;
+const tg =
+    window.Telegram &&
+    window.Telegram.WebApp
+        ? window.Telegram.WebApp
+        : null;
 
-if (telegram) {
-    telegram.ready();
-    telegram.expand();
+if (tg) {
+
+    tg.ready();
+
+    tg.expand();
 }
 
 
@@ -990,138 +1068,61 @@ if (telegram) {
    STATE
 ========================================================= */
 
-let socket = null;
-let profile = null;
-let currentGame = null;
+const state = {
+
+    profile: null,
+
+    selectedStake:
+        100,
+
+    room: null,
+
+    game: null,
+
+    selectedCardId:
+        null,
+
+    selectedAttackId:
+        null,
+
+    selectedDefenseId:
+        null
+};
 
 
 /* =========================================================
-   DOM
+   SOCKET
 ========================================================= */
 
-const lobby =
-    document.getElementById("lobby");
+const socket =
+    io(
+        window.location.origin,
+        {
+            transports: [
+                "websocket",
+                "polling"
+            ],
 
-const roomScreen =
-    document.getElementById("roomScreen");
+            auth: {
+                initData:
+                    tg
+                        ? tg.initData
+                        : "",
 
-const connection =
-    document.getElementById("connection");
-
-const profileName =
-    document.getElementById("profileName");
-
-const profileId =
-    document.getElementById("profileId");
-
-const rooms =
-    document.getElementById("rooms");
-
-const bigCode =
-    document.getElementById("bigCode");
-
-const roomStatus =
-    document.getElementById("roomStatus");
-
-const trump =
-    document.getElementById("trump");
-
-const trumpValue =
-    document.getElementById("trumpValue");
-
-const opponent =
-    document.getElementById("opponent");
-
-const opponentName =
-    document.getElementById("opponentName");
-
-const opponentCount =
-    document.getElementById("opponentCount");
-
-const turn =
-    document.getElementById("turn");
-
-const turnTitle =
-    document.getElementById("turnTitle");
-
-const turnDescription =
-    document.getElementById("turnDescription");
-
-const result =
-    document.getElementById("result");
-
-const resultTitle =
-    document.getElementById("resultTitle");
-
-const resultDescription =
-    document.getElementById("resultDescription");
-
-const table =
-    document.getElementById("table");
-
-const hand =
-    document.getElementById("hand");
-
-const deckInfo =
-    document.getElementById("deckInfo");
-
-const moves =
-    document.getElementById("moves");
-
-const takeBtn =
-    document.getElementById("takeBtn");
-
-const bitoBtn =
-    document.getElementById("bitoBtn");
-
-const actionNote =
-    document.getElementById("actionNote");
+                testPlayerId:
+                    getTestPlayerId()
+            }
+        }
+    );
 
 
-/* =========================================================
-   TOAST
-========================================================= */
-
-let toastTimer = null;
-
-function showToast(text) {
-
-    const toast =
-        document.getElementById("toast");
-
-    toast.textContent = text;
-
-    toast.classList.add("show");
-
-    clearTimeout(toastTimer);
-
-    toastTimer =
-        setTimeout(() => {
-            toast.classList.remove("show");
-        }, 3000);
-}
-
-
-/* =========================================================
-   AUTH
-========================================================= */
-
-function socketAuth() {
-
-    if (
-        telegram &&
-        telegram.initData
-    ) {
-        return {
-            initData:
-                telegram.initData
-        };
-    }
+function getTestPlayerId() {
 
     let id =
         localStorage.getItem(
-            "hlc_test_id"
+            "hlc_test_player_id"
         );
+
 
     if (!id) {
 
@@ -1132,1022 +1133,140 @@ function socketAuth() {
                 .slice(2, 10);
 
         localStorage.setItem(
-            "hlc_test_id",
+            "hlc_test_player_id",
             id
         );
     }
 
-    return {
-        testPlayerId: id
-    };
+
+    return id;
 }
 
 
 /* =========================================================
-   CONNECT
+   DOM
 ========================================================= */
 
-function connect() {
-
-    socket =
-        io(
-            window.location.origin,
-            {
-                auth:
-                    socketAuth(),
-
-                transports: [
-                    "websocket",
-                    "polling"
-                ],
-
-                reconnection: true,
-
-                reconnectionAttempts:
-                    Infinity,
-
-                reconnectionDelay:
-                    1000,
-
-                reconnectionDelayMax:
-                    5000,
-
-                timeout: 10000
-            }
-        );
-
-
-    socket.on(
-        "connect",
-        () => {
-
-            connection.textContent =
-                "Онлайн";
-
-            connection.classList.add(
-                "online"
-            );
-
-            socket.emit(
-                "get_profile"
-            );
-
-            socket.emit(
-                "get_rooms"
-            );
-        }
+const lobby =
+    document.getElementById(
+        "lobby"
     );
 
-
-    socket.on(
-        "disconnect",
-        () => {
-
-            connection.textContent =
-                "Переподключение...";
-
-            connection.classList.remove(
-                "online"
-            );
-        }
+const game =
+    document.getElementById(
+        "game"
     );
 
-
-    socket.on(
-        "connect_error",
-        err => {
-
-            console.error(err);
-
-            connection.textContent =
-                "Ошибка подключения";
-
-            connection.classList.remove(
-                "online"
-            );
-        }
+const stakesGrid =
+    document.getElementById(
+        "stakesGrid"
     );
 
-
-    /* PROFILE */
-
-    socket.on(
-        "profile",
-        data => {
-
-            profile = data;
-
-            profileName.textContent =
-                data.name ||
-                "Игрок";
-
-            profileId.textContent =
-                "ID: " +
-                data.playerId;
-        }
+const roomList =
+    document.getElementById(
+        "roomList"
     );
 
-
-    /* ROOMS */
-
-    socket.on(
-        "rooms_list",
-        list => {
-            renderRooms(list);
-        }
+const roomCount =
+    document.getElementById(
+        "roomCount"
     );
 
-
-    /* CREATED */
-
-    socket.on(
-        "room_created",
-        room => {
-
-            openRoom();
-
-            bigCode.textContent =
-                room.id;
-
-            showToast(
-                "Комната создана"
-            );
-        }
+const createBtn =
+    document.getElementById(
+        "createBtn"
     );
 
-
-    /* GAME */
-
-    socket.on(
-        "game_state",
-        state => {
-
-            currentGame = state;
-
-            openRoom();
-
-            renderGame(state);
-        }
+const leaveBtn =
+    document.getElementById(
+        "leaveBtn"
     );
 
-
-    /* ERRORS */
-
-    socket.on(
-        "error_message",
-        message => {
-            showToast(message);
-        }
+const takeBtn =
+    document.getElementById(
+        "takeBtn"
     );
 
-
-    socket.on(
-        "game_error",
-        message => {
-            showToast(message);
-        }
+const bitoBtn =
+    document.getElementById(
+        "bitoBtn"
     );
 
-
-    /* LEFT */
-
-    socket.on(
-        "left_room",
-        () => {
-
-            currentGame = null;
-
-            closeRoom();
-
-            socket.emit(
-                "get_rooms"
-            );
-        }
-    );
-}
-
-
-/* =========================================================
-   ROOMS
-========================================================= */
-
-function renderRooms(list) {
-
-    if (!list.length) {
-
-        rooms.innerHTML = `
-            <div class="waiting">
-                Нет доступных комнат
-            </div>
-        `;
-
-        return;
-    }
-
-    rooms.innerHTML = "";
-
-    list.forEach(room => {
-
-        const full =
-            room.playersCount >= 2;
-
-        const playing =
-            room.status === "playing";
-
-        const element =
-            document.createElement("div");
-
-        element.className = "room";
-
-        element.innerHTML = `
-            <div class="room-head">
-
-                <div class="room-code">
-                    ${escapeHtml(room.id)}
-                </div>
-
-                <div>
-                    ${room.playersCount}/2
-                </div>
-
-            </div>
-
-            <div class="room-info">
-                ${
-                    playing
-                        ? "Игра уже идёт"
-                        : "Ожидание второго игрока"
-                }
-            </div>
-
-            <button
-                class="btn secondary"
-                ${full || playing ? "disabled" : ""}
-            >
-                ВОЙТИ
-            </button>
-        `;
-
-        const button =
-            element.querySelector("button");
-
-        if (!full && !playing) {
-
-            button.onclick = () => {
-
-                socket.emit(
-                    "join_room",
-                    room.id
-                );
-            };
-        }
-
-        rooms.appendChild(element);
-    });
-}
-
-
-/* =========================================================
-   OPEN/CLOSE
-========================================================= */
-
-function openRoom() {
-
-    lobby.classList.add("hidden");
-
-    roomScreen.classList.add("active");
-}
-
-function closeRoom() {
-
-    roomScreen.classList.remove("active");
-
-    lobby.classList.remove("hidden");
-}
-
-
-/* =========================================================
-   GAME RENDER
-========================================================= */
-
-function renderGame(state) {
-
-    bigCode.textContent =
-        state.roomId;
-
-    deckInfo.textContent =
-        "Колода: " +
-        state.deckCount;
-
-
-    /* STATUS */
-
-    if (state.status === "waiting") {
-
-        roomStatus.textContent =
-            "Ожидание второго игрока...";
-
-    } else if (state.status === "playing") {
-
-        roomStatus.textContent =
-            "Игра идёт";
-
-    } else {
-
-        roomStatus.textContent =
-            "Игра завершена";
-    }
-
-
-    /* TRUMP */
-
-    if (state.trumpSuit) {
-
-        trump.style.display =
-            "block";
-
-        trumpValue.textContent =
-            state.trumpSuit;
-
-    } else {
-
-        trump.style.display =
-            "none";
-    }
-
-
-    /* OPPONENT */
-
-    if (state.opponent) {
-
-        opponent.style.display =
-            "flex";
-
-        opponentName.textContent =
-            state.opponent.name;
-
-        opponentCount.textContent =
-            state.opponent.cardsCount +
-            " карт";
-
-    } else {
-
-        opponent.style.display =
-            "none";
-    }
-
-
-    /* TURN */
-
-    turn.classList.remove("your");
-
-
-    if (state.status !== "playing") {
-
-        turnTitle.textContent =
-            "ОЖИДАНИЕ";
-
-        turnDescription.textContent =
-            "Ожидаем второго игрока";
-
-    } else if (
-        state.phase === "attack"
-    ) {
-
-        if (
-            state.turn === "YOUR_TURN"
-        ) {
-
-            turn.classList.add("your");
-
-            turnTitle.textContent =
-                "ВАШ ХОД";
-
-            turnDescription.textContent =
-                state.table.length
-                    ? "Выберите карту для подкидывания"
-                    : "Выберите карту для атаки";
-
-        } else {
-
-            turnTitle.textContent =
-                "ХОД ПРОТИВНИКА";
-
-            turnDescription.textContent =
-                "Ожидайте атаки";
-        }
-
-    } else if (
-        state.phase === "defense"
-    ) {
-
-        if (
-            state.turn === "YOUR_TURN"
-        ) {
-
-            turn.classList.add("your");
-
-            turnTitle.textContent =
-                "ВАШ ХОД";
-
-            turnDescription.textContent =
-                "Отбейте карту или нажмите «ВЗЯТЬ»";
-
-        } else {
-
-            turnTitle.textContent =
-                "ХОД ПРОТИВНИКА";
-
-            turnDescription.textContent =
-                "Противник защищается";
-        }
-
-    } else if (
-        state.phase === "bito"
-    ) {
-
-        if (
-            state.turn === "YOUR_TURN"
-        ) {
-
-            turn.classList.add("your");
-
-            turnTitle.textContent =
-                "ВАШ ХОД";
-
-            turnDescription.textContent =
-                "Все карты отбиты — подкиньте ещё или нажмите «БИТО»";
-
-        } else {
-
-            turnTitle.textContent =
-                "ХОД ПРОТИВНИКА";
-
-            turnDescription.textContent =
-                "Ожидайте, пока атакующий подкинет карту или нажмёт «БИТО»";
-        }
-
-    } else {
-
-        turnTitle.textContent =
-            "ДОБОР";
-
-        turnDescription.textContent =
-            "Карты добираются до 6";
-    }
-
-
-    /* RESULT */
-
-    if (
-        state.status === "finished"
-    ) {
-
-        result.classList.add("active");
-
-        if (
-            state.winnerId ===
-            state.me.playerId
-        ) {
-
-            resultTitle.textContent =
-                "ПОБЕДА";
-
-            resultDescription.textContent =
-                "Вы выиграли партию.";
-
-        } else {
-
-            resultTitle.textContent =
-                "ПОРАЖЕНИЕ";
-
-            resultDescription.textContent =
-                "Вы проиграли партию.";
-        }
-
-    } else {
-
-        result.classList.remove("active");
-    }
-
-
-    /* TABLE */
-
-    renderTable(state);
-
-
-    /* HAND */
-
-    renderHand(state);
-
-
-    /* MOVES */
-
-    renderMoves(state);
-
-
-    /* =====================================================
-       ACTION BUTTONS
-    ===================================================== */
-
-    takeBtn.style.display =
-        state.canTake
-            ? "block"
-            : "none";
-
-
-    bitoBtn.style.display =
-        state.canBito
-            ? "block"
-            : "none";
-
-
-    if (state.canTake) {
-
-        actionNote.textContent =
-            "На столе есть неотбитая карта.";
-
-    } else if (state.canBito) {
-
-        actionNote.textContent =
-            "Все карты отбиты. Можно подкинуть ещё или закончить розыгрыш.";
-
-    } else if (
-        state.canAttack &&
-        state.table.length > 0
-    ) {
-
-        actionNote.textContent =
-            "Можно подкинуть карту с номиналом, который уже есть на столе.";
-
-    } else {
-
-        actionNote.textContent =
-            "";
-    }
-}
-
-
-/* =========================================================
-   TABLE
-========================================================= */
-
-function renderTable(state) {
-
-    table.innerHTML = "";
-
-    if (!state.table.length) {
-
-        table.innerHTML = `
-            <div class="table-empty">
-                ${
-                    state.phase === "attack"
-                        ? "Ожидание атаки"
-                        : "Стол пуст"
-                }
-            </div>
-        `;
-
-        return;
-    }
-
-
-    state.table.forEach(pair => {
-
-        const row =
-            document.createElement("div");
-
-        row.className = "pair";
-
-
-        /* ATTACK */
-
-        const attack =
-            document.createElement("div");
-
-        attack.className =
-            "card-item " +
-            (
-                isRed(
-                    pair.attack.suit
-                )
-                    ? "red"
-                    : ""
-            );
-
-        attack.innerHTML = `
-            <div class="card-rank">
-                ${escapeHtml(pair.attack.rank)}
-            </div>
-
-            <div class="card-suit">
-                ${escapeHtml(pair.attack.suit)}
-            </div>
-        `;
-
-
-        row.appendChild(attack);
-
-
-        /* ARROW */
-
-        const arrow =
-            document.createElement("div");
-
-        arrow.className = "arrow";
-
-        arrow.textContent =
-            pair.defense
-                ? "→"
-                : "×";
-
-        row.appendChild(arrow);
-
-
-        /* DEFENSE */
-
-        if (pair.defense) {
-
-            const defense =
-                document.createElement("div");
-
-            defense.className =
-                "card-item " +
-                (
-                    isRed(
-                        pair.defense.suit
-                    )
-                        ? "red"
-                        : ""
-                );
-
-            defense.innerHTML = `
-                <div class="card-rank">
-                    ${escapeHtml(pair.defense.rank)}
-                </div>
-
-                <div class="card-suit">
-                    ${escapeHtml(pair.defense.suit)}
-                </div>
-            `;
-
-            row.appendChild(defense);
-
-        } else {
-
-            const empty =
-                document.createElement("div");
-
-            empty.style.width = "57px";
-            empty.style.height = "78px";
-            empty.style.borderRadius = "11px";
-            empty.style.border =
-                "1px dashed #333";
-
-            row.appendChild(empty);
-        }
-
-
-        table.appendChild(row);
-    });
-}
-
-
-/* =========================================================
-   HAND
-========================================================= */
-
-function renderHand(state) {
-
-    hand.innerHTML = "";
-
-    state.hand.forEach(card => {
-
-        const element =
-            document.createElement("div");
-
-        element.className =
-            "card-item " +
-            (
-                isRed(card.suit)
-                    ? "red"
-                    : ""
-            );
-
-        element.innerHTML = `
-            <div class="card-rank">
-                ${escapeHtml(card.rank)}
-            </div>
-
-            <div class="card-suit">
-                ${escapeHtml(card.suit)}
-            </div>
-        `;
-
-        /*
-         * Сервер всё равно проверяет
-         * возможность хода.
-         *
-         * Здесь разрешаем клик:
-         * - при обычной атаке;
-         * - после отбоя, когда можно
-         *   подкинуть ещё.
-         */
-        element.onclick =
-            () => handleCardClick(card);
-
-        hand.appendChild(element);
-    });
-}
-
-
-/* =========================================================
-   CARD CLICK
-========================================================= */
-
-function handleCardClick(card) {
-
-    if (!currentGame) {
-        return;
-    }
-
-    if (
-        currentGame.status !==
-        "playing"
-    ) {
-        return;
-    }
-
-
-    /* =====================================================
-       ATTACK / ADDITIONAL ATTACK
-    ===================================================== */
-
-    if (
-        (
-            currentGame.phase === "attack" ||
-            currentGame.phase === "bito"
-        ) &&
-        currentGame.turn === "YOUR_TURN" &&
-        currentGame.canAttack
-    ) {
-
-        socket.emit(
-            "attack_card",
-            card.id
-        );
-
-        return;
-    }
-
-
-    /* =====================================================
-       DEFENSE
-    ===================================================== */
-
-    if (
-        currentGame.phase === "defense" &&
-        currentGame.turn === "YOUR_TURN"
-    ) {
-
-        const target =
-            currentGame.table.find(
-                pair => !pair.defense
-            );
-
-        if (!target) {
-            return;
-        }
-
-        socket.emit(
-            "defend_card",
-            {
-                attackId:
-                    target.attack.id,
-
-                defenseId:
-                    card.id
-            }
-        );
-    }
-}
-
-
-/* =========================================================
-   TAKE BUTTON
-========================================================= */
-
-takeBtn.onclick =
-    () => {
-
-        if (!socket) {
-            return;
-        }
-
-        socket.emit(
-            "take_cards"
-        );
-    };
-
-
-/* =========================================================
-   BITO BUTTON
-========================================================= */
-
-bitoBtn.onclick =
-    () => {
-
-        if (!socket) {
-            return;
-        }
-
-        socket.emit(
-            "bito"
-        );
-    };
-
-
-/* =========================================================
-   CREATE
-========================================================= */
-
-document
-    .getElementById("createBtn")
-    .onclick =
-    () => {
-
-        if (
-            !socket ||
-            !socket.connected
-        ) {
-
-            showToast(
-                "Socket.IO не подключён"
-            );
-
-            return;
-        }
-
-        socket.emit(
-            "create_room"
-        );
-    };
-
-
-/* =========================================================
-   JOIN
-========================================================= */
-
-document
-    .getElementById("joinBtn")
-    .onclick =
-    () => {
-
-        const input =
-            document.getElementById(
-                "roomInput"
-            );
-
-        const code =
-            input.value
-                .trim()
-                .toUpperCase();
-
-        if (!code) {
-
-            showToast(
-                "Введите код комнаты"
-            );
-
-            return;
-        }
-
-        socket.emit(
-            "join_room",
-            code
-        );
-    };
-
-
-document
-    .getElementById("roomInput")
-    .addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key === "Enter"
-            ) {
-
-                document
-                    .getElementById(
-                        "joinBtn"
-                    )
-                    .click();
-            }
-        }
+const hand =
+    document.getElementById(
+        "hand"
     );
 
+const table =
+    document.getElementById(
+        "table"
+    );
 
-/* =========================================================
-   LEAVE
-========================================================= */
-
-document
-    .getElementById("leaveBtn")
-    .onclick =
-    () => {
-
-        if (
-            socket &&
-            socket.connected
-        ) {
-
-            socket.emit(
-                "leave_room"
-            );
-        }
-    };
-
-
-/* =========================================================
-   HISTORY
-========================================================= */
-
-function renderMoves(state) {
-
-    moves.innerHTML = "";
-
-    if (!state.moves?.length) {
-        return;
-    }
-
-    const lastMoves =
-        state.moves.slice(-15);
-
-    lastMoves.forEach(move => {
-
-        const element =
-            document.createElement("div");
-
-        element.className = "move";
-
-        let text = "";
-
-        if (move.type === "attack") {
-            text =
-                "Атака: " +
-                move.card;
-        }
-
-        else if (move.type === "defend") {
-            text =
-                "Отбой: " +
-                move.card;
-        }
-
-        else if (move.type === "take") {
-            text =
-                "Игрок взял карты";
-        }
-
-        else if (move.type === "bito") {
-            text =
-                "БИТО";
-        }
-
-        else if (
-            move.type === "finish"
-        ) {
-            text =
-                "Игра завершена";
-        }
-
-        else {
-            text =
-                move.type;
-        }
-
-        element.textContent = text;
-
-        moves.appendChild(element);
-    });
-}
+const toast =
+    document.getElementById(
+        "toast"
+    );
 
 
 /* =========================================================
    HELPERS
 ========================================================= */
 
-function isRed(suit) {
+function showToast(
+    message
+) {
 
-    return (
-        suit === "♥" ||
-        suit === "♦"
+    toast.textContent =
+        message;
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        showToast.timer
+    );
+
+
+    showToast.timer =
+        setTimeout(
+            () => {
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2400
+        );
+}
+
+
+function formatMoney(
+    value
+) {
+
+    return Number(value)
+        .toLocaleString(
+            "ru-RU"
+        );
+}
+
+
+function formatStake(
+    value
+) {
+
+    return formatMoney(
+        value
     );
 }
 
-function escapeHtml(value) {
+
+function escapeHtml(
+    value
+) {
 
     return String(value ?? "")
         .replace(
@@ -2174,13 +1293,1227 @@ function escapeHtml(value) {
 
 
 /* =========================================================
-   START
+   PROFILE
 ========================================================= */
 
-connect();
+socket.on(
+    "profile",
+    profile => {
+
+        state.profile =
+            profile;
+
+        document.getElementById(
+            "playerName"
+        ).textContent =
+            profile.name || "Игрок";
+
+        document.getElementById(
+            "meName"
+        ).textContent =
+            profile.name || "Вы";
+
+
+        document.getElementById(
+            "avatar"
+        ).textContent =
+            (
+                profile.name ||
+                "И"
+            )
+            .charAt(0)
+            .toUpperCase();
+    }
+);
+
+
+socket.emit(
+    "get_profile"
+);
+
+
+/* =========================================================
+   STAKES
+========================================================= */
+
+const DEFAULT_STAKES = [
+    100,
+    250,
+    500,
+    1000,
+    2000,
+    5000,
+    10000,
+    50000
+];
+
+
+function renderStakes(
+    stakes
+) {
+
+    if (
+        !Array.isArray(stakes) ||
+        stakes.length === 0
+    ) {
+
+        stakes =
+            DEFAULT_STAKES;
+    }
+
+
+    stakesGrid.innerHTML = "";
+
+
+    stakes.forEach(
+        stake => {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+            button.className =
+                "stake-card" +
+                (
+                    state.selectedStake ===
+                    stake
+                        ? " selected"
+                        : ""
+                );
+
+
+            button.innerHTML = `
+
+                <div class="stake-value">
+                    ${formatStake(stake)}
+                </div>
+
+                <div class="stake-label">
+                    ставка стола
+                </div>
+
+            `;
+
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    state.selectedStake =
+                        stake;
+
+                    renderStakes(
+                        stakes
+                    );
+
+                    renderRooms(
+                        state.roomsPayload
+                    );
+                }
+            );
+
+
+            stakesGrid.appendChild(
+                button
+            );
+        }
+    );
+}
+
+
+renderStakes(
+    DEFAULT_STAKES
+);
+
+
+/* =========================================================
+   ROOMS
+========================================================= */
+
+state.roomsPayload = {
+    stakes:
+        DEFAULT_STAKES,
+
+    rooms: [],
+
+    byStake: {}
+};
+
+
+socket.on(
+    "stakes",
+    stakes => {
+
+        renderStakes(
+            stakes
+        );
+    }
+);
+
+
+socket.on(
+    "rooms_list",
+    payload => {
+
+        /*
+         * Поддерживаем также старый
+         * формат массива.
+         */
+
+        if (
+            Array.isArray(payload)
+        ) {
+
+            payload = {
+
+                stakes:
+                    DEFAULT_STAKES,
+
+                rooms:
+                    payload,
+
+                byStake: {}
+            };
+        }
+
+
+        state.roomsPayload =
+            payload || {
+                stakes:
+                    DEFAULT_STAKES,
+
+                rooms: [],
+
+                byStake: {}
+            };
+
+
+        renderStakes(
+            state.roomsPayload.stakes
+        );
+
+
+        renderRooms(
+            state.roomsPayload
+        );
+    }
+);
+
+
+function renderRooms(
+    payload
+) {
+
+    const rooms =
+        Array.isArray(
+            payload?.rooms
+        )
+            ? payload.rooms
+            : [];
+
+
+    const selected =
+        state.selectedStake;
+
+
+    const filtered =
+        rooms.filter(
+            room =>
+                Number(
+                    room.stake
+                ) ===
+                Number(
+                    selected
+                )
+        );
+
+
+    roomCount.textContent =
+        filtered.length;
+
+
+    if (
+        filtered.length === 0
+    ) {
+
+        roomList.innerHTML = `
+
+            <div class="subtitle">
+                На ставке
+                <strong>
+                    ${formatStake(selected)}
+                </strong>
+                сейчас нет открытых столов.
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    roomList.innerHTML = "";
+
+
+    filtered.forEach(
+        room => {
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+            item.className =
+                "room";
+
+
+            const status =
+                room.status ===
+                "waiting"
+                    ? "Ожидание игрока"
+                    : "Игра идёт";
+
+
+            item.innerHTML = `
+
+                <div class="room-info">
+
+                    <div class="room-stake">
+                        ${formatStake(room.stake)}
+                    </div>
+
+                    <div class="room-id">
+                        Комната ${escapeHtml(room.id)}
+                    </div>
+
+                    <div class="room-players">
+                        ${room.playersCount}/${room.maxPlayers}
+                        · ${status}
+                    </div>
+
+                </div>
+
+                <button
+                    class="btn primary"
+                    data-room-id="${escapeHtml(room.id)}"
+                    data-room-stake="${room.stake}"
+                >
+                    Войти
+                </button>
+
+            `;
+
+
+            const button =
+                item.querySelector(
+                    "button"
+                );
+
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    socket.emit(
+                        "join_room",
+                        {
+                            roomId:
+                                room.id,
+
+                            stake:
+                                selected
+                        }
+                    );
+                }
+            );
+
+
+            roomList.appendChild(
+                item
+            );
+        }
+    );
+}
+
+
+socket.emit(
+    "get_rooms"
+);
+
+
+/* =========================================================
+   CREATE
+========================================================= */
+
+createBtn.addEventListener(
+    "click",
+    () => {
+
+        const stake =
+            Number(
+                state.selectedStake
+            );
+
+
+        createBtn.disabled =
+            true;
+
+
+        socket.emit(
+            "create_room",
+            {
+                stake
+            }
+        );
+
+
+        setTimeout(
+            () => {
+
+                createBtn.disabled =
+                    false;
+
+            },
+            800
+        );
+    }
+);
+
+
+/* =========================================================
+   ROOM CREATED
+========================================================= */
+
+socket.on(
+    "room_created",
+    room => {
+
+        state.room =
+            room;
+
+        showGame();
+    }
+);
+
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+socket.on(
+    "game_state",
+    gameState => {
+
+        state.game =
+            gameState;
+
+        state.room = {
+
+            id:
+                gameState.roomId,
+
+            stake:
+                gameState.stake
+        };
+
+
+        showGame();
+
+        renderGame(
+            gameState
+        );
+    }
+);
+
+
+/* =========================================================
+   SHOW GAME
+========================================================= */
+
+function showGame() {
+
+    lobby.classList.add(
+        "hidden"
+    );
+
+    game.classList.remove(
+        "hidden"
+    );
+}
+
+
+/* =========================================================
+   RENDER GAME
+========================================================= */
+
+function renderGame(
+    data
+) {
+
+    const stake =
+        Number(
+            data.stake || 100
+        );
+
+
+    document.getElementById(
+        "gameStake"
+    ).textContent =
+        `Ставка ${formatStake(stake)}`;
+
+
+    document.getElementById(
+        "infoStake"
+    ).textContent =
+        formatStake(stake);
+
+
+    document.getElementById(
+        "deckCount"
+    ).textContent =
+        data.deckCount ?? 0;
+
+
+    document.getElementById(
+        "roundLimit"
+    ).textContent =
+        data.roundMaxCards ?? 0;
+
+
+    const opponent =
+        data.opponent;
+
+
+    document.getElementById(
+        "opponentName"
+    ).textContent =
+        opponent
+            ? opponent.name
+            : "Ожидание игрока";
+
+
+    document.getElementById(
+        "opponentCards"
+    ).textContent =
+        opponent
+            ? `Карт: ${opponent.cardsCount}`
+            : "Карт: 0";
+
+
+    document.getElementById(
+        "myCardsCount"
+    ).textContent =
+        `Карт: ${
+            Array.isArray(data.hand)
+                ? data.hand.length
+                : 0
+        }`;
+
+
+    document.getElementById(
+        "trump"
+    ).textContent =
+        data.trumpSuit || "—";
+
+
+    let statusText =
+        "Ожидание игрока";
+
+
+    if (
+        data.status ===
+        "playing"
+    ) {
+
+        if (
+            data.turn ===
+            "YOUR_TURN"
+        ) {
+
+            if (
+                data.phase ===
+                "defense"
+            ) {
+
+                statusText =
+                    "Ваш ход — отбивайтесь";
+
+            } else {
+
+                statusText =
+                    "Ваш ход — атакуйте";
+            }
+
+        } else {
+
+            statusText =
+                "Ход противника";
+        }
+    }
+
+
+    if (
+        data.status ===
+        "finished"
+    ) {
+
+        statusText =
+            "Игра окончена";
+    }
+
+
+    document.getElementById(
+        "gameStatus"
+    ).textContent =
+        statusText;
+
+
+    document.getElementById(
+        "turnText"
+    ).textContent =
+        statusText;
+
+
+    renderTable(
+        data
+    );
+
+
+    renderHand(
+        data
+    );
+
+
+    takeBtn.disabled =
+        !data.canTake;
+
+    bitoBtn.disabled =
+        !data.canBito;
+
+
+    if (
+        data.status ===
+        "finished"
+    ) {
+
+        showResult(
+            data
+        );
+
+    } else {
+
+        document
+            .getElementById(
+                "resultPanel"
+            )
+            .classList.add(
+                "hidden"
+            );
+    }
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+function renderTable(
+    data
+) {
+
+    table.innerHTML = "";
+
+
+    if (
+        !Array.isArray(data.table) ||
+        data.table.length === 0
+    ) {
+
+        table.innerHTML = `
+
+            <div class="table-empty">
+                Стол пуст
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    data.table.forEach(
+        pair => {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "pair";
+
+
+            const attack =
+                createCardElement(
+                    pair.attack,
+                    "small"
+                );
+
+
+            row.appendChild(
+                attack
+            );
+
+
+            if (
+                pair.defense
+            ) {
+
+                const defense =
+                    createCardElement(
+                        pair.defense,
+                        "small"
+                    );
+
+
+                row.appendChild(
+                    defense
+                );
+            }
+
+
+            table.appendChild(
+                row
+            );
+        }
+    );
+}
+
+
+/* =========================================================
+   HAND
+========================================================= */
+
+function renderHand(
+    data
+) {
+
+    hand.innerHTML = "";
+
+
+    if (
+        !Array.isArray(data.hand)
+    ) {
+        return;
+    }
+
+
+    data.hand.forEach(
+        card => {
+
+            const element =
+                createCardElement(
+                    card
+                );
+
+
+            const canSelect =
+                data.status ===
+                    "playing";
+
+
+            if (
+                canSelect
+            ) {
+
+                element.addEventListener(
+                    "click",
+                    () => {
+
+                        handleCardClick(
+                            card
+                        );
+                    }
+                );
+            }
+
+
+            hand.appendChild(
+                element
+            );
+        }
+    );
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+function createCardElement(
+    card,
+    extraClass = ""
+) {
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+
+    if (!card) {
+
+        element.className =
+            "card back " +
+            extraClass;
+
+        return element;
+    }
+
+
+    const red =
+        card.suit === "♥" ||
+        card.suit === "♦";
+
+
+    element.className =
+        "card " +
+        extraClass +
+        (
+            red
+                ? " red"
+                : ""
+        );
+
+
+    element.textContent =
+        `${card.rank}${card.suit}`;
+
+
+    if (
+        state.selectedCardId ===
+        card.id
+    ) {
+
+        element.classList.add(
+            "selected"
+        );
+    }
+
+
+    return element;
+}
+
+
+/* =========================================================
+   CARD CLICK
+========================================================= */
+
+function handleCardClick(
+    card
+) {
+
+    const data =
+        state.game;
+
+
+    if (!data) {
+        return;
+    }
+
+
+    /*
+     * Защита.
+     */
+
+    if (
+        data.turn !==
+        "YOUR_TURN"
+    ) {
+
+        showToast(
+            "Сейчас ход противника."
+        );
+
+        return;
+    }
+
+
+    /*
+     * АТАКА
+     */
+
+    if (
+        (
+            data.phase ===
+            "attack" ||
+
+            data.phase ===
+            "bito"
+        ) &&
+
+        data.canAttack
+    ) {
+
+        socket.emit(
+            "attack_card",
+            card.id
+        );
+
+        state.selectedCardId =
+            null;
+
+        return;
+    }
+
+
+    /*
+     * ЗАЩИТА
+     */
+
+    if (
+        data.phase ===
+        "defense"
+    ) {
+
+        const attack =
+            findFirstUnbeatenAttack(
+                data
+            );
+
+
+        if (!attack) {
+
+            showToast(
+                "Нет карты для отбивания."
+            );
+
+            return;
+        }
+
+
+        socket.emit(
+            "defend_card",
+            {
+
+                attackId:
+                    attack.id,
+
+                defenseId:
+                    card.id
+            }
+        );
+
+        state.selectedCardId =
+            null;
+
+        return;
+    }
+}
+
+
+function findFirstUnbeatenAttack(
+    data
+) {
+
+    if (
+        !Array.isArray(
+            data.table
+        )
+    ) {
+        return null;
+    }
+
+
+    for (
+        const pair
+        of data.table
+    ) {
+
+        if (
+            pair.attack &&
+            !pair.defense
+        ) {
+
+            return pair.attack;
+        }
+    }
+
+
+    return null;
+}
+
+
+/* =========================================================
+   TAKE
+========================================================= */
+
+takeBtn.addEventListener(
+    "click",
+    () => {
+
+        if (
+            !state.game?.canTake
+        ) {
+
+            return;
+        }
+
+
+        socket.emit(
+            "take_cards"
+        );
+    }
+);
+
+
+/* =========================================================
+   BITO
+========================================================= */
+
+bitoBtn.addEventListener(
+    "click",
+    () => {
+
+        if (
+            !state.game?.canBito
+        ) {
+
+            return;
+        }
+
+
+        socket.emit(
+            "bito"
+        );
+    }
+);
+
+
+/* =========================================================
+   LEAVE
+========================================================= */
+
+leaveBtn.addEventListener(
+    "click",
+    () => {
+
+        socket.emit(
+            "leave_room"
+        );
+    }
+);
+
+
+socket.on(
+    "left_room",
+    () => {
+
+        state.room =
+            null;
+
+        state.game =
+            null;
+
+        state.selectedCardId =
+            null;
+
+        game.classList.add(
+            "hidden"
+        );
+
+        lobby.classList.remove(
+            "hidden"
+        );
+
+        socket.emit(
+            "get_rooms"
+        );
+    }
+);
+
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+function showResult(
+    data
+) {
+
+    const panel =
+        document.getElementById(
+            "resultPanel"
+        );
+
+
+    const title =
+        document.getElementById(
+            "resultTitle"
+        );
+
+
+    const subtitle =
+        document.getElementById(
+            "resultSubtitle"
+        );
+
+
+    panel.classList.remove(
+        "hidden"
+    );
+
+
+    if (
+        data.winnerId ===
+        data.me?.playerId
+    ) {
+
+        title.textContent =
+            "ПОБЕДА";
+
+        subtitle.textContent =
+            `Вы выиграли игру на ставке ${formatStake(data.stake)}.`;
+
+    } else if (
+        data.loserId ===
+        data.me?.playerId
+    ) {
+
+        title.textContent =
+            "ПОРАЖЕНИЕ";
+
+        subtitle.textContent =
+            `Игра на ставке ${formatStake(data.stake)} завершена.`;
+
+    } else {
+
+        title.textContent =
+            "НИЧЬЯ";
+
+        subtitle.textContent =
+            `Игра на ставке ${formatStake(data.stake)} завершена вничью.`;
+    }
+}
+
+
+document.getElementById(
+    "backLobbyBtn"
+).addEventListener(
+    "click",
+    () => {
+
+        state.room =
+            null;
+
+        state.game =
+            null;
+
+        document
+            .getElementById(
+                "resultPanel"
+            )
+            .classList.add(
+                "hidden"
+            );
+
+        game.classList.add(
+            "hidden"
+        );
+
+        lobby.classList.remove(
+            "hidden"
+        );
+
+        socket.emit(
+            "get_rooms"
+        );
+    }
+);
+
+
+/* =========================================================
+   ERRORS
+========================================================= */
+
+socket.on(
+    "error_message",
+    message => {
+
+        showToast(
+            message
+        );
+    }
+);
+
+
+socket.on(
+    "game_error",
+    message => {
+
+        showToast(
+            message
+        );
+    }
+);
+
+
+/* =========================================================
+   SOCKET STATUS
+========================================================= */
+
+socket.on(
+    "connect",
+    () => {
+
+        socket.emit(
+            "get_profile"
+        );
+
+        socket.emit(
+            "get_rooms"
+        );
+    }
+);
+
+
+socket.on(
+    "disconnect",
+    () => {
+
+        showToast(
+            "Соединение потеряно. Переподключение..."
+        );
+    }
+);
+
+
+socket.on(
+    "connect_error",
+    error => {
+
+        console.error(
+            "Socket connection error:",
+            error
+        );
+
+        showToast(
+            "Ошибка подключения к серверу."
+        );
+    }
+);
+
+
+/* =========================================================
+   INITIAL
+========================================================= */
+
+renderStakes(
+    DEFAULT_STAKES
+);
 
 </script>
 
 </body>
-
 </html>
