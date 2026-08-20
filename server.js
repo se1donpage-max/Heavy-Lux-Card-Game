@@ -15,7 +15,7 @@ const PORT = Number(process.env.PORT || 10000);
 =========================================================
 HEAVY LUX CARD
 SERVER.JS
-VERSION 6.0
+VERSION 7.0
 =========================================================
 
 CORE:
@@ -37,6 +37,23 @@ CORE:
 - Correct round limits
 - Game over detection
 
+STAKE SYSTEM:
+- 100
+- 250
+- 500
+- 1000
+- 2000
+- 5000
+- 10000
+- 50000
+
+IMPORTANT:
+- Each room has exactly ONE immutable stake.
+- Players can only join a room with its stake.
+- Stake is currently a table/game tier.
+- Balance/economy is NOT changed by this server version.
+- This keeps future economy isolated from game logic.
+
 NO AI
 NO BOT
 NO COMPUTER PLAYER
@@ -56,9 +73,7 @@ app.use(
     })
 );
 
-app.use(
-    express.static(__dirname)
-);
+app.use(express.static(__dirname));
 
 
 /* =========================================================
@@ -137,6 +152,41 @@ const io = new Server(
 const players = new Map();
 
 const rooms = new Map();
+
+
+/* =========================================================
+   STAKES
+========================================================= */
+
+const STAKES = [
+    100,
+    250,
+    500,
+    1000,
+    2000,
+    5000,
+    10000,
+    50000
+];
+
+const STAKE_SET =
+    new Set(STAKES);
+
+
+function normalizeStake(value) {
+
+    const stake =
+        Number(value);
+
+    if (
+        !Number.isInteger(stake) ||
+        !STAKE_SET.has(stake)
+    ) {
+        return null;
+    }
+
+    return stake;
+}
 
 
 /* =========================================================
@@ -368,21 +418,6 @@ function safeRoomId(roomId) {
    TELEGRAM AUTH
 ========================================================= */
 
-/*
- * Telegram WebApp initData содержит:
- *
- * user
- * auth_date
- * hash
- * query_id
- * ...
- *
- * Мы не доверяем просто JSON user.
- *
- * Если TELEGRAM_BOT_TOKEN задан —
- * подпись проверяется.
- */
-
 function parseTelegramInitData(
     initData
 ) {
@@ -461,13 +496,6 @@ function verifyTelegramInitData(
     } = parsed;
 
 
-    /*
-     * В development можно работать
-     * без токена.
-     *
-     * В production обязательно
-     * рекомендуется TELEGRAM_BOT_TOKEN.
-     */
     if (
         !process.env.TELEGRAM_BOT_TOKEN
     ) {
@@ -571,17 +599,27 @@ function verifyTelegramInitData(
             .digest("hex");
 
 
-    const valid =
-        crypto.timingSafeEqual(
-            Buffer.from(
-                calculatedHash,
-                "hex"
-            ),
-            Buffer.from(
-                hash,
-                "hex"
-            )
-        );
+    let valid = false;
+
+
+    try {
+
+        valid =
+            crypto.timingSafeEqual(
+                Buffer.from(
+                    calculatedHash,
+                    "hex"
+                ),
+                Buffer.from(
+                    hash,
+                    "hex"
+                )
+            );
+
+    } catch {
+
+        valid = false;
+    }
 
 
     if (!valid) {
@@ -773,14 +811,9 @@ async function authenticate(
     const auth =
         socket.handshake.auth || {};
 
-
     const initData =
         auth.initData || "";
 
-
-    /*
-     * Telegram
-     */
 
     if (initData) {
 
@@ -810,11 +843,6 @@ async function authenticate(
         let player = null;
 
 
-        /*
-         * Сначала ищем игрока
-         * в памяти.
-         */
-
         for (
             const existing
             of players.values()
@@ -832,11 +860,6 @@ async function authenticate(
             }
         }
 
-
-        /*
-         * Если сервер перезапустился —
-         * ищем в PostgreSQL.
-         */
 
         if (!player) {
 
@@ -876,15 +899,9 @@ async function authenticate(
                     disconnectTimer:
                         null
                 };
-
             }
-
         }
 
-
-        /*
-         * Новый игрок
-         */
 
         if (!player) {
 
@@ -1166,11 +1183,6 @@ function canBeat(
         );
 
 
-    /*
-     * Козырь бьётся
-     * только старшим козырем.
-     */
-
     if (attackTrump) {
 
         return (
@@ -1181,20 +1193,10 @@ function canBeat(
     }
 
 
-    /*
-     * Некозырь можно побить
-     * козырем.
-     */
-
     if (defenseTrump) {
         return true;
     }
 
-
-    /*
-     * Или старшей картой
-     * той же масти.
-     */
 
     return (
         defenseCard.suit ===
@@ -1211,7 +1213,8 @@ function canBeat(
 ========================================================= */
 
 function createRoom(
-    player
+    player,
+    stake
 ) {
 
     if (player.roomId) {
@@ -1221,6 +1224,25 @@ function createRoom(
 
             error:
                 "Вы уже находитесь в комнате."
+        };
+    }
+
+
+    const normalizedStake =
+        normalizeStake(
+            stake
+        );
+
+
+    if (
+        normalizedStake === null
+    ) {
+
+        return {
+            ok: false,
+
+            error:
+                "Выбрана недопустимая ставка."
         };
     }
 
@@ -1243,6 +1265,14 @@ function createRoom(
 
         id:
             roomId,
+
+        /*
+         * Ставка комнаты фиксируется
+         * при создании и больше
+         * никогда не изменяется.
+         */
+        stake:
+            normalizedStake,
 
         players: [],
 
@@ -1331,7 +1361,8 @@ function createRoom(
 
 function joinRoom(
     player,
-    roomId
+    roomId,
+    requestedStake = null
 ) {
 
     roomId =
@@ -1364,6 +1395,22 @@ function joinRoom(
 
             error:
                 "Комната не найдена."
+        };
+    }
+
+
+    if (
+        requestedStake !== null &&
+        normalizeStake(
+            requestedStake
+        ) !== room.stake
+    ) {
+
+        return {
+            ok: false,
+
+            error:
+                "Эта комната относится к другой ставке."
         };
     }
 
@@ -1490,10 +1537,6 @@ function startGame(
     );
 
 
-    /*
-     * Раздаём по 6 карт.
-     */
-
     for (
         let i = 0;
         i < STARTING_HAND_SIZE;
@@ -1517,13 +1560,6 @@ function startGame(
     }
 
 
-    /*
-     * Последняя карта колоды —
-     * козырь.
-     *
-     * Она остаётся в колоде.
-     */
-
     room.trumpSuit =
         room.deck.length > 0
             ? room.deck[
@@ -1531,11 +1567,6 @@ function startGame(
             ].suit
             : null;
 
-
-    /*
-     * Определяем первого атакующего:
-     * игрок с младшим козырем.
-     */
 
     let attacker =
         null;
@@ -1574,11 +1605,6 @@ function startGame(
     }
 
 
-    /*
-     * Если козырей нет —
-     * первый игрок.
-     */
-
     if (!attacker) {
 
         attacker =
@@ -1612,6 +1638,9 @@ function startGame(
 
         playerId:
             attacker.playerId,
+
+        stake:
+            room.stake,
 
         timestamp:
             Date.now()
@@ -1684,11 +1713,6 @@ function validAttackCard(
     }
 
 
-    /*
-     * Первая карта —
-     * любая карта.
-     */
-
     if (
         room.table.length === 0
     ) {
@@ -1696,12 +1720,6 @@ function validAttackCard(
         return true;
     }
 
-
-    /*
-     * После первой карты
-     * можно подкидывать только
-     * существующие номиналы.
-     */
 
     const allowedValues =
         new Set();
@@ -1848,11 +1866,6 @@ function attackCard(
         };
     }
 
-
-    /*
-     * Если карта уже есть —
-     * все предыдущие должны быть отбиты.
-     */
 
     if (
         room.table.length > 0
@@ -2244,10 +2257,6 @@ function takeCards(
     }
 
 
-    /*
-     * Забираем все карты.
-     */
-
     for (
         const pair
         of room.table
@@ -2299,10 +2308,6 @@ function takeCards(
         [];
 
 
-    /*
-     * Атакующий остаётся атакующим.
-     */
-
     room.phase =
         "draw";
 
@@ -2311,11 +2316,6 @@ function takeCards(
         room
     );
 
-
-    /*
-     * После добора проверяем
-     * конец партии.
-     */
 
     if (
         checkGameOver(
@@ -2329,11 +2329,6 @@ function takeCards(
         };
     }
 
-
-    /*
-     * Новый раунд:
-     * тот же атакующий.
-     */
 
     startNewAttackRound(
         room
@@ -2445,19 +2440,9 @@ function bito(
     });
 
 
-    /*
-     * Битые карты удаляем
-     * со стола.
-     */
-
     room.table =
         [];
 
-
-    /*
-     * Защищавшийся становится
-     * новым атакующим.
-     */
 
     const oldAttacker =
         room.attackerId;
@@ -2476,11 +2461,6 @@ function bito(
     room.phase =
         "draw";
 
-
-    /*
-     * Сначала добирает новый
-     * атакующий, потом защитник.
-     */
 
     drawCards(
         room
@@ -2546,11 +2526,6 @@ function drawCards(
         );
 
 
-    /*
-     * В Дураке сначала добирает
-     * атакующий, затем защитник.
-     */
-
     const order = [
         attacker,
         defender
@@ -2595,12 +2570,6 @@ function checkGameOver(
     }
 
 
-    /*
-     * Пока есть карты в колоде,
-     * отсутствие карт в руке
-     * не завершает партию.
-     */
-
     if (
         room.deck.length > 0
     ) {
@@ -2608,13 +2577,6 @@ function checkGameOver(
         return false;
     }
 
-
-    /*
-     * Колода закончилась.
-     *
-     * Если ровно один игрок
-     * имеет 0 карт — он победил.
-     */
 
     const emptyPlayers =
         room.players.filter(
@@ -2626,14 +2588,6 @@ function checkGameOver(
     if (
         emptyPlayers.length !== 1
     ) {
-
-        /*
-         * Теоретический случай:
-         * оба игрока одновременно
-         * получили 0 карт.
-         *
-         * Для 1x1 фиксируем ничью.
-         */
 
         if (
             emptyPlayers.length === 2
@@ -2909,6 +2863,13 @@ function gameState(
         roomId:
             room.id,
 
+        /*
+         * Главная информация
+         * для будущей экономики.
+         */
+        stake:
+            room.stake,
+
         status:
             room.status,
 
@@ -3042,6 +3003,9 @@ function publicRoom(
         id:
             room.id,
 
+        stake:
+            room.stake,
+
         status:
             room.status,
 
@@ -3054,24 +3018,89 @@ function publicRoom(
 }
 
 
+function roomsByStake() {
+
+    const result = {};
+
+
+    for (
+        const stake
+        of STAKES
+    ) {
+
+        result[String(stake)] =
+            [];
+    }
+
+
+    for (
+        const room
+        of rooms.values()
+    ) {
+
+        if (
+            !STAKE_SET.has(
+                room.stake
+            )
+        ) {
+            continue;
+        }
+
+
+        if (
+            room.status !==
+                "waiting" &&
+            room.status !==
+                "playing"
+        ) {
+            continue;
+        }
+
+
+        result[
+            String(room.stake)
+        ].push(
+            publicRoom(
+                room
+            )
+        );
+    }
+
+
+    return result;
+}
+
+
 function sendRoomList() {
+
+    const payload = {
+
+        stakes:
+            STAKES,
+
+        rooms:
+            Array.from(
+                rooms.values()
+            )
+            .filter(
+                room =>
+                    room.status ===
+                        "waiting" ||
+                    room.status ===
+                        "playing"
+            )
+            .map(
+                publicRoom
+            ),
+
+        byStake:
+            roomsByStake()
+    };
+
 
     io.emit(
         "rooms_list",
-
-        Array.from(
-            rooms.values()
-        )
-        .filter(
-            room =>
-                room.status ===
-                    "waiting" ||
-                room.status ===
-                    "playing"
-        )
-        .map(
-            publicRoom
-        )
+        payload
     );
 }
 
@@ -3120,11 +3149,6 @@ function leaveRoom(
         null;
 
 
-    /*
-     * Комната пустая —
-     * полностью удаляем.
-     */
-
     if (
         room.players.length === 0
     ) {
@@ -3138,12 +3162,6 @@ function leaveRoom(
         return room;
     }
 
-
-    /*
-     * Если игра уже шла,
-     * оставшийся игрок победил
-     * технически из-за выхода.
-     */
 
     const remaining =
         room.players[0];
@@ -3197,7 +3215,7 @@ function leaveRoom(
 
 
 /* =========================================================
-   DISCONNECT HANDLING
+   DISCONNECT
 ========================================================= */
 
 function scheduleDisconnectCleanup(
@@ -3218,11 +3236,6 @@ function scheduleDisconnectCleanup(
         setTimeout(
             () => {
 
-                /*
-                 * Игрок успел
-                 * переподключиться.
-                 */
-
                 if (
                     player.connected
                 ) {
@@ -3233,12 +3246,6 @@ function scheduleDisconnectCleanup(
                     return;
                 }
 
-
-                /*
-                 * Если он всё ещё
-                 * в комнате — завершаем
-                 * игру в пользу соперника.
-                 */
 
                 if (
                     player.roomId
@@ -3391,11 +3398,6 @@ io.on(
         }
 
 
-        /*
-         * Новый socket становится
-         * главным.
-         */
-
         player.socketId =
             socket.id;
 
@@ -3506,6 +3508,22 @@ io.on(
 
 
         /* =================================================
+           STAKES
+        ================================================= */
+
+        socket.on(
+            "get_stakes",
+            () => {
+
+                socket.emit(
+                    "stakes",
+                    STAKES
+                );
+            }
+        );
+
+
+        /* =================================================
            ROOMS
         ================================================= */
 
@@ -3515,20 +3533,29 @@ io.on(
 
                 socket.emit(
                     "rooms_list",
+                    {
 
-                    Array.from(
-                        rooms.values()
-                    )
-                    .filter(
-                        room =>
-                            room.status ===
-                                "waiting" ||
-                            room.status ===
-                                "playing"
-                    )
-                    .map(
-                        publicRoom
-                    )
+                        stakes:
+                            STAKES,
+
+                        rooms:
+                            Array.from(
+                                rooms.values()
+                            )
+                            .filter(
+                                room =>
+                                    room.status ===
+                                        "waiting" ||
+                                    room.status ===
+                                        "playing"
+                            )
+                            .map(
+                                publicRoom
+                            ),
+
+                        byStake:
+                            roomsByStake()
+                    }
                 );
             }
         );
@@ -3536,15 +3563,38 @@ io.on(
 
         /* =================================================
            CREATE ROOM
+           data = {
+               stake: 100
+           }
         ================================================= */
 
         socket.on(
             "create_room",
-            () => {
+            data => {
+
+                const stake =
+                    normalizeStake(
+                        data?.stake
+                    );
+
+
+                if (
+                    stake === null
+                ) {
+
+                    socket.emit(
+                        "error_message",
+                        "Выберите ставку: 100, 250, 500, 1000, 2000, 5000, 10000 или 50000."
+                    );
+
+                    return;
+                }
+
 
                 const result =
                     createRoom(
-                        player
+                        player,
+                        stake
                     );
 
 
@@ -3586,7 +3636,9 @@ io.on(
 
                 console.log(
                     "Room created:",
-                    room.id
+                    room.id,
+                    "stake:",
+                    room.stake
                 );
             }
         );
@@ -3594,16 +3646,44 @@ io.on(
 
         /* =================================================
            JOIN ROOM
+
+           Можно передать:
+           {
+               roomId: "ABC123",
+               stake: 500
+           }
+
+           Если stake не передан —
+           проверяется только ставка комнаты.
         ================================================= */
 
         socket.on(
             "join_room",
-            roomId => {
+            data => {
+
+                let roomId = data;
+                let requestedStake = null;
+
+
+                if (
+                    typeof data ===
+                    "object"
+                ) {
+
+                    roomId =
+                        data?.roomId;
+
+                    requestedStake =
+                        data?.stake ??
+                        null;
+                }
+
 
                 const result =
                     joinRoom(
                         player,
-                        roomId
+                        roomId,
+                        requestedStake
                     );
 
 
@@ -3638,7 +3718,9 @@ io.on(
                 console.log(
                     "Player joined:",
                     player.name,
-                    room.id
+                    room.id,
+                    "stake:",
+                    room.stake
                 );
 
 
@@ -3890,11 +3972,6 @@ io.on(
                 }
 
 
-                /*
-                 * Старый socket не должен
-                 * выключать новое соединение.
-                 */
-
                 if (
                     current.socketId !==
                     socket.id
@@ -3944,11 +4021,6 @@ io.on(
                     reason
                 );
 
-
-                /*
-                 * Даём игроку 2 минуты
-                 * на reconnect.
-                 */
 
                 scheduleDisconnectCleanup(
                     current
@@ -4002,7 +4074,7 @@ app.get(
                 database =
                     "connected";
 
-            } catch (err) {
+            } catch {
 
                 database =
                     "error";
@@ -4019,7 +4091,10 @@ app.get(
                 "Heavy Lux Card",
 
             version:
-                "6.0",
+                "7.0",
+
+            stakes:
+                STAKES,
 
             database,
 
@@ -4139,7 +4214,7 @@ async function start() {
             );
 
             console.log(
-                "Server version: 6.0"
+                "Server version: 7.0"
             );
 
             console.log(
@@ -4188,6 +4263,15 @@ async function start() {
             );
 
             console.log(
+                "STAKE TABLES: ready"
+            );
+
+            console.log(
+                "Available stakes:",
+                STAKES.join(", ")
+            );
+
+            console.log(
                 "Telegram auth:",
                 process.env.TELEGRAM_BOT_TOKEN
                     ? "verified"
@@ -4217,7 +4301,6 @@ process.on(
             "SIGTERM received"
         );
 
-
         await shutdown();
     }
 );
@@ -4230,7 +4313,6 @@ process.on(
         console.log(
             "SIGINT received"
         );
-
 
         await shutdown();
     }
