@@ -15,7 +15,7 @@ const PORT = Number(process.env.PORT || 10000);
 =========================================================
 HEAVY LUX CARD
 SERVER.JS
-VERSION 7.0
+VERSION 8.0
 =========================================================
 
 CORE
@@ -24,35 +24,51 @@ CORE
 - PostgreSQL
 - Telegram WebApp authentication
 - Test mode
-- Real players 1x1
+- Real players only
+- 1x1 rooms
 - Durak 36 cards
 - Authoritative server
 - Reconnect
-- Rooms
-- 8 separate stake levels
-- Wallet
+- Disconnect grace period
+
+GAME
+- Correct Durak round cycle
+- Attack
+- Defense
+- Throw-in
+- Take
+- Bito
+- Draw
+- Correct turn switching
+- Correct trump determination
+- Correct game finish
+
+ECONOMY
+- Server-side wallet
+- 8 stake levels
 - Stake reservation
 - Winner payout
 - Draw refund
+- Disconnect = opponent victory
+- No client-side money modification
 
-STAKES
-100
-250
-500
-1000
-2000
-5000
-10000
-50000
+PLAYER FOUNDATION
+- XP
+- Level
+- Games
+- Wins
+- Losses
+- Draws
 
-ECONOMY
-- Wallet is server-side
-- Stake cannot be changed after room creation
-- Money is reserved only when game starts
-- Winner receives the full pot
-- Draw returns both stakes
-- Disconnect during active game = opponent wins
-- No client-side balance modification
+FUTURE RP FOUNDATION
+- Garage
+- Cars
+- Car colors
+- Government plates
+- GIBDD
+- Property
+- Businesses
+- Economy
 
 NO AI
 NO BOT
@@ -73,9 +89,7 @@ app.use(
     })
 );
 
-app.use(
-    express.static(__dirname)
-);
+app.use(express.static(__dirname));
 
 
 /* =========================================================
@@ -152,7 +166,6 @@ const io = new Server(
 ========================================================= */
 
 const players = new Map();
-
 const rooms = new Map();
 
 
@@ -199,7 +212,7 @@ const DEFAULT_BALANCE = 1000;
 
 
 /* =========================================================
-   CONFIG
+   GAME CONFIG
 ========================================================= */
 
 const MAX_PLAYERS_PER_ROOM = 2;
@@ -213,6 +226,17 @@ const DISCONNECT_GRACE_MS =
 
 const TELEGRAM_MAX_AGE_SECONDS =
     24 * 60 * 60;
+
+
+/* =========================================================
+   XP CONFIG
+========================================================= */
+
+const XP_WIN = 100;
+const XP_LOSS = 25;
+const XP_DRAW = 50;
+
+const XP_PER_LEVEL = 500;
 
 
 /* =========================================================
@@ -267,6 +291,15 @@ function isValidStake(stake) {
     return STAKES.includes(
         Number(stake)
     );
+}
+
+
+function safeRoomId(roomId) {
+
+    return String(roomId || "")
+        .trim()
+        .toUpperCase()
+        .slice(0, 20);
 }
 
 
@@ -326,11 +359,7 @@ function otherPlayer(
 
 function getRoomPlayer(player) {
 
-    if (!player) {
-        return null;
-    }
-
-    if (!player.roomId) {
+    if (!player || !player.roomId) {
         return null;
     }
 
@@ -350,32 +379,82 @@ function getRoomPlayer(player) {
 }
 
 
+function emitPlayerError(
+    socket,
+    event,
+    message
+) {
+
+    socket.emit(
+        event,
+        message
+    );
+}
+
+
+/* =========================================================
+   PLAYER LEVEL
+========================================================= */
+
+function calculateLevel(xp) {
+
+    return Math.max(
+        1,
+        Math.floor(
+            money(xp) /
+            XP_PER_LEVEL
+        ) + 1
+    );
+}
+
+
+function addXP(
+    player,
+    amount
+) {
+
+    if (!player) {
+        return;
+    }
+
+    player.xp =
+        money(
+            player.xp
+        ) + money(amount);
+
+    player.level =
+        calculateLevel(
+            player.xp
+        );
+}
+
+
 /* =========================================================
    WALLET
 ========================================================= */
 
 function getWallet(player) {
 
-    return {
-        balance:
-            money(
-                player.balance
-            ),
+    const balance =
+        money(
+            player.balance
+        );
 
-        reserved:
-            money(
-                player.reservedBalance
-            ),
+    const reserved =
+        money(
+            player.reservedBalance
+        );
+
+    return {
+
+        balance,
+
+        reserved,
 
         available:
             Math.max(
                 0,
-                money(
-                    player.balance
-                ) -
-                money(
-                    player.reservedBalance
-                )
+                balance - reserved
             )
     };
 }
@@ -398,17 +477,6 @@ function hasAvailableMoney(
 }
 
 
-/*
- * Резервируем деньги.
- *
- * balance не уменьшается.
- *
- * Это важно:
- * будущие системы экономики
- * видят общий баланс игрока,
- * но ставка уже заблокирована.
- */
-
 function reserveMoney(
     player,
     amount
@@ -423,7 +491,6 @@ function reserveMoney(
             amount
         )
     ) {
-
         return false;
     }
 
@@ -435,12 +502,6 @@ function reserveMoney(
     return true;
 }
 
-
-/*
- * Снимаем резерв.
- *
- * amount уходит из общего баланса.
- */
 
 function consumeReservedMoney(
     player,
@@ -458,7 +519,6 @@ function consumeReservedMoney(
     if (
         reserved < amount
     ) {
-
         return false;
     }
 
@@ -477,10 +537,6 @@ function consumeReservedMoney(
 }
 
 
-/*
- * Возвращаем резерв.
- */
-
 function releaseReservedMoney(
     player,
     amount
@@ -498,10 +554,6 @@ function releaseReservedMoney(
         );
 }
 
-
-/*
- * Выплата победителю.
- */
 
 function addMoney(
     player,
@@ -598,7 +650,7 @@ function verifyTelegramInitData(
 
 
     /*
-     * Development/test mode.
+     * TEST / DEVELOPMENT MODE
      */
 
     if (
@@ -610,7 +662,6 @@ function verifyTelegramInitData(
 
 
     if (!hash) {
-
         throw new Error(
             "Telegram hash missing"
         );
@@ -618,7 +669,6 @@ function verifyTelegramInitData(
 
 
     if (!authDate) {
-
         throw new Error(
             "Telegram auth_date missing"
         );
@@ -724,14 +774,12 @@ function verifyTelegramInitData(
     }
 
 
-    const valid =
-        crypto.timingSafeEqual(
+    if (
+        !crypto.timingSafeEqual(
             calculatedBuffer,
             receivedBuffer
-        );
-
-
-    if (!valid) {
+        )
+    ) {
 
         throw new Error(
             "Invalid Telegram signature"
@@ -771,26 +819,80 @@ async function initDatabase() {
                 balance BIGINT NOT NULL DEFAULT 1000,
                 reserved_balance BIGINT NOT NULL DEFAULT 0,
 
+                xp BIGINT NOT NULL DEFAULT 0,
+                level INTEGER NOT NULL DEFAULT 1,
+
+                games INTEGER NOT NULL DEFAULT 0,
+                wins INTEGER NOT NULL DEFAULT 0,
+                losses INTEGER NOT NULL DEFAULT 0,
+                draws INTEGER NOT NULL DEFAULT 0,
+
                 created_at TIMESTAMP DEFAULT NOW(),
                 updated_at TIMESTAMP DEFAULT NOW()
             )
         `);
 
 
-        /*
-         * Для уже существующей базы.
-         */
-
-        await pool.query(`
+        const migrations = [
+            `
             ALTER TABLE players
-            ADD COLUMN IF NOT EXISTS balance BIGINT NOT NULL DEFAULT 1000
-        `);
+            ADD COLUMN IF NOT EXISTS balance
+            BIGINT NOT NULL DEFAULT 1000
+            `,
 
-
-        await pool.query(`
+            `
             ALTER TABLE players
-            ADD COLUMN IF NOT EXISTS reserved_balance BIGINT NOT NULL DEFAULT 0
-        `);
+            ADD COLUMN IF NOT EXISTS reserved_balance
+            BIGINT NOT NULL DEFAULT 0
+            `,
+
+            `
+            ALTER TABLE players
+            ADD COLUMN IF NOT EXISTS xp
+            BIGINT NOT NULL DEFAULT 0
+            `,
+
+            `
+            ALTER TABLE players
+            ADD COLUMN IF NOT EXISTS level
+            INTEGER NOT NULL DEFAULT 1
+            `,
+
+            `
+            ALTER TABLE players
+            ADD COLUMN IF NOT EXISTS games
+            INTEGER NOT NULL DEFAULT 0
+            `,
+
+            `
+            ALTER TABLE players
+            ADD COLUMN IF NOT EXISTS wins
+            INTEGER NOT NULL DEFAULT 0
+            `,
+
+            `
+            ALTER TABLE players
+            ADD COLUMN IF NOT EXISTS losses
+            INTEGER NOT NULL DEFAULT 0
+            `,
+
+            `
+            ALTER TABLE players
+            ADD COLUMN IF NOT EXISTS draws
+            INTEGER NOT NULL DEFAULT 0
+            `
+        ];
+
+
+        for (
+            const migration
+            of migrations
+        ) {
+
+            await pool.query(
+                migration
+            );
+        }
 
 
         console.log(
@@ -808,7 +910,7 @@ async function initDatabase() {
 
 
 /* =========================================================
-   DATABASE PLAYER
+   DATABASE LOAD
 ========================================================= */
 
 async function loadPlayerByTelegramId(
@@ -833,10 +935,22 @@ async function loadPlayerByTelegramId(
                     telegram_id,
                     username,
                     player_name,
+
                     balance,
-                    reserved_balance
+                    reserved_balance,
+
+                    xp,
+                    level,
+
+                    games,
+                    wins,
+                    losses,
+                    draws
+
                 FROM players
+
                 WHERE telegram_id = $1
+
                 LIMIT 1
                 `,
                 [
@@ -866,6 +980,10 @@ async function loadPlayerByTelegramId(
 }
 
 
+/* =========================================================
+   DATABASE SAVE
+========================================================= */
+
 async function savePlayer(
     player
 ) {
@@ -888,23 +1006,46 @@ async function savePlayer(
                 telegram_id,
                 username,
                 player_name,
+
                 balance,
                 reserved_balance,
+
+                xp,
+                level,
+
+                games,
+                wins,
+                losses,
+                draws,
+
                 updated_at
             )
+
             VALUES
             (
                 $1,
                 $2,
                 $3,
                 $4,
+
                 $5,
                 $6,
+
+                $7,
+                $8,
+
+                $9,
+                $10,
+                $11,
+                $12,
+
                 NOW()
             )
 
             ON CONFLICT (player_id)
+
             DO UPDATE SET
+
                 telegram_id =
                     EXCLUDED.telegram_id,
 
@@ -920,6 +1061,24 @@ async function savePlayer(
                 reserved_balance =
                     EXCLUDED.reserved_balance,
 
+                xp =
+                    EXCLUDED.xp,
+
+                level =
+                    EXCLUDED.level,
+
+                games =
+                    EXCLUDED.games,
+
+                wins =
+                    EXCLUDED.wins,
+
+                losses =
+                    EXCLUDED.losses,
+
+                draws =
+                    EXCLUDED.draws,
+
                 updated_at =
                     NOW()
             `,
@@ -928,11 +1087,40 @@ async function savePlayer(
                 player.telegramId,
                 player.username,
                 player.name,
+
                 money(
                     player.balance
                 ),
+
                 money(
                     player.reservedBalance
+                ),
+
+                money(
+                    player.xp
+                ),
+
+                Math.max(
+                    1,
+                    Number(
+                        player.level || 1
+                    )
+                ),
+
+                Number(
+                    player.games || 0
+                ),
+
+                Number(
+                    player.wins || 0
+                ),
+
+                Number(
+                    player.losses || 0
+                ),
+
+                Number(
+                    player.draws || 0
                 )
             ]
         );
@@ -958,10 +1146,13 @@ async function authenticate(
     const auth =
         socket.handshake.auth || {};
 
-
     const initData =
         auth.initData || "";
 
+
+    /*
+     * TELEGRAM
+     */
 
     if (initData) {
 
@@ -1045,6 +1236,42 @@ async function authenticate(
                             dbPlayer.reserved_balance
                         ),
 
+                    xp:
+                        money(
+                            dbPlayer.xp
+                        ),
+
+                    level:
+                        Math.max(
+                            1,
+                            Number(
+                                dbPlayer.level ||
+                                calculateLevel(
+                                    dbPlayer.xp
+                                )
+                            )
+                        ),
+
+                    games:
+                        Number(
+                            dbPlayer.games || 0
+                        ),
+
+                    wins:
+                        Number(
+                            dbPlayer.wins || 0
+                        ),
+
+                    losses:
+                        Number(
+                            dbPlayer.losses || 0
+                        ),
+
+                    draws:
+                        Number(
+                            dbPlayer.draws || 0
+                        ),
+
                     socketId:
                         socket.id,
 
@@ -1087,6 +1314,24 @@ async function authenticate(
                 reservedBalance:
                     0,
 
+                xp:
+                    0,
+
+                level:
+                    1,
+
+                games:
+                    0,
+
+                wins:
+                    0,
+
+                losses:
+                    0,
+
+                draws:
+                    0,
+
                 socketId:
                     socket.id,
 
@@ -1108,6 +1353,7 @@ async function authenticate(
             player.connected =
                 true;
 
+
             player.name =
                 cleanName(
                     telegramUser.first_name ||
@@ -1115,32 +1361,32 @@ async function authenticate(
                     player.name
                 );
 
+
             player.username =
                 telegramUser.username ||
                 player.username ||
                 "";
 
-            if (
-                typeof player.balance !==
-                "number"
-            ) {
 
-                player.balance =
-                    money(
-                        player.balance
-                    );
-            }
+            player.balance =
+                money(
+                    player.balance
+                );
 
-            if (
-                typeof player.reservedBalance !==
-                "number"
-            ) {
+            player.reservedBalance =
+                money(
+                    player.reservedBalance
+                );
 
-                player.reservedBalance =
-                    money(
-                        player.reservedBalance
-                    );
-            }
+            player.xp =
+                money(
+                    player.xp
+                );
+
+            player.level =
+                calculateLevel(
+                    player.xp
+                );
 
 
             if (
@@ -1213,6 +1459,24 @@ async function authenticate(
             reservedBalance:
                 0,
 
+            xp:
+                0,
+
+            level:
+                1,
+
+            games:
+                0,
+
+            wins:
+                0,
+
+            losses:
+                0,
+
+            draws:
+                0,
+
             socketId:
                 socket.id,
 
@@ -1260,7 +1524,7 @@ async function authenticate(
 
 
 /* =========================================================
-   CARDS
+   DECK
 ========================================================= */
 
 function createDeck() {
@@ -1404,25 +1668,16 @@ function canBeat(
    ECONOMY
 ========================================================= */
 
-function getPot(
-    room
-) {
+function getPot(room) {
 
     return (
         money(
             room.stake
         ) *
-        room.players.length
+        2
     );
 }
 
-
-/*
- * Финансирование партии.
- *
- * Оба игрока должны иметь
- * доступную сумму.
- */
 
 function reserveGameStakes(
     room
@@ -1442,13 +1697,12 @@ function reserveGameStakes(
 
 
     if (
-        room.stake <= 0
+        room.stakesReserved
     ) {
 
         return {
-            ok: false,
-            error:
-                "Некорректная ставка."
+            ok:
+                true
         };
     }
 
@@ -1507,31 +1761,27 @@ function reserveGameStakes(
     }
 
 
-    const a =
-        reserveMoney(
+    if (
+        !reserveMoney(
             playerA,
             room.stake
-        );
-
-
-    if (!a) {
+        )
+    ) {
 
         return {
             ok: false,
             error:
-                "Не удалось зарезервировать ставку первого игрока."
+                "Не удалось зарезервировать первую ставку."
         };
     }
 
 
-    const b =
-        reserveMoney(
+    if (
+        !reserveMoney(
             playerB,
             room.stake
-        );
-
-
-    if (!b) {
+        )
+    ) {
 
         releaseReservedMoney(
             playerA,
@@ -1541,14 +1791,13 @@ function reserveGameStakes(
         return {
             ok: false,
             error:
-                "Не удалось зарезервировать ставку второго игрока."
+                "Не удалось зарезервировать вторую ставку."
         };
     }
 
 
     room.stakesReserved =
         true;
-
 
     room.pot =
         getPot(
@@ -1562,13 +1811,6 @@ function reserveGameStakes(
     };
 }
 
-
-/*
- * Победа.
- *
- * Снимаем резерв у обоих.
- * Победителю начисляем банк.
- */
 
 async function settleWinner(
     room,
@@ -1609,25 +1851,21 @@ async function settleWinner(
         );
 
 
-    /*
-     * Сначала окончательно
-     * списываем обе ставки.
-     */
+    if (
+        room.stakesReserved
+    ) {
 
-    consumeReservedMoney(
-        winner,
-        stake
-    );
+        consumeReservedMoney(
+            winner,
+            stake
+        );
 
-    consumeReservedMoney(
-        loser,
-        stake
-    );
+        consumeReservedMoney(
+            loser,
+            stake
+        );
+    }
 
-
-    /*
-     * Затем банк получает победитель.
-     */
 
     const pot =
         money(
@@ -1639,6 +1877,39 @@ async function settleWinner(
     addMoney(
         winner,
         pot
+    );
+
+
+    winner.games =
+        Number(
+            winner.games || 0
+        ) + 1;
+
+    loser.games =
+        Number(
+            loser.games || 0
+        ) + 1;
+
+
+    winner.wins =
+        Number(
+            winner.wins || 0
+        ) + 1;
+
+    loser.losses =
+        Number(
+            loser.losses || 0
+        ) + 1;
+
+
+    addXP(
+        winner,
+        XP_WIN
+    );
+
+    addXP(
+        loser,
+        XP_LOSS
     );
 
 
@@ -1661,12 +1932,6 @@ async function settleWinner(
     );
 }
 
-
-/*
- * Ничья.
- *
- * Ставки полностью возвращаются.
- */
 
 async function settleDraw(
     room
@@ -1702,9 +1967,31 @@ async function settleDraw(
         }
 
 
-        releaseReservedMoney(
+        if (
+            room.stakesReserved
+        ) {
+
+            releaseReservedMoney(
+                player,
+                stake
+            );
+        }
+
+
+        player.games =
+            Number(
+                player.games || 0
+            ) + 1;
+
+        player.draws =
+            Number(
+                player.draws || 0
+            ) + 1;
+
+
+        addXP(
             player,
-            stake
+            XP_DRAW
         );
 
 
@@ -1724,13 +2011,6 @@ async function settleDraw(
         0;
 }
 
-
-/*
- * Возвращаем ставки.
- *
- * Используется если игра
- * не стартовала корректно.
- */
 
 async function refundRoom(
     room
@@ -1809,7 +2089,6 @@ function createRoom(
 
         return {
             ok: false,
-
             error:
                 "Вы уже находитесь в комнате."
         };
@@ -1830,7 +2109,6 @@ function createRoom(
 
         return {
             ok: false,
-
             error:
                 "Выберите корректную ставку."
         };
@@ -1846,7 +2124,6 @@ function createRoom(
 
         return {
             ok: false,
-
             error:
                 `Недостаточно средств. Нужно ${formatMoney(stake)}.`
         };
@@ -1932,7 +2209,7 @@ function createRoom(
     };
 
 
-    const roomPlayer = {
+    room.players.push({
 
         playerId:
             player.playerId,
@@ -1947,12 +2224,7 @@ function createRoom(
             true,
 
         hand: []
-    };
-
-
-    room.players.push(
-        roomPlayer
-    );
+    });
 
 
     rooms.set(
@@ -1989,7 +2261,6 @@ function joinRoom(
 
         return {
             ok: false,
-
             error:
                 "Вы уже находитесь в комнате."
         };
@@ -2006,7 +2277,6 @@ function joinRoom(
 
         return {
             ok: false,
-
             error:
                 "Комната не найдена."
         };
@@ -2020,7 +2290,6 @@ function joinRoom(
 
         return {
             ok: false,
-
             error:
                 "Комната уже заполнена."
         };
@@ -2034,17 +2303,11 @@ function joinRoom(
 
         return {
             ok: false,
-
             error:
                 "Игра уже началась."
         };
     }
 
-
-    /*
-     * Проверяем баланс второго
-     * игрока именно на сервере.
-     */
 
     if (
         !hasAvailableMoney(
@@ -2055,9 +2318,8 @@ function joinRoom(
 
         return {
             ok: false,
-
             error:
-                `Недостаточно средств для входа в игру на ${formatMoney(room.stake)}.`
+                `Недостаточно средств для входа на ${formatMoney(room.stake)}.`
         };
     }
 
@@ -2116,7 +2378,7 @@ function joinRoom(
 
 
 /* =========================================================
-   START GAME
+   GAME START
 ========================================================= */
 
 function startGame(
@@ -2130,17 +2392,11 @@ function startGame(
 
         return {
             ok: false,
-
             error:
                 "Для начала нужны два игрока."
         };
     }
 
-
-    /*
-     * Экономическая проверка
-     * происходит перед раздачей.
-     */
 
     const reserve =
         reserveGameStakes(
@@ -2149,7 +2405,6 @@ function startGame(
 
 
     if (!reserve.ok) {
-
         return reserve;
     }
 
@@ -2183,18 +2438,32 @@ function startGame(
     room.loserId =
         null;
 
+    room.settled =
+        false;
 
-    room.players.forEach(
-        player => {
+    room.settlement =
+        null;
 
-            player.hand =
-                [];
+    room.payout =
+        0;
 
-            player.connected =
-                true;
-        }
-    );
 
+    for (
+        const player
+        of room.players
+    ) {
+
+        player.hand =
+            [];
+
+        player.connected =
+            true;
+    }
+
+
+    /*
+     * Раздаём по одной карте.
+     */
 
     for (
         let i = 0;
@@ -2208,7 +2477,7 @@ function startGame(
         ) {
 
             if (
-                room.deck.length
+                room.deck.length > 0
             ) {
 
                 player.hand.push(
@@ -2219,6 +2488,10 @@ function startGame(
     }
 
 
+    /*
+     * Козырь — последняя карта колоды.
+     */
+
     room.trumpSuit =
         room.deck.length > 0
             ? room.deck[
@@ -2226,6 +2499,11 @@ function startGame(
             ].suit
             : null;
 
+
+    /*
+     * Первый ходящий —
+     * игрок с младшим козырем.
+     */
 
     let attacker =
         null;
@@ -2263,6 +2541,12 @@ function startGame(
         }
     }
 
+
+    /*
+     * Теоретически козырь
+     * всегда должен быть найден.
+     * Но сохраняем безопасный fallback.
+     */
 
     if (!attacker) {
 
@@ -2311,7 +2595,7 @@ function startGame(
 
 
 /* =========================================================
-   ROUND LIMIT
+   ROUND
 ========================================================= */
 
 function startNewAttackRound(
@@ -2359,7 +2643,7 @@ function maxTableCards(
 
 
 /* =========================================================
-   ATTACK VALIDATION
+   CARDS
 ========================================================= */
 
 function findCard(
@@ -2372,6 +2656,7 @@ function findCard(
             player
         );
 
+
     if (
         !roomPlayer ||
         !Array.isArray(
@@ -2381,10 +2666,12 @@ function findCard(
         return null;
     }
 
+
     return (
         roomPlayer.hand.find(
             card =>
-                card.id === cardId
+                card.id ===
+                cardId
         ) || null
     );
 }
@@ -2400,6 +2687,7 @@ function removeCard(
             player
         );
 
+
     if (
         !roomPlayer ||
         !Array.isArray(
@@ -2413,7 +2701,8 @@ function removeCard(
     const index =
         roomPlayer.hand.findIndex(
             card =>
-                card.id === cardId
+                card.id ===
+                cardId
         );
 
 
@@ -2439,14 +2728,9 @@ function cardLabel(card) {
 }
 
 
-function safeRoomId(roomId) {
-
-    return String(roomId || "")
-        .trim()
-        .toUpperCase()
-        .slice(0, 20);
-}
-
+/* =========================================================
+   ATTACK VALIDATION
+========================================================= */
 
 function validAttackCard(
     room,
@@ -2458,13 +2742,23 @@ function validAttackCard(
     }
 
 
+    /*
+     * Первая карта раунда —
+     * можно положить любую карту.
+     */
+
     if (
         room.table.length === 0
     ) {
-
         return true;
     }
 
+
+    /*
+     * Подкидывать можно только
+     * значения, уже присутствующие
+     * на столе.
+     */
 
     const allowedValues =
         new Set();
@@ -2536,6 +2830,13 @@ function attackCard(
     }
 
 
+    /*
+     * Атаковать можно:
+     *
+     * 1. в начале атаки
+     * 2. после полной отбивки
+     */
+
     if (
         room.phase !== "attack" &&
         room.phase !== "bito"
@@ -2581,8 +2882,13 @@ function attackCard(
     }
 
 
+    /*
+     * Если на столе есть
+     * неотбитая карта —
+     * нельзя начинать новую атаку.
+     */
+
     if (
-        room.table.length > 0 &&
         room.table.some(
             pair =>
                 !pair.defense
@@ -2850,10 +3156,21 @@ function defendCard(
     const allDefended =
         room.table.length > 0 &&
         room.table.every(
-            item =>
-                !!item.defense
+            pair =>
+                !!pair.defense
         );
 
+
+    /*
+     * ВАЖНО:
+     *
+     * После отбивки атакующий
+     * снова получает возможность
+     * подкинуть карту.
+     *
+     * Если он не хочет —
+     * нажимает БИТО.
+     */
 
     room.phase =
         allDefended
@@ -2955,6 +3272,21 @@ async function takeCards(
         );
 
 
+    if (!defender) {
+
+        return {
+            ok: false,
+            error:
+                "Игрок не найден."
+        };
+    }
+
+
+    /*
+     * При ВЗЯТЬ защитник
+     * получает все карты стола.
+     */
+
     for (
         const pair
         of room.table
@@ -3005,6 +3337,14 @@ async function takeCards(
     room.table =
         [];
 
+
+    /*
+     * ВЗЯВШИЙ остаётся
+     * защитником.
+     *
+     * Атакующий продолжает
+     * атаку в следующем раунде.
+     */
 
     room.phase =
         "draw";
@@ -3142,6 +3482,12 @@ async function bito(
         [];
 
 
+    /*
+     * После БИТО
+     * защитник становится
+     * новым атакующим.
+     */
+
     const oldAttacker =
         room.attackerId;
 
@@ -3210,12 +3556,16 @@ function drawCards(
     }
 
 
+    /*
+     * В Дураке сначала добирает
+     * атакующий, затем защитник.
+     */
+
     const attacker =
         roomPlayerById(
             room,
             room.attackerId
         );
-
 
     const defender =
         roomPlayerById(
@@ -3268,6 +3618,12 @@ async function checkGameOver(
     }
 
 
+    /*
+     * Пока колода не пуста —
+     * партия не заканчивается
+     * только из-за пустой руки.
+     */
+
     if (
         room.deck.length > 0
     ) {
@@ -3282,6 +3638,10 @@ async function checkGameOver(
                 player.hand.length === 0
         );
 
+
+    /*
+     * Оба закончили одновременно.
+     */
 
     if (
         emptyPlayers.length === 2
@@ -3328,73 +3688,76 @@ async function checkGameOver(
     }
 
 
+    /*
+     * Один игрок закончил.
+     */
+
     if (
-        emptyPlayers.length !== 1
+        emptyPlayers.length === 1
     ) {
 
-        return false;
+        const winner =
+            emptyPlayers[0];
+
+        const loser =
+            otherPlayer(
+                room,
+                winner.playerId
+            );
+
+
+        room.status =
+            "finished";
+
+        room.phase =
+            "finished";
+
+        room.winnerId =
+            winner.playerId;
+
+        room.loserId =
+            loser
+                ? loser.playerId
+                : null;
+
+        room.attackerId =
+            null;
+
+        room.defenderId =
+            null;
+
+        room.finishedAt =
+            Date.now();
+
+
+        room.moves.push({
+
+            type:
+                "finish",
+
+            playerId:
+                winner.playerId,
+
+            timestamp:
+                Date.now()
+        });
+
+
+        if (loser) {
+
+            await settleWinner(
+                room,
+                winner.playerId,
+                loser.playerId
+            );
+        }
+
+
+        return true;
     }
 
 
-    const winner =
-        emptyPlayers[0];
-
-
-    const loser =
-        otherPlayer(
-            room,
-            winner.playerId
-        );
-
-
-    room.status =
-        "finished";
-
-    room.phase =
-        "finished";
-
-    room.winnerId =
-        winner.playerId;
-
-    room.loserId =
-        loser
-            ? loser.playerId
-            : null;
-
-    room.attackerId =
-        null;
-
-    room.defenderId =
-        null;
-
-    room.finishedAt =
-        Date.now();
-
-
-    room.moves.push({
-
-        type:
-            "finish",
-
-        playerId:
-            winner.playerId,
-
-        timestamp:
-            Date.now()
-    });
-
-
-    if (loser) {
-
-        await settleWinner(
-            room,
-            winner.playerId,
-            loser.playerId
-        );
-    }
-
-
-    return true;
+    return false;
 }
 
 
@@ -3467,8 +3830,10 @@ function gameState(
     ) {
 
         if (
-            room.phase === "attack" ||
-            room.phase === "bito"
+            room.phase ===
+                "attack" ||
+            room.phase ===
+                "bito"
         ) {
 
             turn =
@@ -3735,7 +4100,7 @@ function sendRoomState(
 
 
 /* =========================================================
-   PROFILE STATE
+   PROFILE
 ========================================================= */
 
 async function sendProfile(
@@ -3766,6 +4131,36 @@ async function sendProfile(
                 player.username,
 
             wallet,
+
+            xp:
+                money(
+                    player.xp
+                ),
+
+            level:
+                calculateLevel(
+                    player.xp
+                ),
+
+            games:
+                Number(
+                    player.games || 0
+                ),
+
+            wins:
+                Number(
+                    player.wins || 0
+                ),
+
+            losses:
+                Number(
+                    player.losses || 0
+                ),
+
+            draws:
+                Number(
+                    player.draws || 0
+                ),
 
             stakes:
                 STAKES
@@ -3805,22 +4200,29 @@ function publicRoom(
 }
 
 
+function getPublicRooms() {
+
+    return Array.from(
+        rooms.values()
+    )
+    .filter(
+        room =>
+            room.status ===
+                "waiting" ||
+            room.status ===
+                "playing"
+    )
+    .map(
+        publicRoom
+    );
+}
+
+
 function sendRoomList() {
 
     io.emit(
         "rooms_list",
-
-        Array.from(
-            rooms.values()
-        )
-        .filter(
-            room =>
-                room.status === "waiting" ||
-                room.status === "playing"
-        )
-        .map(
-            publicRoom
-        )
+        getPublicRooms()
     );
 }
 
@@ -3858,8 +4260,7 @@ async function leaveRoom(
 
 
     /*
-     * Если игра уже закончилась,
-     * просто удаляем игрока.
+     * Finished room.
      */
 
     if (
@@ -3873,6 +4274,7 @@ async function leaveRoom(
                     roomPlayer.playerId !==
                     player.playerId
             );
+
 
         player.roomId =
             null;
@@ -3895,8 +4297,7 @@ async function leaveRoom(
 
 
     /*
-     * Если игра ещё waiting —
-     * никаких денег не списываем.
+     * Waiting room.
      */
 
     if (
@@ -3941,8 +4342,10 @@ async function leaveRoom(
 
 
     /*
-     * Активная партия:
-     * оставшийся игрок победитель.
+     * Active game.
+     *
+     * Manual leave =
+     * opponent wins immediately.
      */
 
     const opponent =
@@ -4025,10 +4428,10 @@ async function leaveRoom(
 
 
 /* =========================================================
-   DISCONNECT
+   DISCONNECT CLEANUP
 ========================================================= */
 
-function scheduleDisconnectCleanup(
+async function scheduleDisconnectCleanup(
     player
 ) {
 
@@ -4046,105 +4449,116 @@ function scheduleDisconnectCleanup(
         setTimeout(
             async () => {
 
-                if (
-                    player.connected
-                ) {
+                try {
+
+                    if (
+                        player.connected
+                    ) {
+
+                        player.disconnectTimer =
+                            null;
+
+                        return;
+                    }
+
+
+                    if (
+                        player.roomId
+                    ) {
+
+                        const room =
+                            getRoom(
+                                player.roomId
+                            );
+
+
+                        if (room) {
+
+                            const opponent =
+                                otherPlayer(
+                                    room,
+                                    player.playerId
+                                );
+
+
+                            if (
+                                room.status ===
+                                    "playing" &&
+                                opponent
+                            ) {
+
+                                room.status =
+                                    "finished";
+
+                                room.phase =
+                                    "finished";
+
+                                room.winnerId =
+                                    opponent.playerId;
+
+                                room.loserId =
+                                    player.playerId;
+
+                                room.attackerId =
+                                    null;
+
+                                room.defenderId =
+                                    null;
+
+                                room.finishedAt =
+                                    Date.now();
+
+
+                                room.moves.push({
+
+                                    type:
+                                        "disconnect_finish",
+
+                                    playerId:
+                                        opponent.playerId,
+
+                                    timestamp:
+                                        Date.now()
+                                });
+
+
+                                await settleWinner(
+                                    room,
+                                    opponent.playerId,
+                                    player.playerId
+                                );
+
+
+                                sendRoomState(
+                                    room
+                                );
+
+                            } else {
+
+                                await leaveRoom(
+                                    player
+                                );
+                            }
+                        }
+                    }
+
+
+                    await savePlayer(
+                        player
+                    );
+
+                } catch (err) {
+
+                    console.error(
+                        "Disconnect cleanup error:",
+                        err
+                    );
+
+                } finally {
 
                     player.disconnectTimer =
                         null;
-
-                    return;
                 }
-
-
-                if (
-                    player.roomId
-                ) {
-
-                    const room =
-                        getRoom(
-                            player.roomId
-                        );
-
-
-                    if (room) {
-
-                        const opponent =
-                            otherPlayer(
-                                room,
-                                player.playerId
-                            );
-
-
-                        if (
-                            room.status ===
-                                "playing" &&
-                            opponent
-                        ) {
-
-                            room.status =
-                                "finished";
-
-                            room.phase =
-                                "finished";
-
-                            room.winnerId =
-                                opponent.playerId;
-
-                            room.loserId =
-                                player.playerId;
-
-                            room.attackerId =
-                                null;
-
-                            room.defenderId =
-                                null;
-
-                            room.finishedAt =
-                                Date.now();
-
-
-                            room.moves.push({
-
-                                type:
-                                    "disconnect_finish",
-
-                                playerId:
-                                    opponent.playerId,
-
-                                timestamp:
-                                    Date.now()
-                            });
-
-
-                            await settleWinner(
-                                room,
-                                opponent.playerId,
-                                player.playerId
-                            );
-
-
-                            sendRoomState(
-                                room
-                            );
-
-                        } else {
-
-                            await leaveRoom(
-                                player
-                            );
-                        }
-                    }
-                }
-
-
-                await savePlayer(
-                    player
-                );
-
-
-                player.disconnectTimer =
-                    null;
 
             },
 
@@ -4220,6 +4634,10 @@ io.on(
         }
 
 
+        /*
+         * Защита от старого socket.
+         */
+
         player.socketId =
             socket.id;
 
@@ -4248,7 +4666,7 @@ io.on(
 
 
         /*
-         * Reconnect.
+         * RECONNECT
          */
 
         if (
@@ -4326,20 +4744,7 @@ io.on(
 
                 socket.emit(
                     "rooms_list",
-
-                    Array.from(
-                        rooms.values()
-                    )
-                    .filter(
-                        room =>
-                            room.status ===
-                                "waiting" ||
-                            room.status ===
-                                "playing"
-                    )
-                    .map(
-                        publicRoom
-                    )
+                    getPublicRooms()
                 );
             }
         );
@@ -4353,67 +4758,84 @@ io.on(
             "create_room",
             async data => {
 
-                const stake =
-                    Number(
-                        data?.stake
+                try {
+
+                    const stake =
+                        Number(
+                            data?.stake
+                        );
+
+
+                    const result =
+                        createRoom(
+                            player,
+                            stake
+                        );
+
+
+                    if (!result.ok) {
+
+                        emitPlayerError(
+                            socket,
+                            "error_message",
+                            result.error
+                        );
+
+                        return;
+                    }
+
+
+                    const room =
+                        result.room;
+
+
+                    socket.join(
+                        room.id
                     );
 
-
-                const result =
-                    createRoom(
-                        player,
-                        stake
-                    );
-
-
-                if (!result.ok) {
 
                     socket.emit(
-                        "error_message",
-                        result.error
+                        "room_created",
+                        publicRoom(
+                            room
+                        )
                     );
 
-                    return;
-                }
 
-
-                const room =
-                    result.room;
-
-
-                socket.join(
-                    room.id
-                );
-
-
-                socket.emit(
-                    "room_created",
-                    publicRoom(
+                    sendRoomState(
                         room
-                    )
-                );
+                    );
 
 
-                sendRoomState(
-                    room
-                );
+                    sendRoomList();
 
 
-                sendRoomList();
+                    await sendProfile(
+                        socket,
+                        player
+                    );
 
 
-                await sendProfile(
-                    socket,
-                    player
-                );
+                    console.log(
+                        "Room created:",
+                        room.id,
+                        "stake:",
+                        room.stake
+                    );
 
+                } catch (err) {
 
-                console.log(
-                    "Room created:",
-                    room.id,
-                    "stake:",
-                    room.stake
-                );
+                    console.error(
+                        "create_room error:",
+                        err
+                    );
+
+                    emitPlayerError(
+                        socket,
+                        "error_message",
+                        "Ошибка создания комнаты."
+                    );
+                }
             }
         );
 
@@ -4426,54 +4848,71 @@ io.on(
             "join_room",
             async roomId => {
 
-                const result =
-                    joinRoom(
-                        player,
-                        roomId
+                try {
+
+                    const result =
+                        joinRoom(
+                            player,
+                            roomId
+                        );
+
+
+                    if (!result.ok) {
+
+                        emitPlayerError(
+                            socket,
+                            "error_message",
+                            result.error
+                        );
+
+                        return;
+                    }
+
+
+                    const room =
+                        result.room;
+
+
+                    socket.join(
+                        room.id
                     );
 
 
-                if (!result.ok) {
+                    sendRoomState(
+                        room
+                    );
 
-                    socket.emit(
+
+                    sendRoomList();
+
+
+                    await sendProfile(
+                        socket,
+                        player
+                    );
+
+
+                    console.log(
+                        "Player joined:",
+                        player.name,
+                        room.id,
+                        "stake:",
+                        room.stake
+                    );
+
+                } catch (err) {
+
+                    console.error(
+                        "join_room error:",
+                        err
+                    );
+
+                    emitPlayerError(
+                        socket,
                         "error_message",
-                        result.error
+                        "Ошибка входа в комнату."
                     );
-
-                    return;
                 }
-
-
-                const room =
-                    result.room;
-
-
-                socket.join(
-                    room.id
-                );
-
-
-                sendRoomState(
-                    room
-                );
-
-
-                sendRoomList();
-
-
-                await sendProfile(
-                    socket,
-                    player
-                );
-
-
-                console.log(
-                    "Player joined:",
-                    player.name,
-                    room.id,
-                    "stake:",
-                    room.stake
-                );
             }
         );
 
@@ -4486,34 +4925,53 @@ io.on(
             "attack_card",
             async cardId => {
 
-                const result =
-                    attackCard(
-                        player,
-                        cardId
+                try {
+
+                    const result =
+                        attackCard(
+                            player,
+                            String(
+                                cardId || ""
+                            )
+                        );
+
+
+                    if (!result.ok) {
+
+                        emitPlayerError(
+                            socket,
+                            "game_error",
+                            result.error
+                        );
+
+                        return;
+                    }
+
+
+                    const room =
+                        getRoom(
+                            player.roomId
+                        );
+
+
+                    if (room) {
+
+                        sendRoomState(
+                            room
+                        );
+                    }
+
+                } catch (err) {
+
+                    console.error(
+                        "attack_card error:",
+                        err
                     );
 
-
-                if (!result.ok) {
-
-                    socket.emit(
+                    emitPlayerError(
+                        socket,
                         "game_error",
-                        result.error
-                    );
-
-                    return;
-                }
-
-
-                const room =
-                    getRoom(
-                        player.roomId
-                    );
-
-
-                if (room) {
-
-                    sendRoomState(
-                        room
+                        "Ошибка атаки."
                     );
                 }
             }
@@ -4526,37 +4984,58 @@ io.on(
 
         socket.on(
             "defend_card",
-            data => {
+            async data => {
 
-                const result =
-                    defendCard(
-                        player,
-                        data?.attackId,
-                        data?.defenseId
+                try {
+
+                    const result =
+                        defendCard(
+                            player,
+                            String(
+                                data?.attackId || ""
+                            ),
+                            String(
+                                data?.defenseId || ""
+                            )
+                        );
+
+
+                    if (!result.ok) {
+
+                        emitPlayerError(
+                            socket,
+                            "game_error",
+                            result.error
+                        );
+
+                        return;
+                    }
+
+
+                    const room =
+                        getRoom(
+                            player.roomId
+                        );
+
+
+                    if (room) {
+
+                        sendRoomState(
+                            room
+                        );
+                    }
+
+                } catch (err) {
+
+                    console.error(
+                        "defend_card error:",
+                        err
                     );
 
-
-                if (!result.ok) {
-
-                    socket.emit(
+                    emitPlayerError(
+                        socket,
                         "game_error",
-                        result.error
-                    );
-
-                    return;
-                }
-
-
-                const room =
-                    getRoom(
-                        player.roomId
-                    );
-
-
-                if (room) {
-
-                    sendRoomState(
-                        room
+                        "Ошибка защиты."
                     );
                 }
             }
@@ -4571,44 +5050,61 @@ io.on(
             "take_cards",
             async () => {
 
-                const result =
-                    await takeCards(
+                try {
+
+                    const result =
+                        await takeCards(
+                            player
+                        );
+
+
+                    if (!result.ok) {
+
+                        emitPlayerError(
+                            socket,
+                            "game_error",
+                            result.error
+                        );
+
+                        return;
+                    }
+
+
+                    const room =
+                        getRoom(
+                            player.roomId
+                        );
+
+
+                    if (room) {
+
+                        sendRoomState(
+                            room
+                        );
+                    }
+
+
+                    await sendProfile(
+                        socket,
                         player
                     );
 
 
-                if (!result.ok) {
+                    sendRoomList();
 
-                    socket.emit(
+                } catch (err) {
+
+                    console.error(
+                        "take_cards error:",
+                        err
+                    );
+
+                    emitPlayerError(
+                        socket,
                         "game_error",
-                        result.error
-                    );
-
-                    return;
-                }
-
-
-                const room =
-                    getRoom(
-                        player.roomId
-                    );
-
-
-                if (room) {
-
-                    sendRoomState(
-                        room
+                        "Ошибка при взятии карт."
                     );
                 }
-
-
-                await sendProfile(
-                    socket,
-                    player
-                );
-
-
-                sendRoomList();
             }
         );
 
@@ -4621,44 +5117,61 @@ io.on(
             "bito",
             async () => {
 
-                const result =
-                    await bito(
+                try {
+
+                    const result =
+                        await bito(
+                            player
+                        );
+
+
+                    if (!result.ok) {
+
+                        emitPlayerError(
+                            socket,
+                            "game_error",
+                            result.error
+                        );
+
+                        return;
+                    }
+
+
+                    const room =
+                        getRoom(
+                            player.roomId
+                        );
+
+
+                    if (room) {
+
+                        sendRoomState(
+                            room
+                        );
+                    }
+
+
+                    await sendProfile(
+                        socket,
                         player
                     );
 
 
-                if (!result.ok) {
+                    sendRoomList();
 
-                    socket.emit(
+                } catch (err) {
+
+                    console.error(
+                        "bito error:",
+                        err
+                    );
+
+                    emitPlayerError(
+                        socket,
                         "game_error",
-                        result.error
-                    );
-
-                    return;
-                }
-
-
-                const room =
-                    getRoom(
-                        player.roomId
-                    );
-
-
-                if (room) {
-
-                    sendRoomState(
-                        room
+                        "Ошибка завершения раунда."
                     );
                 }
-
-
-                await sendProfile(
-                    socket,
-                    player
-                );
-
-
-                sendRoomList();
             }
         );
 
@@ -4671,36 +5184,52 @@ io.on(
             "leave_room",
             async () => {
 
-                const room =
-                    player.roomId
-                        ? getRoom(
-                            player.roomId
-                        )
-                        : null;
+                try {
+
+                    const room =
+                        player.roomId
+                            ? getRoom(
+                                player.roomId
+                            )
+                            : null;
 
 
-                if (room) {
+                    if (room) {
 
-                    socket.leave(
-                        room.id
+                        socket.leave(
+                            room.id
+                        );
+                    }
+
+
+                    await leaveRoom(
+                        player
+                    );
+
+
+                    socket.emit(
+                        "left_room"
+                    );
+
+
+                    await sendProfile(
+                        socket,
+                        player
+                    );
+
+                } catch (err) {
+
+                    console.error(
+                        "leave_room error:",
+                        err
+                    );
+
+                    emitPlayerError(
+                        socket,
+                        "error_message",
+                        "Ошибка выхода из комнаты."
                     );
                 }
-
-
-                await leaveRoom(
-                    player
-                );
-
-
-                socket.emit(
-                    "left_room"
-                );
-
-
-                await sendProfile(
-                    socket,
-                    player
-                );
             }
         );
 
@@ -4726,8 +5255,9 @@ io.on(
 
                 /*
                  * Старый socket
-                 * не может отключить
-                 * новый.
+                 * не имеет права
+                 * менять состояние
+                 * нового соединения.
                  */
 
                 if (
@@ -4810,9 +5340,9 @@ app.get(
 );
 
 
-/*
- * Health
- */
+/* =========================================================
+   HEALTH
+========================================================= */
 
 app.get(
     "/api/health",
@@ -4853,7 +5383,7 @@ app.get(
                 "Heavy Lux Card",
 
             version:
-                "7.0",
+                "8.0",
 
             database,
 
@@ -4877,11 +5407,9 @@ app.get(
 );
 
 
-/*
- * API profile.
- *
- * Для будущего расширения.
- */
+/* =========================================================
+   STAKES API
+========================================================= */
 
 app.get(
     "/api/stakes",
@@ -4911,6 +5439,29 @@ app.get(
                             stake * 2
                     })
                 )
+        });
+    }
+);
+
+
+/* =========================================================
+   PUBLIC ROOMS API
+========================================================= */
+
+app.get(
+    "/api/rooms",
+    (
+        req,
+        res
+    ) => {
+
+        res.json({
+
+            ok:
+                true,
+
+            rooms:
+                getPublicRooms()
         });
     }
 );
@@ -5018,7 +5569,11 @@ async function start() {
             );
 
             console.log(
-                "Server version: 7.0"
+                "Server version: 8.0"
+            );
+
+            console.log(
+                "======================================"
             );
 
             console.log(
@@ -5032,6 +5587,18 @@ async function start() {
 
             console.log(
                 "Durak 36 cards: ready"
+            );
+
+            console.log(
+                "Correct game cycle: ready"
+            );
+
+            console.log(
+                "Attack / Defense / Throw-in: ready"
+            );
+
+            console.log(
+                "Take / Bito: ready"
             );
 
             console.log(
@@ -5059,8 +5626,11 @@ async function start() {
             );
 
             console.log(
-                "Stakes:",
-                STAKES.join(", ")
+                "XP / Levels: ready"
+            );
+
+            console.log(
+                "Player statistics: ready"
             );
 
             console.log(
@@ -5079,6 +5649,11 @@ async function start() {
                 pool
                     ? "enabled"
                     : "disabled"
+            );
+
+            console.log(
+                "Stakes:",
+                STAKES.join(", ")
             );
 
             console.log(
@@ -5127,10 +5702,12 @@ async function shutdown() {
 
         server.close();
 
+
         if (pool) {
 
             await pool.end();
         }
+
 
         console.log(
             "Server stopped"
@@ -5149,5 +5726,9 @@ async function shutdown() {
     }
 }
 
+
+/* =========================================================
+   RUN
+========================================================= */
 
 start();
