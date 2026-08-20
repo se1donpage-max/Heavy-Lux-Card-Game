@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
 
 <meta charset="UTF-8">
@@ -17,7 +16,6 @@
 <title>Heavy Lux Card</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
 <script src="/socket.io/socket.io.js"></script>
 
 <style>
@@ -58,6 +56,10 @@ button {
     border: 0;
 }
 
+button:active {
+    transform: scale(.98);
+}
+
 .app {
     width: 100%;
     max-width: 600px;
@@ -72,15 +74,12 @@ button {
         calc(25px + env(safe-area-inset-bottom));
 }
 
-/*
-=========================================================
+/* =====================================================
 HEADER
-=========================================================
-*/
+===================================================== */
 
 .header {
     display: flex;
-
     justify-content: space-between;
     align-items: center;
 
@@ -103,11 +102,9 @@ HEADER
     color: #5cff91;
 }
 
-/*
-=========================================================
+/* =====================================================
 CARD
-=========================================================
-*/
+===================================================== */
 
 .card {
     background: #111;
@@ -128,11 +125,9 @@ CARD
     margin-bottom: 14px;
 }
 
-/*
-=========================================================
+/* =====================================================
 PROFILE
-=========================================================
-*/
+===================================================== */
 
 .profile-name {
     font-size: 23px;
@@ -145,13 +140,13 @@ PROFILE
     font-size: 11px;
 
     color: #666;
+
+    word-break: break-all;
 }
 
-/*
-=========================================================
-BUTTON
-=========================================================
-*/
+/* =====================================================
+BUTTONS
+===================================================== */
 
 .btn {
     width: 100%;
@@ -167,10 +162,8 @@ BUTTON
 
     font-size: 15px;
     font-weight: 900;
-}
 
-.btn:active {
-    transform: scale(.98);
+    cursor: pointer;
 }
 
 .btn.secondary {
@@ -191,15 +184,12 @@ BUTTON
     opacity: .35;
 }
 
-/*
-=========================================================
+/* =====================================================
 JOIN
-=========================================================
-*/
+===================================================== */
 
 .join {
     display: flex;
-
     gap: 8px;
 }
 
@@ -229,11 +219,9 @@ JOIN
     margin-top: 0;
 }
 
-/*
-=========================================================
+/* =====================================================
 ROOMS
-=========================================================
-*/
+===================================================== */
 
 .room {
     padding: 15px;
@@ -268,11 +256,9 @@ ROOMS
     color: #777;
 }
 
-/*
-=========================================================
+/* =====================================================
 SCREENS
-=========================================================
-*/
+===================================================== */
 
 .room-screen {
     display: none;
@@ -286,11 +272,9 @@ SCREENS
     display: none;
 }
 
-/*
-=========================================================
-BIG ROOM CODE
-=========================================================
-*/
+/* =====================================================
+ROOM CODE
+===================================================== */
 
 .big-code {
     text-align: center;
@@ -307,11 +291,9 @@ BIG ROOM CODE
     text-align: center;
 }
 
-/*
-=========================================================
+/* =====================================================
 PLAYERS
-=========================================================
-*/
+===================================================== */
 
 .players {
     display: grid;
@@ -330,6 +312,8 @@ PLAYERS
     border-radius: 15px;
 
     padding: 14px;
+
+    min-width: 0;
 }
 
 .player-label {
@@ -354,11 +338,9 @@ PLAYERS
     white-space: nowrap;
 }
 
-/*
-=========================================================
+/* =====================================================
 TURN
-=========================================================
-*/
+===================================================== */
 
 .turn {
     margin-top: 18px;
@@ -398,11 +380,9 @@ TURN
     font-size: 12px;
 }
 
-/*
-=========================================================
+/* =====================================================
 MOVES
-=========================================================
-*/
+===================================================== */
 
 .moves {
     margin-top: 15px;
@@ -419,11 +399,9 @@ MOVES
     font-size: 12px;
 }
 
-/*
-=========================================================
+/* =====================================================
 WAITING
-=========================================================
-*/
+===================================================== */
 
 .waiting {
     padding: 20px 0;
@@ -433,11 +411,9 @@ WAITING
     color: #777;
 }
 
-/*
-=========================================================
+/* =====================================================
 TOAST
-=========================================================
-*/
+===================================================== */
 
 .toast {
     position: fixed;
@@ -480,6 +456,10 @@ TOAST
 
 <div class="app">
 
+    <!-- =================================================
+    HEADER
+    ================================================== -->
+
     <div class="header">
 
         <div class="logo">
@@ -497,7 +477,7 @@ TOAST
 
 
     <!-- =================================================
-         LOBBY
+    LOBBY
     ================================================== -->
 
     <div
@@ -515,7 +495,7 @@ TOAST
                 id="profileName"
                 class="profile-name"
             >
-                Загрузка...
+                Подключение...
             </div>
 
             <div
@@ -537,6 +517,7 @@ TOAST
             <button
                 id="createBtn"
                 class="btn"
+                type="button"
             >
                 Создать комнату 1×1
             </button>
@@ -557,11 +538,13 @@ TOAST
                     maxlength="6"
                     placeholder="КОД"
                     autocomplete="off"
+                    autocapitalize="characters"
                 >
 
                 <button
                     id="joinBtn"
                     class="btn"
+                    type="button"
                 >
                     Войти
                 </button>
@@ -578,9 +561,11 @@ TOAST
             </div>
 
             <div id="rooms">
+
                 <div class="waiting">
                     Загрузка комнат...
                 </div>
+
             </div>
 
         </div>
@@ -589,7 +574,7 @@ TOAST
 
 
     <!-- =================================================
-         ROOM
+    ROOM
     ================================================== -->
 
     <div
@@ -650,6 +635,7 @@ TOAST
             <button
                 id="moveBtn"
                 class="btn"
+                type="button"
                 style="display:none;"
             >
                 Сделать тестовый ход
@@ -666,6 +652,7 @@ TOAST
             <button
                 id="leaveBtn"
                 class="btn danger"
+                type="button"
             >
                 Покинуть комнату
             </button>
@@ -695,14 +682,16 @@ const telegram =
     window.Telegram?.WebApp || null;
 
 if (telegram) {
+
     telegram.ready();
+
     telegram.expand();
 }
 
 
 /*
 =========================================================
-VARIABLES
+STATE
 =========================================================
 */
 
@@ -794,6 +783,26 @@ const toast =
         "toast"
     );
 
+const createBtn =
+    document.getElementById(
+        "createBtn"
+    );
+
+const joinBtn =
+    document.getElementById(
+        "joinBtn"
+    );
+
+const roomInput =
+    document.getElementById(
+        "roomInput"
+    );
+
+const leaveBtn =
+    document.getElementById(
+        "leaveBtn"
+    );
+
 
 /*
 =========================================================
@@ -805,7 +814,8 @@ let toastTimeout = null;
 
 function showToast(text) {
 
-    toast.textContent = text;
+    toast.textContent =
+        String(text || "");
 
     toast.classList.add(
         "show"
@@ -835,9 +845,13 @@ SOCKET AUTH
 =========================================================
 */
 
-function socketAuth() {
+function getSocketAuth() {
 
     const auth = {};
+
+    /*
+    Telegram WebApp
+    */
 
     if (
         telegram &&
@@ -847,32 +861,66 @@ function socketAuth() {
         auth.initData =
             telegram.initData;
 
-    } else {
-
-        let testId =
-            localStorage.getItem(
-                "hlc_test_id"
-            );
-
-        if (!testId) {
-
-            testId =
-                "test_" +
-                Math.random()
-                    .toString(36)
-                    .slice(2, 10);
-
-            localStorage.setItem(
-                "hlc_test_id",
-                testId
-            );
-        }
-
-        auth.testPlayerId =
-            testId;
+        return auth;
     }
 
+    /*
+    Browser test mode
+    */
+
+    let testId =
+        localStorage.getItem(
+            "hlc_test_id"
+        );
+
+    if (!testId) {
+
+        testId =
+            "test_" +
+            cryptoRandom();
+
+        localStorage.setItem(
+            "hlc_test_id",
+            testId
+        );
+    }
+
+    auth.testPlayerId =
+        testId;
+
     return auth;
+}
+
+
+/*
+=========================================================
+RANDOM TEST ID
+=========================================================
+*/
+
+function cryptoRandom() {
+
+    if (
+        window.crypto &&
+        window.crypto.getRandomValues
+    ) {
+
+        const array =
+            new Uint32Array(2);
+
+        window.crypto.getRandomValues(
+            array
+        );
+
+        return (
+            array[0].toString(36) +
+            array[1].toString(36)
+        ).slice(0, 12);
+    }
+
+    return Math.random()
+        .toString(36)
+        .slice(2, 14);
 }
 
 
@@ -884,12 +932,28 @@ CONNECT
 
 function connect() {
 
+    if (socket) {
+
+        try {
+            socket.disconnect();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    connection.textContent =
+        "Подключение...";
+
+    connection.classList.remove(
+        "online"
+    );
+
     socket =
         io(
             window.location.origin,
             {
                 auth:
-                    socketAuth(),
+                    getSocketAuth(),
 
                 transports: [
                     "websocket",
@@ -914,7 +978,9 @@ function connect() {
 
 
     /*
-    CONNECT
+    =====================================================
+    CONNECTED
+    =====================================================
     */
 
     socket.on(
@@ -940,7 +1006,9 @@ function connect() {
 
 
     /*
-    DISCONNECT
+    =====================================================
+    DISCONNECTED
+    =====================================================
     */
 
     socket.on(
@@ -958,7 +1026,9 @@ function connect() {
 
 
     /*
-    ERROR
+    =====================================================
+    CONNECTION ERROR
+    =====================================================
     */
 
     socket.on(
@@ -966,6 +1036,7 @@ function connect() {
         (error) => {
 
             console.error(
+                "Socket.IO error:",
                 error
             );
 
@@ -980,7 +1051,9 @@ function connect() {
 
 
     /*
+    =====================================================
     PROFILE
+    =====================================================
     */
 
     socket.on(
@@ -996,13 +1069,19 @@ function connect() {
 
             profileId.textContent =
                 "ID: " +
-                data.playerId;
+                (
+                    data.telegramId ||
+                    data.playerId ||
+                    "—"
+                );
         }
     );
 
 
     /*
-    ROOM LIST
+    =====================================================
+    ROOMS
+    =====================================================
     */
 
     socket.on(
@@ -1010,14 +1089,18 @@ function connect() {
         (list) => {
 
             renderRooms(
-                list
+                Array.isArray(list)
+                    ? list
+                    : []
             );
         }
     );
 
 
     /*
+    =====================================================
     ROOM CREATED
+    =====================================================
     */
 
     socket.on(
@@ -1037,12 +1120,19 @@ function connect() {
 
 
     /*
+    =====================================================
     GAME STATE
+    =====================================================
     */
 
     socket.on(
         "game_state",
         (state) => {
+
+            console.log(
+                "GAME STATE:",
+                state
+            );
 
             currentGame =
                 state;
@@ -1052,17 +1142,14 @@ function connect() {
             renderGame(
                 state
             );
-
-            console.log(
-                "GAME STATE",
-                state
-            );
         }
     );
 
 
     /*
+    =====================================================
     SERVER ERROR
+    =====================================================
     */
 
     socket.on(
@@ -1077,7 +1164,9 @@ function connect() {
 
 
     /*
+    =====================================================
     MOVE ERROR
+    =====================================================
     */
 
     socket.on(
@@ -1092,7 +1181,9 @@ function connect() {
 
 
     /*
+    =====================================================
     LEFT ROOM
+    =====================================================
     */
 
     socket.on(
@@ -1101,6 +1192,9 @@ function connect() {
 
             currentGame =
                 null;
+
+            bigCode.textContent =
+                "------";
 
             closeRoom();
 
@@ -1114,7 +1208,7 @@ function connect() {
 
 /*
 =========================================================
-ROOM LIST
+RENDER ROOMS
 =========================================================
 */
 
@@ -1176,6 +1270,7 @@ function renderRooms(list) {
 
                 <button
                     class="btn secondary"
+                    type="button"
                     ${
                         full || playing
                             ? "disabled"
@@ -1199,6 +1294,18 @@ function renderRooms(list) {
                 button.addEventListener(
                     "click",
                     () => {
+
+                        if (
+                            !socket ||
+                            !socket.connected
+                        ) {
+
+                            showToast(
+                                "Socket.IO не подключён"
+                            );
+
+                            return;
+                        }
 
                         socket.emit(
                             "join_room",
@@ -1260,12 +1367,19 @@ RENDER GAME
 
 function renderGame(state) {
 
+    if (!state) {
+        return;
+    }
+
     bigCode.textContent =
-        state.roomId;
+        state.roomId ||
+        "------";
 
 
     /*
+    =====================================================
     STATUS
+    =====================================================
     */
 
     if (
@@ -1284,7 +1398,9 @@ function renderGame(state) {
 
 
     /*
+    =====================================================
     PLAYERS
+    =====================================================
     */
 
     players.innerHTML = "";
@@ -1292,65 +1408,91 @@ function renderGame(state) {
 
     if (state.me) {
 
-        players.innerHTML +=
+        const me =
+            document.createElement(
+                "div"
+            );
+
+        me.className =
+            "player";
+
+        me.innerHTML =
             `
-            <div class="player">
+            <div class="player-label">
+                Вы
+            </div>
 
-                <div class="player-label">
-                    Вы
-                </div>
-
-                <div class="player-name">
-                    ${escapeHtml(
-                        state.me.name
-                    )}
-                </div>
-
+            <div class="player-name">
+                ${escapeHtml(
+                    state.me.name
+                )}
             </div>
             `;
+
+        players.appendChild(
+            me
+        );
     }
 
 
     if (state.opponent) {
 
-        players.innerHTML +=
+        const opponent =
+            document.createElement(
+                "div"
+            );
+
+        opponent.className =
+            "player";
+
+        opponent.innerHTML =
             `
-            <div class="player">
+            <div class="player-label">
+                Противник
+            </div>
 
-                <div class="player-label">
-                    Противник
-                </div>
-
-                <div class="player-name">
-                    ${escapeHtml(
-                        state.opponent.name
-                    )}
-                </div>
-
+            <div class="player-name">
+                ${escapeHtml(
+                    state.opponent.name
+                )}
             </div>
             `;
+
+        players.appendChild(
+            opponent
+        );
 
     } else {
 
-        players.innerHTML +=
+        const waiting =
+            document.createElement(
+                "div"
+            );
+
+        waiting.className =
+            "player";
+
+        waiting.innerHTML =
             `
-            <div class="player">
+            <div class="player-label">
+                Противник
+            </div>
 
-                <div class="player-label">
-                    Противник
-                </div>
-
-                <div class="player-name">
-                    Ожидание...
-                </div>
-
+            <div class="player-name">
+                Ожидание...
             </div>
             `;
+
+        players.appendChild(
+            waiting
+        );
     }
 
 
     /*
+    =====================================================
     TURN
+    =====================================================
     */
 
     turn.classList.remove(
@@ -1415,13 +1557,15 @@ function renderGame(state) {
 
 
     /*
+    =====================================================
     MOVES
+    =====================================================
     */
 
     moves.innerHTML = "";
 
     if (
-        state.moves &&
+        Array.isArray(state.moves) &&
         state.moves.length
     ) {
 
@@ -1456,76 +1600,90 @@ function renderGame(state) {
 
 /*
 =========================================================
-CREATE
+CREATE ROOM
 =========================================================
 */
 
-document
-    .getElementById(
-        "createBtn"
-    )
-    .addEventListener(
-        "click",
-        () => {
+createBtn.addEventListener(
+    "click",
+    () => {
 
-            if (
-                !socket ||
-                !socket.connected
-            ) {
+        if (
+            !socket ||
+            !socket.connected
+        ) {
 
-                showToast(
-                    "Socket.IO не подключён"
-                );
-
-                return;
-            }
-
-            socket.emit(
-                "create_room"
+            showToast(
+                "Socket.IO не подключён"
             );
+
+            return;
         }
-    );
+
+        createBtn.disabled =
+            true;
+
+        socket.emit(
+            "create_room"
+        );
+
+        setTimeout(
+            () => {
+
+                createBtn.disabled =
+                    false;
+
+            },
+            1000
+        );
+    }
+);
 
 
 /*
 =========================================================
-JOIN
+JOIN ROOM
 =========================================================
 */
 
-document
-    .getElementById(
-        "joinBtn"
-    )
-    .addEventListener(
-        "click",
-        () => {
+function joinRoom() {
 
-            const input =
-                document.getElementById(
-                    "roomInput"
-                );
+    if (
+        !socket ||
+        !socket.connected
+    ) {
 
-            const code =
-                input.value
-                    .trim()
-                    .toUpperCase();
+        showToast(
+            "Socket.IO не подключён"
+        );
 
-            if (!code) {
+        return;
+    }
 
-                showToast(
-                    "Введите код комнаты"
-                );
+    const code =
+        roomInput.value
+            .trim()
+            .toUpperCase();
 
-                return;
-            }
+    if (!code) {
 
-            socket.emit(
-                "join_room",
-                code
-            );
-        }
+        showToast(
+            "Введите код комнаты"
+        );
+
+        return;
+    }
+
+    socket.emit(
+        "join_room",
+        code
     );
+}
+
+joinBtn.addEventListener(
+    "click",
+    joinRoom
+);
 
 
 /*
@@ -1534,27 +1692,19 @@ ENTER
 =========================================================
 */
 
-document
-    .getElementById(
-        "roomInput"
-    )
-    .addEventListener(
-        "keydown",
-        (event) => {
+roomInput.addEventListener(
+    "keydown",
+    (event) => {
 
-            if (
-                event.key ===
-                "Enter"
-            ) {
+        if (
+            event.key ===
+            "Enter"
+        ) {
 
-                document
-                    .getElementById(
-                        "joinBtn"
-                    )
-                    .click();
-            }
+            joinRoom();
         }
-    );
+    }
+);
 
 
 /*
@@ -1567,9 +1717,7 @@ moveBtn.addEventListener(
     "click",
     () => {
 
-        if (
-            !currentGame
-        ) {
+        if (!currentGame) {
             return;
         }
 
@@ -1584,6 +1732,21 @@ moveBtn.addEventListener(
 
             return;
         }
+
+        if (
+            !socket ||
+            !socket.connected
+        ) {
+
+            showToast(
+                "Socket.IO не подключён"
+            );
+
+            return;
+        }
+
+        moveBtn.disabled =
+            true;
 
         socket.emit(
             "make_move",
@@ -1602,30 +1765,26 @@ LEAVE
 =========================================================
 */
 
-document
-    .getElementById(
-        "leaveBtn"
-    )
-    .addEventListener(
-        "click",
-        () => {
+leaveBtn.addEventListener(
+    "click",
+    () => {
 
-            if (
-                socket &&
-                socket.connected
-            ) {
+        if (
+            socket &&
+            socket.connected
+        ) {
 
-                socket.emit(
-                    "leave_room"
-                );
-            }
+            socket.emit(
+                "leave_room"
+            );
         }
-    );
+    }
+);
 
 
 /*
 =========================================================
-ESCAPE
+ESCAPE HTML
 =========================================================
 */
 
