@@ -7,16 +7,13 @@
 
 <meta
     name="viewport"
-    content="width=device-width,
-             initial-scale=1,
-             maximum-scale=1,
-             user-scalable=no,
-             viewport-fit=cover"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
 >
 
 <title>Heavy Lux Card</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <script src="/socket.io/socket.io.js"></script>
 
 <style>
@@ -71,7 +68,11 @@ button {
         calc(25px + env(safe-area-inset-bottom));
 }
 
-/* HEADER */
+/*
+=========================================================
+HEADER
+=========================================================
+*/
 
 .header {
     display: flex;
@@ -96,7 +97,11 @@ button {
     color: #5cff91;
 }
 
-/* CARD */
+/*
+=========================================================
+CARD / BLOCK
+=========================================================
+*/
 
 .card {
     background: #111;
@@ -117,7 +122,11 @@ button {
     margin-bottom: 13px;
 }
 
-/* BUTTON */
+/*
+=========================================================
+BUTTON
+=========================================================
+*/
 
 .btn {
     width: 100%;
@@ -151,24 +160,27 @@ button {
 }
 
 .btn.take {
-    background: #341313;
+    background: #301010;
     color: #ff7777;
 
-    border: 1px solid #5b2020;
+    border: 1px solid #5a2020;
 }
 
-.btn.done {
-    background: #151515;
-    color: #fff;
-
-    border: 1px solid #444;
+.btn.beat {
+    background: #fff;
+    color: #000;
 }
 
 .btn:disabled {
-    opacity: .35;
+    opacity: .3;
+    cursor: default;
 }
 
-/* PROFILE */
+/*
+=========================================================
+PROFILE
+=========================================================
+*/
 
 .profile-name {
     font-size: 23px;
@@ -182,7 +194,11 @@ button {
     font-size: 10px;
 }
 
-/* JOIN */
+/*
+=========================================================
+JOIN
+=========================================================
+*/
 
 .join {
     display: flex;
@@ -213,7 +229,11 @@ button {
     margin-top: 0;
 }
 
-/* ROOMS */
+/*
+=========================================================
+ROOMS
+=========================================================
+*/
 
 .room {
     padding: 13px;
@@ -246,7 +266,11 @@ button {
     color: #777;
 }
 
-/* SCREENS */
+/*
+=========================================================
+SCREENS
+=========================================================
+*/
 
 .room-screen {
     display: none;
@@ -260,7 +284,11 @@ button {
     display: none;
 }
 
-/* ROOM */
+/*
+=========================================================
+ROOM CODE
+=========================================================
+*/
 
 .big-code {
     text-align: center;
@@ -277,7 +305,11 @@ button {
     text-align: center;
 }
 
-/* TRUMP */
+/*
+=========================================================
+TRUMP
+=========================================================
+*/
 
 .trump {
     text-align: center;
@@ -305,7 +337,11 @@ button {
     font-weight: 900;
 }
 
-/* OPPONENT */
+/*
+=========================================================
+OPPONENT
+=========================================================
+*/
 
 .opponent {
     display: flex;
@@ -331,7 +367,11 @@ button {
     font-size: 12px;
 }
 
-/* TURN */
+/*
+=========================================================
+TURN
+=========================================================
+*/
 
 .turn {
     margin: 12px 0;
@@ -348,7 +388,7 @@ button {
 }
 
 .turn.your {
-    border-color: #666;
+    border-color: #555;
 }
 
 .turn-title {
@@ -364,10 +404,14 @@ button {
     font-size: 11px;
 }
 
-/* TABLE */
+/*
+=========================================================
+TABLE
+=========================================================
+*/
 
 .table {
-    min-height: 100px;
+    min-height: 110px;
 
     padding: 12px;
 
@@ -400,14 +444,20 @@ button {
 
     gap: 12px;
 
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .arrow {
-    color: #555;
+    color: #777;
+
+    font-size: 20px;
 }
 
-/* CARDS */
+/*
+=========================================================
+CARDS
+=========================================================
+*/
 
 .hand {
     display: flex;
@@ -450,18 +500,15 @@ button {
     cursor: pointer;
 
     user-select: none;
-
-    transition:
-        transform .12s ease,
-        opacity .12s ease;
-}
-
-.card-item:active {
-    transform: translateY(-5px);
 }
 
 .card-item.red {
     color: #d22;
+}
+
+.card-item.disabled {
+    opacity: .45;
+    cursor: default;
 }
 
 .card-rank {
@@ -472,21 +519,31 @@ button {
     font-size: 20px;
 }
 
-/* ACTIONS */
+/*
+=========================================================
+ACTION PANEL
+=========================================================
+*/
 
 .actions {
-    margin-top: 10px;
+    margin-top: 12px;
 }
 
-.actions .btn {
-    display: none;
+.action-note {
+    text-align: center;
+
+    color: #666;
+
+    font-size: 11px;
+
+    margin-top: 7px;
 }
 
-.actions .btn.visible {
-    display: block;
-}
-
-/* RESULT */
+/*
+=========================================================
+RESULT
+=========================================================
+*/
 
 .result {
     display: none;
@@ -519,7 +576,11 @@ button {
     color: #888;
 }
 
-/* WAITING */
+/*
+=========================================================
+WAITING
+=========================================================
+*/
 
 .waiting {
     padding: 18px 0;
@@ -529,7 +590,11 @@ button {
     color: #777;
 }
 
-/* MOVES */
+/*
+=========================================================
+MOVES
+=========================================================
+*/
 
 .moves {
     margin-top: 14px;
@@ -545,7 +610,11 @@ button {
     font-size: 11px;
 }
 
-/* TOAST */
+/*
+=========================================================
+TOAST
+=========================================================
+*/
 
 .toast {
     position: fixed;
@@ -604,7 +673,9 @@ button {
 </div>
 
 
-<!-- LOBBY -->
+<!-- =====================================================
+     LOBBY
+====================================================== -->
 
 <div
     id="lobby"
@@ -680,7 +751,7 @@ button {
     <div class="card">
 
         <div class="title">
-            Комнаты
+            Открытые комнаты
         </div>
 
         <div id="rooms">
@@ -696,7 +767,9 @@ button {
 </div>
 
 
-<!-- ROOM -->
+<!-- =====================================================
+     ROOM
+====================================================== -->
 
 <div
     id="roomScreen"
@@ -706,7 +779,7 @@ button {
     <div class="card">
 
         <div class="title">
-            ДУРАК 1×1
+            Дурак 1×1
         </div>
 
         <div
@@ -716,13 +789,16 @@ button {
             ------
         </div>
 
+
         <div
             id="roomStatus"
             class="center"
         >
-            Ожидание игрока...
+            Ожидание второго игрока...
         </div>
 
+
+        <!-- TRUMP -->
 
         <div
             id="trump"
@@ -743,6 +819,8 @@ button {
 
         </div>
 
+
+        <!-- OPPONENT -->
 
         <div
             id="opponent"
@@ -767,6 +845,8 @@ button {
         </div>
 
 
+        <!-- TURN -->
+
         <div
             id="turn"
             class="turn"
@@ -788,6 +868,8 @@ button {
 
         </div>
 
+
+        <!-- RESULT -->
 
         <div
             id="result"
@@ -811,8 +893,10 @@ button {
         </div>
 
 
+        <!-- TABLE -->
+
         <div class="title">
-            СТОЛ
+            Стол
         </div>
 
         <div
@@ -827,6 +911,8 @@ button {
         </div>
 
 
+        <!-- ACTIONS -->
+
         <div
             id="actions"
             class="actions"
@@ -835,23 +921,35 @@ button {
             <button
                 id="takeBtn"
                 class="btn take"
+                style="display:none;"
             >
-                ВЗЯТЬ КАРТЫ
+                ВЗЯТЬ
             </button>
 
             <button
-                id="finishBtn"
-                class="btn done"
+                id="beatBtn"
+                class="btn beat"
+                style="display:none;"
             >
-                БИТО — ЗАКОНЧИТЬ АТАКУ
+                БИТО
             </button>
+
+            <div
+                id="actionNote"
+                class="action-note"
+            >
+            </div>
 
         </div>
 
 
-        <div class="title"
-             style="margin-top:16px;">
-            МОИ КАРТЫ
+        <!-- HAND -->
+
+        <div
+            class="title"
+            style="margin-top:16px;"
+        >
+            Мои карты
         </div>
 
         <div
@@ -860,6 +958,8 @@ button {
         >
         </div>
 
+
+        <!-- DECK -->
 
         <div
             id="deckInfo"
@@ -874,9 +974,13 @@ button {
         </div>
 
 
-        <div class="title"
-             style="margin-top:17px;">
-            ИСТОРИЯ
+        <!-- HISTORY -->
+
+        <div
+            class="title"
+            style="margin-top:17px;"
+        >
+            История
         </div>
 
         <div
@@ -931,7 +1035,9 @@ STATE
 */
 
 let socket = null;
+
 let profile = null;
+
 let currentGame = null;
 
 
@@ -1013,8 +1119,11 @@ const moves =
 const takeBtn =
     document.getElementById("takeBtn");
 
-const finishBtn =
-    document.getElementById("finishBtn");
+const beatBtn =
+    document.getElementById("beatBtn");
+
+const actionNote =
+    document.getElementById("actionNote");
 
 
 /*
@@ -1067,6 +1176,10 @@ function socketAuth() {
 
     const auth = {};
 
+    /*
+    Telegram
+    */
+
     if (
         telegram &&
         telegram.initData
@@ -1076,6 +1189,12 @@ function socketAuth() {
             telegram.initData;
 
     } else {
+
+        /*
+        TEST MODE.
+
+        В каждом браузере свой ID.
+        */
 
         let id =
             localStorage.getItem(
@@ -1141,6 +1260,10 @@ function connect() {
         );
 
 
+    /*
+    CONNECTED
+    */
+
     socket.on(
         "connect",
         () => {
@@ -1163,6 +1286,10 @@ function connect() {
     );
 
 
+    /*
+    DISCONNECTED
+    */
+
     socket.on(
         "disconnect",
         () => {
@@ -1177,6 +1304,10 @@ function connect() {
     );
 
 
+    /*
+    ERROR
+    */
+
     socket.on(
         "connect_error",
         error => {
@@ -1186,7 +1317,7 @@ function connect() {
             );
 
             connection.textContent =
-                "Ошибка Socket.IO";
+                "Ошибка соединения";
 
             connection.classList.remove(
                 "online"
@@ -1253,7 +1384,7 @@ function connect() {
 
 
     /*
-    GAME
+    GAME STATE
     */
 
     socket.on(
@@ -1273,7 +1404,7 @@ function connect() {
 
 
     /*
-    ERROR
+    SERVER ERROR
     */
 
     socket.on(
@@ -1321,11 +1452,15 @@ function connect() {
 
 /*
 =========================================================
-ROOMS
+ROOM LIST
 =========================================================
 */
 
 function renderRooms(list) {
+
+    if (!Array.isArray(list)) {
+        list = [];
+    }
 
     if (!list.length) {
 
@@ -1374,11 +1509,13 @@ function renderRooms(list) {
                 </div>
 
                 <div class="room-info">
+
                     ${
                         playing
                             ? "Игра идёт"
                             : "Ожидание второго игрока"
                     }
+
                 </div>
 
                 <button
@@ -1423,7 +1560,7 @@ function renderRooms(list) {
 
 /*
 =========================================================
-OPEN/CLOSE
+OPEN / CLOSE
 =========================================================
 */
 
@@ -1452,14 +1589,14 @@ function closeRoom() {
 
 /*
 =========================================================
-GAME
+RENDER GAME
 =========================================================
 */
 
 function renderGame(state) {
 
     bigCode.textContent =
-        state.roomId;
+        state.roomId || "------";
 
     deckInfo.textContent =
         "Колода: " +
@@ -1467,7 +1604,7 @@ function renderGame(state) {
 
 
     /*
-    STATUS
+    ROOM STATUS
     */
 
     if (
@@ -1548,23 +1685,49 @@ function renderGame(state) {
     );
 
     if (
-        state.turn ===
-        "YOUR_TURN"
+        state.status !==
+        "playing"
     ) {
 
-        turn.classList.add(
-            "your"
-        );
-
         turnTitle.textContent =
-            "ВАШ ХОД";
+            "ОЖИДАНИЕ";
+
+        turnDescription.textContent =
+            "Ожидаем второго игрока";
+
+    } else if (
+        state.phase ===
+        "attack"
+    ) {
 
         if (
-            state.phase ===
-            "attack"
+            state.turn ===
+            "YOUR_TURN"
         ) {
 
+            turn.classList.add(
+                "your"
+            );
+
+            turnTitle.textContent =
+                "ВАШ ХОД";
+
+            /*
+            Если на столе есть карты
+            и все они отбиты —
+            атакующий выбирает:
+            подкинуть или БИТО.
+            */
+
             if (
+                state.allDefended &&
+                state.table.length > 0
+            ) {
+
+                turnDescription.textContent =
+                    "Подкиньте карту или нажмите «БИТО»";
+
+            } else if (
                 state.table.length === 0
             ) {
 
@@ -1574,43 +1737,47 @@ function renderGame(state) {
             } else {
 
                 turnDescription.textContent =
-                    "Карты отбиты — можно подкинуть или закончить атаку";
+                    "Подкиньте карту";
             }
-
-        } else if (
-            state.phase ===
-            "defense"
-        ) {
-
-            turnDescription.textContent =
-                "Выберите карту, чтобы отбиться, или возьмите карты";
 
         } else {
 
+            turnTitle.textContent =
+                "ХОД ПРОТИВНИКА";
+
             turnDescription.textContent =
-                "Ваш ход";
+                state.allDefended
+                    ? "Противник решает: подкинуть или БИТО"
+                    : "Ожидайте атаки";
         }
 
     } else if (
-        state.turn ===
-        "OPPONENT_TURN"
+        state.phase ===
+        "defense"
     ) {
 
-        turnTitle.textContent =
-            "ХОД ПРОТИВНИКА";
-
         if (
-            state.phase ===
-            "defense"
+            state.turn ===
+            "YOUR_TURN"
         ) {
 
+            turn.classList.add(
+                "your"
+            );
+
+            turnTitle.textContent =
+                "ЗАЩИЩАЙТЕСЬ";
+
             turnDescription.textContent =
-                "Противник защищается";
+                "Отбейте карту или нажмите «ВЗЯТЬ»";
 
         } else {
 
+            turnTitle.textContent =
+                "ХОД ПРОТИВНИКА";
+
             turnDescription.textContent =
-                "Ожидайте действия противника";
+                "Противник защищается";
         }
 
     } else {
@@ -1619,7 +1786,7 @@ function renderGame(state) {
             "ОЖИДАНИЕ";
 
         turnDescription.textContent =
-            "Ожидаем второго игрока";
+            "Обработка хода...";
     }
 
 
@@ -1638,7 +1805,7 @@ function renderGame(state) {
 
         if (
             state.winnerId ===
-            profile?.playerId
+            state.me?.playerId
         ) {
 
             resultTitle.textContent =
@@ -1664,13 +1831,27 @@ function renderGame(state) {
     }
 
 
+    /*
+    TABLE
+    */
+
     renderTable(
         state
     );
 
+
+    /*
+    HAND
+    */
+
     renderHand(
         state
     );
+
+
+    /*
+    HISTORY
+    */
 
     renderMoves(
         state
@@ -1681,20 +1862,55 @@ function renderGame(state) {
     TAKE
     */
 
-    takeBtn.classList.toggle(
-        "visible",
-        !!state.canTake
-    );
+    const canTake =
+        state.status === "playing" &&
+        state.phase === "defense" &&
+        state.turn === "YOUR_TURN" &&
+        state.canTake;
+
+    takeBtn.style.display =
+        canTake
+            ? "block"
+            : "none";
 
 
     /*
-    FINISH ATTACK
+    БИТО
     */
 
-    finishBtn.classList.toggle(
-        "visible",
-        !!state.canFinishAttack
-    );
+    const canBeat =
+        state.status === "playing" &&
+        state.phase === "attack" &&
+        state.turn === "YOUR_TURN" &&
+        state.allDefended &&
+        state.table.length > 0 &&
+        state.canBeat;
+
+    beatBtn.style.display =
+        canBeat
+            ? "block"
+            : "none";
+
+
+    /*
+    NOTE
+    */
+
+    if (canTake) {
+
+        actionNote.textContent =
+            "Не можете отбить карту? Заберите весь стол.";
+
+    } else if (canBeat) {
+
+        actionNote.textContent =
+            "Все карты отбиты. Можно закончить раунд.";
+
+    } else {
+
+        actionNote.textContent =
+            "";
+    }
 }
 
 
@@ -1708,7 +1924,10 @@ function renderTable(state) {
 
     table.innerHTML = "";
 
-    if (!state.table.length) {
+    if (
+        !state.table ||
+        !state.table.length
+    ) {
 
         table.innerHTML =
             `
@@ -1735,54 +1954,22 @@ function renderTable(state) {
             row.className =
                 "pair";
 
-            const attack =
-                document.createElement(
-                    "div"
-                );
-
-            attack.className =
-                "card-item " +
-                (
-                    isRed(
-                        pair.attack.suit
-                    )
-                        ? "red"
-                        : ""
-                );
-
-            attack.innerHTML =
+            row.innerHTML =
                 `
-                <div class="card-rank">
-                    ${escapeHtml(pair.attack.rank)}
+                <div class="card-item ${isRed(pair.attack.suit) ? "red" : ""}">
+                    <div class="card-rank">
+                        ${escapeHtml(pair.attack.rank)}
+                    </div>
+
+                    <div class="card-suit">
+                        ${escapeHtml(pair.attack.suit)}
+                    </div>
                 </div>
 
-                <div class="card-suit">
-                    ${escapeHtml(pair.attack.suit)}
+                <div class="arrow">
+                    ${pair.defense ? "→" : "?"}
                 </div>
                 `;
-
-            row.appendChild(
-                attack
-            );
-
-
-            const arrow =
-                document.createElement(
-                    "div"
-                );
-
-            arrow.className =
-                "arrow";
-
-            arrow.textContent =
-                pair.defense
-                    ? "→"
-                    : "?";
-
-            row.appendChild(
-                arrow
-            );
-
 
             if (
                 pair.defense
@@ -1837,6 +2024,21 @@ function renderHand(state) {
 
     hand.innerHTML = "";
 
+    if (
+        !state.hand ||
+        !state.hand.length
+    ) {
+
+        hand.innerHTML =
+            `
+            <div class="waiting">
+                Карт нет
+            </div>
+            `;
+
+        return;
+    }
+
     state.hand.forEach(
         card => {
 
@@ -1864,8 +2066,28 @@ function renderHand(state) {
                 </div>
                 `;
 
+            /*
+            Только текущий игрок
+            может нажимать карты.
+            */
+
+            const canClick =
+                state.status === "playing" &&
+                state.turn === "YOUR_TURN";
+
+            if (!canClick) {
+
+                element.classList.add(
+                    "disabled"
+                );
+            }
+
             element.onclick =
                 () => {
+
+                    if (!canClick) {
+                        return;
+                    }
 
                     handleCardClick(
                         card
@@ -1900,13 +2122,12 @@ function handleCardClick(card) {
     }
 
     /*
-    АТАКА
+    ATTACK
     */
 
     if (
         currentGame.phase ===
         "attack" &&
-
         currentGame.turn ===
         "YOUR_TURN"
     ) {
@@ -1919,15 +2140,13 @@ function handleCardClick(card) {
         return;
     }
 
-
     /*
-    ЗАЩИТА
+    DEFENSE
     */
 
     if (
         currentGame.phase ===
         "defense" &&
-
         currentGame.turn ===
         "YOUR_TURN"
     ) {
@@ -1939,13 +2158,17 @@ function handleCardClick(card) {
             );
 
         if (!target) {
+
+            showToast(
+                "Все карты уже отбиты"
+            );
+
             return;
         }
 
         socket.emit(
             "defend_card",
             {
-
                 attackId:
                     target.attack.id,
 
@@ -1966,7 +2189,10 @@ TAKE
 takeBtn.onclick =
     () => {
 
-        if (!socket) {
+        if (
+            !socket ||
+            !currentGame
+        ) {
             return;
         }
 
@@ -1978,19 +2204,22 @@ takeBtn.onclick =
 
 /*
 =========================================================
-FINISH ATTACK
+БИТО
 =========================================================
 */
 
-finishBtn.onclick =
+beatBtn.onclick =
     () => {
 
-        if (!socket) {
+        if (
+            !socket ||
+            !currentGame
+        ) {
             return;
         }
 
         socket.emit(
-            "finish_attack"
+            "beat"
         );
     };
 
@@ -2002,7 +2231,9 @@ CREATE
 */
 
 document
-    .getElementById("createBtn")
+    .getElementById(
+        "createBtn"
+    )
     .onclick =
     () => {
 
@@ -2031,7 +2262,9 @@ JOIN
 */
 
 document
-    .getElementById("joinBtn")
+    .getElementById(
+        "joinBtn"
+    )
     .onclick =
     () => {
 
@@ -2062,7 +2295,9 @@ document
 
 
 document
-    .getElementById("roomInput")
+    .getElementById(
+        "roomInput"
+    )
     .addEventListener(
         "keydown",
         event => {
@@ -2089,7 +2324,9 @@ LEAVE
 */
 
 document
-    .getElementById("leaveBtn")
+    .getElementById(
+        "leaveBtn"
+    )
     .onclick =
     () => {
 
@@ -2158,4 +2395,5 @@ connect();
 </script>
 
 </body>
+
 </html>
