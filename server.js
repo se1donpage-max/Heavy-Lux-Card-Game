@@ -381,25 +381,105 @@ function cardLabel(card) {
     return `${card.rank}${card.suit}`;
 }
 
-function findCard(player, cardId) {
-    return player.hand.find(
-        c => c.id === cardId
-    );
+/* =========================================================
+   GAME PLAYER HELPERS
+========================================================= */
+
+/*
+ * В системе есть два объекта игрока:
+ *
+ * 1. players Map
+ *    - соединение
+ *    - socketId
+ *    - telegramId
+ *    - roomId
+ *
+ * 2. room.players[]
+ *    - конкретно игровое состояние
+ *    - hand
+ *    - connected
+ *    - name
+ *
+ * Карты находятся ТОЛЬКО в room.players[].hand.
+ *
+ * Поэтому перед любой операцией с картами
+ * всегда получаем игрока именно из комнаты.
+ */
+
+function getRoomPlayer(player) {
+    if (!player) {
+        return null;
+    }
+
+    if (player.hand) {
+        return player;
+    }
+
+    if (!player.roomId) {
+        return null;
+    }
+
+    const room =
+        rooms.get(player.roomId);
+
+    if (!room) {
+        return null;
+    }
+
+    return room.players.find(
+        p =>
+            p.playerId ===
+            player.playerId
+    ) || null;
 }
 
+
+function findCard(player, cardId) {
+    const roomPlayer =
+        getRoomPlayer(player);
+
+    if (!roomPlayer) {
+        return null;
+    }
+
+    if (!Array.isArray(roomPlayer.hand)) {
+        roomPlayer.hand = [];
+    }
+
+    return roomPlayer.hand.find(
+        card =>
+            card.id === cardId
+    ) || null;
+}
+
+
 function removeCard(player, cardId) {
+    const roomPlayer =
+        getRoomPlayer(player);
+
+    if (!roomPlayer) {
+        return null;
+    }
+
+    if (!Array.isArray(roomPlayer.hand)) {
+        roomPlayer.hand = [];
+    }
+
     const index =
-        player.hand.findIndex(
-            c => c.id === cardId
+        roomPlayer.hand.findIndex(
+            card =>
+                card.id === cardId
         );
 
     if (index === -1) {
         return null;
     }
 
-    return player.hand.splice(index, 1)[0];
+    return roomPlayer.hand.splice(
+        index,
+        1
+    )[0];
 }
-
 /* =========================================================
    ROOM
 ========================================================= */
