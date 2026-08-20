@@ -72,11 +72,9 @@ button {
         calc(25px + env(safe-area-inset-bottom));
 }
 
-/*
-=========================================================
-HEADER
-=========================================================
-*/
+/* =========================================================
+   HEADER
+========================================================= */
 
 .header {
     display: flex;
@@ -101,11 +99,9 @@ HEADER
     color: #5cff91;
 }
 
-/*
-=========================================================
-CARD
-=========================================================
-*/
+/* =========================================================
+   CARD
+========================================================= */
 
 .card {
     background: #111;
@@ -126,11 +122,9 @@ CARD
     margin-bottom: 13px;
 }
 
-/*
-=========================================================
-BUTTONS
-=========================================================
-*/
+/* =========================================================
+   BUTTON
+========================================================= */
 
 .btn {
     width: 100%;
@@ -156,6 +150,20 @@ BUTTONS
     border: 1px solid #303030;
 }
 
+.btn.take {
+    background: #2a1010;
+    color: #ff7777;
+
+    border: 1px solid #551c1c;
+}
+
+.btn.bito {
+    background: #102817;
+    color: #65ff9b;
+
+    border: 1px solid #205a35;
+}
+
 .btn.danger {
     background: #2a1010;
     color: #ff6666;
@@ -163,27 +171,13 @@ BUTTONS
     border: 1px solid #451818;
 }
 
-.btn.take {
-    background: #401313;
-    color: #ff7777;
-
-    border: 1px solid #642020;
-}
-
-.btn.beat {
-    background: #fff;
-    color: #000;
-}
-
 .btn:disabled {
     opacity: .35;
 }
 
-/*
-=========================================================
-PROFILE
-=========================================================
-*/
+/* =========================================================
+   PROFILE
+========================================================= */
 
 .profile-name {
     font-size: 23px;
@@ -197,11 +191,9 @@ PROFILE
     font-size: 10px;
 }
 
-/*
-=========================================================
-JOIN
-=========================================================
-*/
+/* =========================================================
+   JOIN
+========================================================= */
 
 .join {
     display: flex;
@@ -210,7 +202,6 @@ JOIN
 
 .join input {
     flex: 1;
-
     min-width: 0;
 
     padding: 13px;
@@ -232,11 +223,9 @@ JOIN
     margin-top: 0;
 }
 
-/*
-=========================================================
-ROOMS
-=========================================================
-*/
+/* =========================================================
+   ROOMS
+========================================================= */
 
 .room {
     padding: 13px;
@@ -269,11 +258,9 @@ ROOMS
     color: #777;
 }
 
-/*
-=========================================================
-SCREENS
-=========================================================
-*/
+/* =========================================================
+   SCREENS
+========================================================= */
 
 .room-screen {
     display: none;
@@ -287,11 +274,9 @@ SCREENS
     display: none;
 }
 
-/*
-=========================================================
-ROOM CODE
-=========================================================
-*/
+/* =========================================================
+   ROOM
+========================================================= */
 
 .big-code {
     text-align: center;
@@ -308,11 +293,9 @@ ROOM CODE
     text-align: center;
 }
 
-/*
-=========================================================
-TRUMP
-=========================================================
-*/
+/* =========================================================
+   TRUMP
+========================================================= */
 
 .trump {
     text-align: center;
@@ -336,19 +319,13 @@ TRUMP
 .trump-value {
     margin-top: 4px;
 
-    font-size: 27px;
+    font-size: 28px;
     font-weight: 900;
 }
 
-.trump-value.red {
-    color: #ff4d4d;
-}
-
-/*
-=========================================================
-OPPONENT
-=========================================================
-*/
+/* =========================================================
+   OPPONENT
+========================================================= */
 
 .opponent {
     display: flex;
@@ -374,11 +351,9 @@ OPPONENT
     font-size: 12px;
 }
 
-/*
-=========================================================
-TURN
-=========================================================
-*/
+/* =========================================================
+   TURN
+========================================================= */
 
 .turn {
     margin: 12px 0;
@@ -398,14 +373,6 @@ TURN
     border-color: #666;
 }
 
-.turn.attack {
-    border-color: #888;
-}
-
-.turn.defense {
-    border-color: #555;
-}
-
 .turn-title {
     font-size: 23px;
     font-weight: 900;
@@ -419,31 +386,24 @@ TURN
     font-size: 11px;
 }
 
-/*
-=========================================================
-TABLE
-=========================================================
-*/
+/* =========================================================
+   TABLE
+========================================================= */
 
 .table {
-    min-height: 110px;
+    min-height: 120px;
 
     padding: 12px;
 
     border-radius: 16px;
 
-    background:
-        radial-gradient(
-            circle at center,
-            #151515 0%,
-            #080808 75%
-        );
+    background: #080808;
 
     border: 1px solid #242424;
 }
 
 .table-empty {
-    min-height: 80px;
+    min-height: 95px;
 
     display: flex;
 
@@ -468,16 +428,13 @@ TABLE
 }
 
 .arrow {
-    color: #666;
-
-    font-size: 20px;
+    color: #777;
+    font-size: 18px;
 }
 
-/*
-=========================================================
-CARDS
-=========================================================
-*/
+/* =========================================================
+   CARDS
+========================================================= */
 
 .hand {
     display: flex;
@@ -492,10 +449,8 @@ CARDS
 }
 
 .card-item {
-    width: 58px;
-    height: 82px;
-
-    flex: 0 0 58px;
+    width: 57px;
+    height: 78px;
 
     border-radius: 11px;
 
@@ -516,103 +471,69 @@ CARDS
     font-weight: 900;
 
     box-shadow:
-        0 5px 12px
+        0 4px 10px
         rgba(0,0,0,.35);
 
-    user-select: none;
-
-    transition:
-        transform .12s ease,
-        opacity .12s ease;
-}
-
-.card-item.clickable {
     cursor: pointer;
-}
 
-.card-item.clickable:active {
-    transform:
-        translateY(-5px)
-        scale(.97);
+    user-select: none;
 }
 
 .card-item.red {
-    color: #d51e1e;
+    color: #d21e1e;
+}
+
+.card-item:hover {
+    transform: translateY(-2px);
 }
 
 .card-rank {
     font-size: 22px;
-    line-height: 1;
 }
 
 .card-suit {
-    margin-top: 4px;
-
-    font-size: 21px;
-    line-height: 1;
+    font-size: 20px;
 }
 
-/*
-=========================================================
-TABLE CARD
-=========================================================
-*/
-
-.table-card {
-    width: 58px;
-    height: 82px;
-
-    border-radius: 11px;
-
-    background: #f5f5f5;
-
-    color: #111;
-
-    border: 2px solid #fff;
-
-    display: flex;
-
-    flex-direction: column;
-
-    justify-content: center;
-
-    align-items: center;
-
-    font-weight: 900;
-
-    box-shadow:
-        0 5px 12px
-        rgba(0,0,0,.4);
-}
-
-.table-card.red {
-    color: #d51e1e;
-}
-
-/*
-=========================================================
-ACTIONS
-=========================================================
-*/
+/* =========================================================
+   ACTIONS
+========================================================= */
 
 .actions {
     margin-top: 12px;
 }
 
-.action-row {
-    display: flex;
-    gap: 8px;
+.action-note {
+    margin-top: 8px;
+
+    color: #666;
+
+    text-align: center;
+
+    font-size: 11px;
 }
 
-.action-row .btn {
-    flex: 1;
+/* =========================================================
+   MOVES
+========================================================= */
+
+.moves {
+    margin-top: 14px;
 }
 
-/*
-=========================================================
-RESULT
-=========================================================
-*/
+.move {
+    padding: 7px 0;
+
+    border-bottom: 1px solid #222;
+
+    color: #777;
+
+    font-size: 11px;
+}
+
+/* =========================================================
+   RESULT
+========================================================= */
 
 .result {
     display: none;
@@ -645,31 +566,9 @@ RESULT
     color: #888;
 }
 
-/*
-=========================================================
-MOVES
-=========================================================
-*/
-
-.moves {
-    margin-top: 14px;
-}
-
-.move {
-    padding: 7px 0;
-
-    border-bottom: 1px solid #222;
-
-    color: #777;
-
-    font-size: 11px;
-}
-
-/*
-=========================================================
-WAITING
-=========================================================
-*/
+/* =========================================================
+   WAITING
+========================================================= */
 
 .waiting {
     padding: 18px 0;
@@ -679,11 +578,9 @@ WAITING
     color: #777;
 }
 
-/*
-=========================================================
-TOAST
-=========================================================
-*/
+/* =========================================================
+   TOAST
+========================================================= */
 
 .toast {
     position: fixed;
@@ -784,7 +681,7 @@ TOAST
             id="createBtn"
             class="btn"
         >
-            Создать комнату
+            СОЗДАТЬ КОМНАТУ
         </button>
 
     </div>
@@ -809,7 +706,7 @@ TOAST
                 id="joinBtn"
                 class="btn"
             >
-                Войти
+                ВОЙТИ
             </button>
 
         </div>
@@ -846,7 +743,7 @@ TOAST
     <div class="card">
 
         <div class="title">
-            Дурак 1×1
+            ДУРАК 1×1
         </div>
 
         <div
@@ -864,8 +761,6 @@ TOAST
             Ожидание игрока...
         </div>
 
-
-        <!-- КОЗЫРЬ -->
 
         <div
             id="trump"
@@ -886,8 +781,6 @@ TOAST
 
         </div>
 
-
-        <!-- ПРОТИВНИК -->
 
         <div
             id="opponent"
@@ -912,8 +805,6 @@ TOAST
         </div>
 
 
-        <!-- ХОД -->
-
         <div
             id="turn"
             class="turn"
@@ -935,8 +826,6 @@ TOAST
 
         </div>
 
-
-        <!-- РЕЗУЛЬТАТ -->
 
         <div
             id="result"
@@ -960,10 +849,8 @@ TOAST
         </div>
 
 
-        <!-- СТОЛ -->
-
         <div class="title">
-            Стол
+            СТОЛ
         </div>
 
         <div
@@ -978,53 +865,51 @@ TOAST
         </div>
 
 
-        <!-- ДЕЙСТВИЯ -->
+        <!-- ACTIONS -->
 
         <div
             id="actions"
             class="actions"
         >
 
-            <div
-                id="actionRow"
-                class="action-row"
+            <button
+                id="takeBtn"
+                class="btn take"
+                style="display:none;"
             >
-
-                <button
-                    id="takeBtn"
-                    class="btn take"
-                    style="display:none;"
-                >
-                    ВЗЯТЬ
-                </button>
-
-                <button
-                    id="beatBtn"
-                    class="btn beat"
-                    style="display:none;"
-                >
-                    БИТО
-                </button>
-
-            </div>
-
-        </div>
+                ВЗЯТЬ
+            </button>
 
 
-        <!-- МОИ КАРТЫ -->
+            <button
+                id="bitoBtn"
+                class="btn bito"
+                style="display:none;"
+            >
+                БИТО
+            </button>
 
-        <div class="title"
-             style="margin-top:16px;">
 
-            Мои карты
+            <div
+                id="actionNote"
+                class="action-note"
+            ></div>
 
         </div>
+
+
+        <div
+            class="title"
+            style="margin-top:18px;"
+        >
+            МОИ КАРТЫ
+        </div>
+
 
         <div
             id="hand"
             class="hand"
-        >
-        </div>
+        ></div>
 
 
         <div
@@ -1040,27 +925,25 @@ TOAST
         </div>
 
 
-        <!-- ИСТОРИЯ -->
-
-        <div class="title"
-             style="margin-top:17px;">
-
-            История
-
+        <div
+            class="title"
+            style="margin-top:17px;"
+        >
+            ИСТОРИЯ
         </div>
+
 
         <div
             id="moves"
             class="moves"
-        >
-        </div>
+        ></div>
 
 
         <button
             id="leaveBtn"
             class="btn danger"
         >
-            Покинуть комнату
+            ПОКИНУТЬ КОМНАТУ
         </button>
 
     </div>
@@ -1078,274 +961,179 @@ TOAST
 
 <script>
 
-/*
-=========================================================
-TELEGRAM
-=========================================================
-*/
+/* =========================================================
+   TELEGRAM
+========================================================= */
 
 const telegram =
     window.Telegram?.WebApp || null;
 
 if (telegram) {
-
     telegram.ready();
     telegram.expand();
 }
 
 
-/*
-=========================================================
-STATE
-=========================================================
-*/
+/* =========================================================
+   STATE
+========================================================= */
 
 let socket = null;
-
 let profile = null;
-
 let currentGame = null;
 
 
-/*
-=========================================================
-DOM
-=========================================================
-*/
+/* =========================================================
+   DOM
+========================================================= */
 
 const lobby =
-    document.getElementById(
-        "lobby"
-    );
+    document.getElementById("lobby");
 
 const roomScreen =
-    document.getElementById(
-        "roomScreen"
-    );
+    document.getElementById("roomScreen");
 
 const connection =
-    document.getElementById(
-        "connection"
-    );
+    document.getElementById("connection");
 
 const profileName =
-    document.getElementById(
-        "profileName"
-    );
+    document.getElementById("profileName");
 
 const profileId =
-    document.getElementById(
-        "profileId"
-    );
+    document.getElementById("profileId");
 
 const rooms =
-    document.getElementById(
-        "rooms"
-    );
+    document.getElementById("rooms");
 
 const bigCode =
-    document.getElementById(
-        "bigCode"
-    );
+    document.getElementById("bigCode");
 
 const roomStatus =
-    document.getElementById(
-        "roomStatus"
-    );
+    document.getElementById("roomStatus");
 
 const trump =
-    document.getElementById(
-        "trump"
-    );
+    document.getElementById("trump");
 
 const trumpValue =
-    document.getElementById(
-        "trumpValue"
-    );
+    document.getElementById("trumpValue");
 
 const opponent =
-    document.getElementById(
-        "opponent"
-    );
+    document.getElementById("opponent");
 
 const opponentName =
-    document.getElementById(
-        "opponentName"
-    );
+    document.getElementById("opponentName");
 
 const opponentCount =
-    document.getElementById(
-        "opponentCount"
-    );
+    document.getElementById("opponentCount");
 
 const turn =
-    document.getElementById(
-        "turn"
-    );
+    document.getElementById("turn");
 
 const turnTitle =
-    document.getElementById(
-        "turnTitle"
-    );
+    document.getElementById("turnTitle");
 
 const turnDescription =
-    document.getElementById(
-        "turnDescription"
-    );
+    document.getElementById("turnDescription");
 
 const result =
-    document.getElementById(
-        "result"
-    );
+    document.getElementById("result");
 
 const resultTitle =
-    document.getElementById(
-        "resultTitle"
-    );
+    document.getElementById("resultTitle");
 
 const resultDescription =
-    document.getElementById(
-        "resultDescription"
-    );
+    document.getElementById("resultDescription");
 
 const table =
-    document.getElementById(
-        "table"
-    );
+    document.getElementById("table");
 
 const hand =
-    document.getElementById(
-        "hand"
-    );
+    document.getElementById("hand");
 
 const deckInfo =
-    document.getElementById(
-        "deckInfo"
-    );
+    document.getElementById("deckInfo");
 
 const moves =
-    document.getElementById(
-        "moves"
-    );
+    document.getElementById("moves");
 
 const takeBtn =
-    document.getElementById(
-        "takeBtn"
-    );
+    document.getElementById("takeBtn");
 
-const beatBtn =
-    document.getElementById(
-        "beatBtn"
-    );
+const bitoBtn =
+    document.getElementById("bitoBtn");
+
+const actionNote =
+    document.getElementById("actionNote");
 
 
-/*
-=========================================================
-TOAST
-=========================================================
-*/
+/* =========================================================
+   TOAST
+========================================================= */
 
 let toastTimer = null;
 
 function showToast(text) {
 
     const toast =
-        document.getElementById(
-            "toast"
-        );
+        document.getElementById("toast");
 
-    toast.textContent =
-        text;
+    toast.textContent = text;
 
-    toast.classList.add(
-        "show"
-    );
+    toast.classList.add("show");
 
-    clearTimeout(
-        toastTimer
-    );
+    clearTimeout(toastTimer);
 
     toastTimer =
-        setTimeout(
-            () => {
-
-                toast.classList.remove(
-                    "show"
-                );
-
-            },
-            3000
-        );
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 3000);
 }
 
 
-/*
-=========================================================
-AUTH
-=========================================================
-*/
+/* =========================================================
+   AUTH
+========================================================= */
 
 function socketAuth() {
-
-    const auth = {};
-
-    /*
-    Telegram
-    */
 
     if (
         telegram &&
         telegram.initData
     ) {
-
-        auth.initData =
-            telegram.initData;
-
-    } else {
-
-        /*
-        TEST MODE.
-
-        Один браузер =
-        один тестовый игрок.
-
-        Для второго игрока
-        открывай второй браузер
-        или приватное окно.
-        */
-
-        let id =
-            localStorage.getItem(
-                "hlc_test_id"
-            );
-
-        if (!id) {
-
-            id =
-                "test_" +
-                Math.random()
-                    .toString(36)
-                    .slice(2, 10);
-
-            localStorage.setItem(
-                "hlc_test_id",
-                id
-            );
-        }
-
-        auth.testPlayerId =
-            id;
+        return {
+            initData:
+                telegram.initData
+        };
     }
 
-    return auth;
+    let id =
+        localStorage.getItem(
+            "hlc_test_id"
+        );
+
+    if (!id) {
+
+        id =
+            "test_" +
+            Math.random()
+                .toString(36)
+                .slice(2, 10);
+
+        localStorage.setItem(
+            "hlc_test_id",
+            id
+        );
+    }
+
+    return {
+        testPlayerId: id
+    };
 }
 
 
-/*
-=========================================================
-CONNECT
-=========================================================
-*/
+/* =========================================================
+   CONNECT
+========================================================= */
 
 function connect() {
 
@@ -1353,7 +1141,6 @@ function connect() {
         io(
             window.location.origin,
             {
-
                 auth:
                     socketAuth(),
 
@@ -1373,8 +1160,7 @@ function connect() {
                 reconnectionDelayMax:
                     5000,
 
-                timeout:
-                    10000
+                timeout: 10000
             }
         );
 
@@ -1417,12 +1203,9 @@ function connect() {
 
     socket.on(
         "connect_error",
-        (error) => {
+        err => {
 
-            console.error(
-                "Socket error:",
-                error
-            );
+            console.error(err);
 
             connection.textContent =
                 "Ошибка подключения";
@@ -1434,16 +1217,13 @@ function connect() {
     );
 
 
-    /*
-    PROFILE
-    */
+    /* PROFILE */
 
     socket.on(
         "profile",
-        (data) => {
+        data => {
 
-            profile =
-                data;
+            profile = data;
 
             profileName.textContent =
                 data.name ||
@@ -1456,28 +1236,21 @@ function connect() {
     );
 
 
-    /*
-    ROOMS
-    */
+    /* ROOMS */
 
     socket.on(
         "rooms_list",
-        (list) => {
-
-            renderRooms(
-                list
-            );
+        list => {
+            renderRooms(list);
         }
     );
 
 
-    /*
-    CREATED
-    */
+    /* CREATED */
 
     socket.on(
         "room_created",
-        (room) => {
+        room => {
 
             openRoom();
 
@@ -1491,62 +1264,46 @@ function connect() {
     );
 
 
-    /*
-    GAME STATE
-    */
+    /* GAME */
 
     socket.on(
         "game_state",
-        (state) => {
+        state => {
 
-            currentGame =
-                state;
+            currentGame = state;
 
             openRoom();
 
-            renderGame(
-                state
-            );
+            renderGame(state);
         }
     );
 
 
-    /*
-    ERRORS
-    */
+    /* ERRORS */
 
     socket.on(
         "error_message",
-        (message) => {
-
-            showToast(
-                message
-            );
+        message => {
+            showToast(message);
         }
     );
 
 
     socket.on(
         "game_error",
-        (message) => {
-
-            showToast(
-                message
-            );
+        message => {
+            showToast(message);
         }
     );
 
 
-    /*
-    LEFT
-    */
+    /* LEFT */
 
     socket.on(
         "left_room",
         () => {
 
-            currentGame =
-                null;
+            currentGame = null;
 
             closeRoom();
 
@@ -1558,175 +1315,127 @@ function connect() {
 }
 
 
-/*
-=========================================================
-ROOM LIST
-=========================================================
-*/
+/* =========================================================
+   ROOMS
+========================================================= */
 
 function renderRooms(list) {
 
-    if (!Array.isArray(list)) {
-        list = [];
-    }
-
     if (!list.length) {
 
-        rooms.innerHTML =
-            `
+        rooms.innerHTML = `
             <div class="waiting">
                 Нет доступных комнат
             </div>
-            `;
+        `;
 
         return;
     }
 
     rooms.innerHTML = "";
 
-    list.forEach(
-        (room) => {
+    list.forEach(room => {
 
-            const full =
-                room.playersCount >= 2;
+        const full =
+            room.playersCount >= 2;
 
-            const playing =
-                room.status ===
-                "playing";
+        const playing =
+            room.status === "playing";
 
-            const element =
-                document.createElement(
-                    "div"
-                );
+        const element =
+            document.createElement("div");
 
-            element.className =
-                "room";
+        element.className = "room";
 
-            element.innerHTML =
-                `
-                <div class="room-head">
+        element.innerHTML = `
+            <div class="room-head">
 
-                    <div class="room-code">
-                        ${escapeHtml(room.id)}
-                    </div>
-
-                    <div>
-                        ${room.playersCount}/2
-                    </div>
-
+                <div class="room-code">
+                    ${escapeHtml(room.id)}
                 </div>
 
-                <div class="room-info">
-
-                    ${
-                        playing
-                            ? "Игра идёт"
-                            : "Ожидание игрока"
-                    }
-
+                <div>
+                    ${room.playersCount}/2
                 </div>
 
-                <button
-                    class="btn secondary"
-                    ${
-                        full || playing
-                            ? "disabled"
-                            : ""
-                    }
-                >
-                    Войти
-                </button>
-                `;
+            </div>
 
-            const button =
-                element.querySelector(
-                    "button"
+            <div class="room-info">
+                ${
+                    playing
+                        ? "Игра уже идёт"
+                        : "Ожидание второго игрока"
+                }
+            </div>
+
+            <button
+                class="btn secondary"
+                ${full || playing ? "disabled" : ""}
+            >
+                ВОЙТИ
+            </button>
+        `;
+
+        const button =
+            element.querySelector("button");
+
+        if (!full && !playing) {
+
+            button.onclick = () => {
+
+                socket.emit(
+                    "join_room",
+                    room.id
                 );
-
-            if (
-                !full &&
-                !playing
-            ) {
-
-                button.onclick =
-                    () => {
-
-                        socket.emit(
-                            "join_room",
-                            room.id
-                        );
-                    };
-            }
-
-            rooms.appendChild(
-                element
-            );
+            };
         }
-    );
+
+        rooms.appendChild(element);
+    });
 }
 
 
-/*
-=========================================================
-OPEN / CLOSE
-=========================================================
-*/
+/* =========================================================
+   OPEN/CLOSE
+========================================================= */
 
 function openRoom() {
 
-    lobby.classList.add(
-        "hidden"
-    );
+    lobby.classList.add("hidden");
 
-    roomScreen.classList.add(
-        "active"
-    );
+    roomScreen.classList.add("active");
 }
 
 function closeRoom() {
 
-    roomScreen.classList.remove(
-        "active"
-    );
+    roomScreen.classList.remove("active");
 
-    lobby.classList.remove(
-        "hidden"
-    );
+    lobby.classList.remove("hidden");
 }
 
 
-/*
-=========================================================
-GAME RENDER
-=========================================================
-*/
+/* =========================================================
+   GAME RENDER
+========================================================= */
 
 function renderGame(state) {
 
     bigCode.textContent =
-        state.roomId || "------";
+        state.roomId;
 
     deckInfo.textContent =
         "Колода: " +
         state.deckCount;
 
 
-    /*
-    STATUS
-    */
+    /* STATUS */
 
-    if (
-        state.status ===
-        "waiting"
-    ) {
+    if (state.status === "waiting") {
 
         roomStatus.textContent =
             "Ожидание второго игрока...";
 
-    } else if (
-        state.status ===
-        "playing"
-    ) {
+    } else if (state.status === "playing") {
 
         roomStatus.textContent =
             "Игра идёт";
@@ -1738,26 +1447,15 @@ function renderGame(state) {
     }
 
 
-    /*
-    TRUMP
-    */
+    /* TRUMP */
 
-    if (
-        state.trumpSuit
-    ) {
+    if (state.trumpSuit) {
 
         trump.style.display =
             "block";
 
         trumpValue.textContent =
             state.trumpSuit;
-
-        trumpValue.classList.toggle(
-            "red",
-            isRed(
-                state.trumpSuit
-            )
-        );
 
     } else {
 
@@ -1766,13 +1464,9 @@ function renderGame(state) {
     }
 
 
-    /*
-    OPPONENT
-    */
+    /* OPPONENT */
 
-    if (
-        state.opponent
-    ) {
+    if (state.opponent) {
 
         opponent.style.display =
             "flex";
@@ -1791,21 +1485,12 @@ function renderGame(state) {
     }
 
 
-    /*
-    TURN
-    */
+    /* TURN */
 
-    turn.classList.remove(
-        "your",
-        "attack",
-        "defense"
-    );
+    turn.classList.remove("your");
 
 
-    if (
-        state.status ===
-        "waiting"
-    ) {
+    if (state.status !== "playing") {
 
         turnTitle.textContent =
             "ОЖИДАНИЕ";
@@ -1814,45 +1499,22 @@ function renderGame(state) {
             "Ожидаем второго игрока";
 
     } else if (
-        state.status ===
-        "finished"
-    ) {
-
-        turnTitle.textContent =
-            "ИГРА ЗАВЕРШЕНА";
-
-        turnDescription.textContent =
-            "Партия закончена";
-
-    } else if (
-        state.phase ===
-        "attack"
+        state.phase === "attack"
     ) {
 
         if (
-            state.canAttack
+            state.turn === "YOUR_TURN"
         ) {
 
-            turn.classList.add(
-                "your",
-                "attack"
-            );
+            turn.classList.add("your");
 
             turnTitle.textContent =
                 "ВАШ ХОД";
 
-            if (
-                state.table.length === 0
-            ) {
-
-                turnDescription.textContent =
-                    "Выберите карту для атаки";
-
-            } else {
-
-                turnDescription.textContent =
-                    "Выберите карту для подкидывания";
-            }
+            turnDescription.textContent =
+                state.table.length
+                    ? "Выберите карту для подкидывания"
+                    : "Выберите карту для атаки";
 
         } else {
 
@@ -1864,42 +1526,20 @@ function renderGame(state) {
         }
 
     } else if (
-        state.phase ===
-        "defense"
+        state.phase === "defense"
     ) {
 
         if (
-            state.canDefend
+            state.turn === "YOUR_TURN"
         ) {
 
-            turn.classList.add(
-                "your",
-                "defense"
-            );
+            turn.classList.add("your");
 
-            const allDefended =
-                state.table.length > 0 &&
-                state.table.every(
-                    (pair) =>
-                        !!pair.defense
-                );
+            turnTitle.textContent =
+                "ВАШ ХОД";
 
-            if (allDefended) {
-
-                turnTitle.textContent =
-                    "ВСЁ ОТБИТО";
-
-                turnDescription.textContent =
-                    "Нажмите «БИТО»";
-
-            } else {
-
-                turnTitle.textContent =
-                    "ЗАЩИЩАЙТЕСЬ";
-
-                turnDescription.textContent =
-                    "Выберите карту, чтобы отбиться, или нажмите «ВЗЯТЬ»";
-            }
+            turnDescription.textContent =
+                "Отбейте карту или нажмите «ВЗЯТЬ»";
 
         } else {
 
@@ -1909,25 +1549,53 @@ function renderGame(state) {
             turnDescription.textContent =
                 "Противник защищается";
         }
+
+    } else if (
+        state.phase === "bito"
+    ) {
+
+        if (
+            state.turn === "YOUR_TURN"
+        ) {
+
+            turn.classList.add("your");
+
+            turnTitle.textContent =
+                "ВАШ ХОД";
+
+            turnDescription.textContent =
+                "Все карты отбиты — нажмите «БИТО»";
+
+        } else {
+
+            turnTitle.textContent =
+                "ХОД ПРОТИВНИКА";
+
+            turnDescription.textContent =
+                "Ожидайте, пока атакующий нажмёт «БИТО»";
+        }
+
+    } else {
+
+        turnTitle.textContent =
+            "ДОБОР";
+
+        turnDescription.textContent =
+            "Карты добираются до 6";
     }
 
 
-    /*
-    RESULT
-    */
+    /* RESULT */
 
     if (
-        state.status ===
-        "finished"
+        state.status === "finished"
     ) {
 
-        result.classList.add(
-            "active"
-        );
+        result.classList.add("active");
 
         if (
             state.winnerId ===
-            state.me?.playerId
+            state.me.playerId
         ) {
 
             resultTitle.textContent =
@@ -1936,414 +1604,243 @@ function renderGame(state) {
             resultDescription.textContent =
                 "Вы выиграли партию.";
 
-        } else if (
-            state.winnerId
-        ) {
+        } else {
 
             resultTitle.textContent =
                 "ПОРАЖЕНИЕ";
 
             resultDescription.textContent =
                 "Вы проиграли партию.";
-
-        } else {
-
-            resultTitle.textContent =
-                "ИГРА ЗАВЕРШЕНА";
-
-            resultDescription.textContent =
-                "";
         }
 
     } else {
 
-        result.classList.remove(
-            "active"
-        );
+        result.classList.remove("active");
     }
 
 
-    /*
-    TABLE
-    */
+    /* TABLE */
 
-    renderTable(
-        state
-    );
+    renderTable(state);
 
 
-    /*
-    HAND
-    */
+    /* HAND */
 
-    renderHand(
-        state
-    );
+    renderHand(state);
 
 
-    /*
-    MOVES
-    */
+    /* MOVES */
 
-    renderMoves(
-        state
-    );
+    renderMoves(state);
 
+
+    /* =====================================================
+       ACTION BUTTONS
+    ===================================================== */
 
     /*
-    ACTION BUTTONS
-    */
-
-    renderActions(
-        state
-    );
-}
-
-
-/*
-=========================================================
-ACTIONS
-=========================================================
-*/
-
-function renderActions(state) {
-
-    /*
-    По умолчанию
-    всё скрываем.
-    */
-
+     * ВЗЯТЬ
+     */
     takeBtn.style.display =
-        "none";
-
-    beatBtn.style.display =
-        "none";
-
-
-    if (
-        state.status !==
-        "playing"
-    ) {
-
-        return;
-    }
-
-
-    if (
-        state.phase !==
-        "defense"
-    ) {
-
-        return;
-    }
-
-
-    if (
-        !state.canDefend
-    ) {
-
-        return;
-    }
-
-
-    const hasUnbeaten =
-        state.table.some(
-            (pair) =>
-                !pair.defense
-        );
-
-    const allDefended =
-        state.table.length > 0 &&
-        state.table.every(
-            (pair) =>
-                !!pair.defense
-        );
+        state.canTake
+            ? "block"
+            : "none";
 
 
     /*
-    ВЗЯТЬ
-    */
-
-    if (hasUnbeaten) {
-
-        takeBtn.style.display =
-            "block";
-    }
+     * БИТО
+     */
+    bitoBtn.style.display =
+        state.canBito
+            ? "block"
+            : "none";
 
 
-    /*
-    БИТО
-    */
+    if (state.canTake) {
 
-    if (allDefended) {
+        actionNote.textContent =
+            "На столе есть неотбитая карта.";
 
-        beatBtn.style.display =
-            "block";
+    } else if (state.canBito) {
+
+        actionNote.textContent =
+            "Все карты отбиты.";
+
+    } else {
+
+        actionNote.textContent =
+            "";
     }
 }
 
 
-/*
-=========================================================
-TABLE
-=========================================================
-*/
+/* =========================================================
+   TABLE
+========================================================= */
 
 function renderTable(state) {
 
     table.innerHTML = "";
 
-    if (
-        !state.table ||
-        !state.table.length
-    ) {
+    if (!state.table.length) {
 
-        table.innerHTML =
-            `
+        table.innerHTML = `
             <div class="table-empty">
                 ${
-                    state.status === "playing"
-                        ? (
-                            state.phase === "attack"
-                                ? "Ожидание атаки"
-                                : "Карты отсутствуют"
-                        )
+                    state.phase === "attack"
+                        ? "Ожидание атаки"
                         : "Стол пуст"
                 }
             </div>
-            `;
+        `;
 
         return;
     }
 
 
-    state.table.forEach(
-        (pair) => {
+    state.table.forEach(pair => {
 
-            const row =
-                document.createElement(
-                    "div"
-                );
+        const row =
+            document.createElement("div");
 
-            row.className =
-                "pair";
+        row.className = "pair";
 
 
-            /*
-            ATTACK CARD
-            */
+        /* ATTACK */
 
-            row.appendChild(
-                createCardElement(
-                    pair.attack,
-                    true
+        const attack =
+            document.createElement("div");
+
+        attack.className =
+            "card-item " +
+            (
+                isRed(
+                    pair.attack.suit
                 )
+                    ? "red"
+                    : ""
             );
 
+        attack.innerHTML = `
+            <div class="card-rank">
+                ${escapeHtml(pair.attack.rank)}
+            </div>
 
-            /*
-            ARROW
-            */
-
-            const arrow =
-                document.createElement(
-                    "div"
-                );
-
-            arrow.className =
-                "arrow";
-
-            arrow.textContent =
-                pair.defense
-                    ? "→"
-                    : "×";
-
-            row.appendChild(
-                arrow
-            );
+            <div class="card-suit">
+                ${escapeHtml(pair.attack.suit)}
+            </div>
+        `;
 
 
-            /*
-            DEFENSE CARD
-            */
+        row.appendChild(attack);
 
-            if (
-                pair.defense
-            ) {
 
-                row.appendChild(
-                    createTableCard(
-                        pair.defense
+        /* ARROW */
+
+        const arrow =
+            document.createElement("div");
+
+        arrow.className = "arrow";
+
+        arrow.textContent =
+            pair.defense
+                ? "→"
+                : "×";
+
+        row.appendChild(arrow);
+
+
+        /* DEFENSE */
+
+        if (pair.defense) {
+
+            const defense =
+                document.createElement("div");
+
+            defense.className =
+                "card-item " +
+                (
+                    isRed(
+                        pair.defense.suit
                     )
+                        ? "red"
+                        : ""
                 );
 
-            } else {
+            defense.innerHTML = `
+                <div class="card-rank">
+                    ${escapeHtml(pair.defense.rank)}
+                </div>
 
-                const empty =
-                    document.createElement(
-                        "div"
-                    );
+                <div class="card-suit">
+                    ${escapeHtml(pair.defense.suit)}
+                </div>
+            `;
 
-                empty.style.width =
-                    "58px";
+            row.appendChild(defense);
 
-                empty.style.height =
-                    "82px";
+        } else {
 
-                empty.style.border =
-                    "2px dashed #333";
+            const empty =
+                document.createElement("div");
 
-                empty.style.borderRadius =
-                    "11px";
+            empty.style.width = "57px";
+            empty.style.height = "78px";
+            empty.style.borderRadius = "11px";
+            empty.style.border =
+                "1px dashed #333";
 
-                row.appendChild(
-                    empty
-                );
-            }
-
-
-            table.appendChild(
-                row
-            );
+            row.appendChild(empty);
         }
-    );
+
+
+        table.appendChild(row);
+    });
 }
 
 
-/*
-=========================================================
-HAND
-=========================================================
-*/
+/* =========================================================
+   HAND
+========================================================= */
 
 function renderHand(state) {
 
     hand.innerHTML = "";
 
-    if (
-        !Array.isArray(
-            state.hand
-        )
-    ) {
+    state.hand.forEach(card => {
 
-        return;
-    }
+        const element =
+            document.createElement("div");
 
-
-    state.hand.forEach(
-        (card) => {
-
-            const element =
-                createCardElement(
-                    card,
-                    false
-                );
-
-
-            const clickable =
-                (
-                    state.status ===
-                    "playing"
-                ) &&
-                (
-                    state.canAttack ||
-                    state.canDefend
-                );
-
-
-            if (clickable) {
-
-                element.classList.add(
-                    "clickable"
-                );
-
-                element.onclick =
-                    () => {
-
-                        handleCardClick(
-                            card
-                        );
-                    };
-            }
-
-
-            hand.appendChild(
-                element
+        element.className =
+            "card-item " +
+            (
+                isRed(card.suit)
+                    ? "red"
+                    : ""
             );
-        }
-    );
-}
 
+        element.innerHTML = `
+            <div class="card-rank">
+                ${escapeHtml(card.rank)}
+            </div>
 
-/*
-=========================================================
-CREATE HAND CARD
-=========================================================
-*/
-
-function createCardElement(
-    card,
-    tableCard
-) {
-
-    const element =
-        document.createElement(
-            "div"
-        );
-
-    element.className =
-        tableCard
-            ? "table-card"
-            : "card-item";
-
-
-    if (
-        isRed(
-            card.suit
-        )
-    ) {
-
-        element.classList.add(
-            "red"
-        );
-    }
-
-
-    element.innerHTML =
-        `
-        <div class="card-rank">
-            ${escapeHtml(card.rank)}
-        </div>
-
-        <div class="card-suit">
-            ${escapeHtml(card.suit)}
-        </div>
+            <div class="card-suit">
+                ${escapeHtml(card.suit)}
+            </div>
         `;
 
-    return element;
+        element.onclick =
+            () => handleCardClick(card);
+
+        hand.appendChild(element);
+    });
 }
 
 
-/*
-=========================================================
-CREATE TABLE CARD
-=========================================================
-*/
-
-function createTableCard(card) {
-
-    return createCardElement(
-        card,
-        true
-    );
-}
-
-
-/*
-=========================================================
-CARD CLICK
-=========================================================
-*/
+/* =========================================================
+   CARD CLICK
+========================================================= */
 
 function handleCardClick(card) {
 
@@ -2359,14 +1856,11 @@ function handleCardClick(card) {
     }
 
 
-    /*
-    АТАКА / ПОДКИДЫВАНИЕ
-    */
+    /* ATTACK */
 
     if (
-        currentGame.phase ===
-        "attack" &&
-        currentGame.canAttack
+        currentGame.phase === "attack" &&
+        currentGame.turn === "YOUR_TURN"
     ) {
 
         socket.emit(
@@ -2378,36 +1872,25 @@ function handleCardClick(card) {
     }
 
 
-    /*
-    ЗАЩИТА
-    */
+    /* DEFENSE */
 
     if (
-        currentGame.phase ===
-        "defense" &&
-        currentGame.canDefend
+        currentGame.phase === "defense" &&
+        currentGame.turn === "YOUR_TURN"
     ) {
 
         const target =
             currentGame.table.find(
-                (pair) =>
-                    !pair.defense
+                pair => !pair.defense
             );
 
         if (!target) {
-
-            /*
-            Если всё отбито —
-            карта уже не нужна.
-            */
-
             return;
         }
 
         socket.emit(
             "defend_card",
             {
-
                 attackId:
                     target.attack.id,
 
@@ -2419,11 +1902,9 @@ function handleCardClick(card) {
 }
 
 
-/*
-=========================================================
-TAKE
-=========================================================
-*/
+/* =========================================================
+   TAKE BUTTON
+========================================================= */
 
 takeBtn.onclick =
     () => {
@@ -2438,13 +1919,11 @@ takeBtn.onclick =
     };
 
 
-/*
-=========================================================
-BEAT
-=========================================================
-*/
+/* =========================================================
+   BITO BUTTON
+========================================================= */
 
-beatBtn.onclick =
+bitoBtn.onclick =
     () => {
 
         if (!socket) {
@@ -2452,21 +1931,17 @@ beatBtn.onclick =
         }
 
         socket.emit(
-            "beat"
+            "bito"
         );
     };
 
 
-/*
-=========================================================
-CREATE ROOM
-=========================================================
-*/
+/* =========================================================
+   CREATE
+========================================================= */
 
 document
-    .getElementById(
-        "createBtn"
-    )
+    .getElementById("createBtn")
     .onclick =
     () => {
 
@@ -2488,16 +1963,12 @@ document
     };
 
 
-/*
-=========================================================
-JOIN ROOM
-=========================================================
-*/
+/* =========================================================
+   JOIN
+========================================================= */
 
 document
-    .getElementById(
-        "joinBtn"
-    )
+    .getElementById("joinBtn")
     .onclick =
     () => {
 
@@ -2528,16 +1999,13 @@ document
 
 
 document
-    .getElementById(
-        "roomInput"
-    )
+    .getElementById("roomInput")
     .addEventListener(
         "keydown",
-        (event) => {
+        event => {
 
             if (
-                event.key ===
-                "Enter"
+                event.key === "Enter"
             ) {
 
                 document
@@ -2550,16 +2018,12 @@ document
     );
 
 
-/*
-=========================================================
-LEAVE
-=========================================================
-*/
+/* =========================================================
+   LEAVE
+========================================================= */
 
 document
-    .getElementById(
-        "leaveBtn"
-    )
+    .getElementById("leaveBtn")
     .onclick =
     () => {
 
@@ -2575,113 +2039,74 @@ document
     };
 
 
-/*
-=========================================================
-MOVES
-=========================================================
-*/
+/* =========================================================
+   HISTORY
+========================================================= */
 
 function renderMoves(state) {
 
     moves.innerHTML = "";
 
-    if (
-        !state.moves ||
-        !state.moves.length
-    ) {
-
-        moves.innerHTML =
-            `
-            <div class="waiting">
-                Ходов пока нет
-            </div>
-            `;
-
+    if (!state.moves?.length) {
         return;
     }
-
 
     const lastMoves =
         state.moves.slice(-15);
 
+    lastMoves.forEach(move => {
 
-    lastMoves.forEach(
-        (move) => {
+        const element =
+            document.createElement("div");
 
-            const element =
-                document.createElement(
-                    "div"
-                );
+        element.className = "move";
 
-            element.className =
-                "move";
+        let text = "";
 
-
-            let text =
-                "Действие";
-
-
-            if (
-                move.type ===
-                "start"
-            ) {
-
-                text =
-                    "Игра началась";
-
-            } else if (
-                move.type ===
-                "attack"
-            ) {
-
-                text =
-                    "Атака: " +
-                    move.card;
-
-            } else if (
-                move.type ===
-                "defend"
-            ) {
-
-                text =
-                    "Защита: " +
-                    move.card;
-
-            } else if (
-                move.type ===
-                "take"
-            ) {
-
-                text =
-                    "Игрок взял карты";
-
-            } else if (
-                move.type ===
-                "beat"
-            ) {
-
-                text =
-                    "БИТО";
-
-            }
-
-
-            element.textContent =
-                text;
-
-            moves.appendChild(
-                element
-            );
+        if (move.type === "attack") {
+            text =
+                "Атака: " +
+                move.card;
         }
-    );
+
+        else if (move.type === "defend") {
+            text =
+                "Отбой: " +
+                move.card;
+        }
+
+        else if (move.type === "take") {
+            text =
+                "Игрок взял карты";
+        }
+
+        else if (move.type === "bito") {
+            text =
+                "БИТО";
+        }
+
+        else if (
+            move.type === "finish"
+        ) {
+            text =
+                "Игра завершена";
+        }
+
+        else {
+            text =
+                move.type;
+        }
+
+        element.textContent = text;
+
+        moves.appendChild(element);
+    });
 }
 
 
-/*
-=========================================================
-HELPERS
-=========================================================
-*/
+/* =========================================================
+   HELPERS
+========================================================= */
 
 function isRed(suit) {
 
@@ -2691,12 +2116,9 @@ function isRed(suit) {
     );
 }
 
-
 function escapeHtml(value) {
 
-    return String(
-        value ?? ""
-    )
+    return String(value ?? "")
         .replace(
             /&/g,
             "&amp;"
@@ -2720,11 +2142,9 @@ function escapeHtml(value) {
 }
 
 
-/*
-=========================================================
-START
-=========================================================
-*/
+/* =========================================================
+   START
+========================================================= */
 
 connect();
 
