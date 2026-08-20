@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
 
 <meta charset="UTF-8">
 
 <meta
     name="viewport"
-    content="
-        width=device-width,
-        initial-scale=1,
-        maximum-scale=1,
-        user-scalable=no,
-        viewport-fit=cover
-    "
+    content="width=device-width,
+             initial-scale=1,
+             maximum-scale=1,
+             user-scalable=no,
+             viewport-fit=cover"
 >
 
 <title>Heavy Lux Card</title>
@@ -32,10 +31,12 @@ html,
 body {
     margin: 0;
     padding: 0;
-    width: 100%;
+
     min-height: 100%;
-    background: #080808;
+
+    background: #070707;
     color: #fff;
+
     font-family:
         -apple-system,
         BlinkMacSystemFont,
@@ -54,96 +55,118 @@ input {
 }
 
 button {
-    cursor: pointer;
+    border: 0;
 }
 
 .app {
     width: 100%;
     max-width: 600px;
+
     min-height: 100vh;
-    margin: 0 auto;
+
+    margin: auto;
+
     padding:
-        calc(16px + env(safe-area-inset-top))
+        calc(18px + env(safe-area-inset-top))
         16px
-        calc(24px + env(safe-area-inset-bottom));
+        calc(25px + env(safe-area-inset-bottom));
 }
 
-/* =========================================================
-   HEADER
-========================================================= */
+/*
+=========================================================
+HEADER
+=========================================================
+*/
 
 .header {
     display: flex;
-    align-items: center;
+
     justify-content: space-between;
+    align-items: center;
 
     margin-bottom: 20px;
 }
 
 .logo {
-    font-size: 21px;
+    font-size: 20px;
     font-weight: 900;
+
     letter-spacing: 1px;
 }
 
-.status {
+.connection {
     font-size: 12px;
-    color: #888;
+    color: #777;
 }
 
-.status.online {
-    color: #42e87d;
+.connection.online {
+    color: #5cff91;
 }
 
-/* =========================================================
-   CARDS
-========================================================= */
+/*
+=========================================================
+CARD
+=========================================================
+*/
 
 .card {
     background: #111;
-    border: 1px solid #252525;
+
+    border: 1px solid #242424;
+
     border-radius: 18px;
+
     padding: 18px;
+
     margin-bottom: 14px;
 }
 
-.card-title {
+.title {
     font-size: 18px;
-    font-weight: 800;
+    font-weight: 900;
+
     margin-bottom: 14px;
 }
 
-/* =========================================================
-   PROFILE
-========================================================= */
+/*
+=========================================================
+PROFILE
+=========================================================
+*/
 
 .profile-name {
-    font-size: 22px;
+    font-size: 23px;
     font-weight: 900;
 }
 
 .profile-id {
     margin-top: 5px;
-    color: #777;
-    font-size: 12px;
+
+    font-size: 11px;
+
+    color: #666;
 }
 
-/* =========================================================
-   BUTTONS
-========================================================= */
+/*
+=========================================================
+BUTTON
+=========================================================
+*/
 
 .btn {
     width: 100%;
-    border: 0;
-    border-radius: 14px;
-    padding: 15px 16px;
+
+    padding: 15px;
+
     margin-top: 10px;
+
+    border-radius: 14px;
 
     background: #fff;
     color: #000;
 
-    font-weight: 800;
     font-size: 15px;
+    font-weight: 900;
 }
 
 .btn:active {
@@ -151,88 +174,105 @@ button {
 }
 
 .btn.secondary {
-    background: #202020;
+    background: #1d1d1d;
     color: #fff;
-    border: 1px solid #333;
+
+    border: 1px solid #303030;
 }
 
 .btn.danger {
-    background: #351313;
-    color: #ff6b6b;
-    border: 1px solid #552020;
+    background: #2a1010;
+    color: #ff6666;
+
+    border: 1px solid #451818;
 }
 
-/* =========================================================
-   ROOMS
-========================================================= */
-
-.room {
-    border: 1px solid #282828;
-    background: #0c0c0c;
-    border-radius: 15px;
-    padding: 15px;
-    margin-top: 10px;
+.btn:disabled {
+    opacity: .35;
 }
 
-.room-top {
+/*
+=========================================================
+JOIN
+=========================================================
+*/
+
+.join {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
 
-.room-id {
-    font-weight: 900;
-    font-size: 17px;
-    letter-spacing: 1px;
-}
-
-.room-status {
-    color: #aaa;
-    font-size: 12px;
-}
-
-.room-players {
-    margin-top: 8px;
-    color: #888;
-    font-size: 13px;
-}
-
-.room button {
-    margin-top: 12px;
-}
-
-/* =========================================================
-   JOIN
-========================================================= */
-
-.join-row {
-    display: flex;
     gap: 8px;
 }
 
-.join-row input {
+.join input {
     flex: 1;
 
     min-width: 0;
 
-    border: 1px solid #333;
-    background: #080808;
-    color: #fff;
+    padding: 14px;
 
     border-radius: 13px;
 
-    padding: 14px;
+    border: 1px solid #303030;
+
     outline: none;
+
+    background: #080808;
+
+    color: #fff;
+
+    text-transform: uppercase;
 }
 
-.join-row button {
-    width: 110px;
+.join .btn {
+    width: 105px;
+
     margin-top: 0;
 }
 
-/* =========================================================
-   ROOM
-========================================================= */
+/*
+=========================================================
+ROOMS
+=========================================================
+*/
+
+.room {
+    padding: 15px;
+
+    margin-top: 10px;
+
+    border-radius: 14px;
+
+    background: #0b0b0b;
+
+    border: 1px solid #292929;
+}
+
+.room-head {
+    display: flex;
+
+    justify-content: space-between;
+}
+
+.room-code {
+    font-size: 18px;
+    font-weight: 900;
+
+    letter-spacing: 2px;
+}
+
+.room-info {
+    margin-top: 7px;
+
+    font-size: 12px;
+
+    color: #777;
+}
+
+/*
+=========================================================
+SCREENS
+=========================================================
+*/
 
 .room-screen {
     display: none;
@@ -242,171 +282,194 @@ button {
     display: block;
 }
 
-.lobby-screen.hidden {
+.lobby.hidden {
     display: none;
 }
 
-.room-code {
+/*
+=========================================================
+BIG ROOM CODE
+=========================================================
+*/
+
+.big-code {
     text-align: center;
 
-    font-size: 30px;
+    font-size: 31px;
     font-weight: 900;
 
-    letter-spacing: 4px;
+    letter-spacing: 5px;
 
-    margin: 10px 0;
+    margin: 10px 0 18px;
 }
+
+.center {
+    text-align: center;
+}
+
+/*
+=========================================================
+PLAYERS
+=========================================================
+*/
 
 .players {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
 
-    margin-top: 15px;
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 10px;
 }
 
-.player-box {
-    border: 1px solid #292929;
+.player {
     background: #0b0b0b;
+
+    border: 1px solid #282828;
+
     border-radius: 15px;
-    padding: 15px;
+
+    padding: 14px;
 }
 
 .player-label {
-    color: #777;
-    font-size: 11px;
+    color: #666;
+
+    font-size: 10px;
+
     text-transform: uppercase;
 }
 
 .player-name {
-    margin-top: 6px;
-    font-weight: 800;
+    margin-top: 7px;
+
     font-size: 15px;
 
+    font-weight: 800;
+
     overflow: hidden;
+
     text-overflow: ellipsis;
+
+    white-space: nowrap;
 }
 
-/* =========================================================
-   TURN
-========================================================= */
+/*
+=========================================================
+TURN
+=========================================================
+*/
 
-.turn-box {
+.turn {
     margin-top: 18px;
 
-    border-radius: 18px;
-
-    padding: 22px;
+    padding: 23px 15px;
 
     text-align: center;
 
+    border-radius: 18px;
+
     border: 1px solid #292929;
-    background: #0c0c0c;
+
+    background: #0b0b0b;
 }
 
-.turn-title {
-    font-size: 24px;
-    font-weight: 900;
-}
-
-.turn-subtitle {
-    margin-top: 7px;
-
-    color: #777;
-    font-size: 13px;
-}
-
-.turn-box.your-turn {
-    border-color: #4b4b4b;
+.turn.your {
     background: #171717;
+
+    border-color: #555;
 }
 
-.turn-box.opponent-turn {
+.turn.opponent {
     opacity: .75;
 }
 
-/* =========================================================
-   TEST GAME
-========================================================= */
+.turn-title {
+    font-size: 25px;
 
-.test-move {
-    margin-top: 15px;
+    font-weight: 900;
 }
+
+.turn-description {
+    margin-top: 7px;
+
+    color: #777;
+
+    font-size: 12px;
+}
+
+/*
+=========================================================
+MOVES
+=========================================================
+*/
 
 .moves {
     margin-top: 15px;
 }
 
-.move-item {
-    border-bottom: 1px solid #222;
+.move {
     padding: 9px 0;
 
-    color: #999;
-    font-size: 12px;
-}
-
-/* =========================================================
-   WAITING
-========================================================= */
-
-.waiting {
-    text-align: center;
+    border-bottom:
+        1px solid #222;
 
     color: #888;
 
-    padding: 20px 0;
+    font-size: 12px;
 }
 
-/* =========================================================
-   TOAST
-========================================================= */
+/*
+=========================================================
+WAITING
+=========================================================
+*/
+
+.waiting {
+    padding: 20px 0;
+
+    text-align: center;
+
+    color: #777;
+}
+
+/*
+=========================================================
+TOAST
+=========================================================
+*/
 
 .toast {
     position: fixed;
 
-    left: 16px;
-    right: 16px;
-    bottom: calc(
-        20px + env(safe-area-inset-bottom)
-    );
+    left: 15px;
+    right: 15px;
 
-    max-width: 568px;
+    bottom:
+        calc(
+            18px +
+            env(safe-area-inset-bottom)
+        );
 
-    margin: auto;
+    padding: 14px;
+
+    border-radius: 14px;
 
     background: #fff;
     color: #000;
 
-    border-radius: 14px;
-
-    padding: 14px 16px;
-
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
 
     text-align: center;
 
     display: none;
 
-    z-index: 999;
+    z-index: 1000;
 }
 
 .toast.show {
     display: block;
-}
-
-/* =========================================================
-   DEBUG
-========================================================= */
-
-.debug {
-    margin-top: 20px;
-
-    color: #444;
-
-    font-size: 10px;
-
-    word-break: break-all;
 }
 
 </style>
@@ -417,10 +480,6 @@ button {
 
 <div class="app">
 
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
-
     <div class="header">
 
         <div class="logo">
@@ -428,8 +487,8 @@ button {
         </div>
 
         <div
-            id="connectionStatus"
-            class="status"
+            id="connection"
+            class="connection"
         >
             Подключение...
         </div>
@@ -437,20 +496,18 @@ button {
     </div>
 
 
-    <!-- =====================================================
+    <!-- =================================================
          LOBBY
-    ====================================================== -->
+    ================================================== -->
 
     <div
-        id="lobbyScreen"
-        class="lobby-screen"
+        id="lobby"
+        class="lobby"
     >
-
-        <!-- PROFILE -->
 
         <div class="card">
 
-            <div class="card-title">
+            <div class="title">
                 Профиль
             </div>
 
@@ -471,16 +528,14 @@ button {
         </div>
 
 
-        <!-- CREATE -->
-
         <div class="card">
 
-            <div class="card-title">
-                Игра
+            <div class="title">
+                Онлайн-игра
             </div>
 
             <button
-                id="createRoomBtn"
+                id="createBtn"
                 class="btn"
             >
                 Создать комнату 1×1
@@ -489,25 +544,23 @@ button {
         </div>
 
 
-        <!-- JOIN -->
-
         <div class="card">
 
-            <div class="card-title">
-                Войти в комнату
+            <div class="title">
+                Войти по коду
             </div>
 
-            <div class="join-row">
+            <div class="join">
 
                 <input
                     id="roomInput"
-                    placeholder="Код комнаты"
                     maxlength="6"
+                    placeholder="КОД"
                     autocomplete="off"
                 >
 
                 <button
-                    id="joinRoomBtn"
+                    id="joinBtn"
                     class="btn"
                 >
                     Войти
@@ -518,16 +571,16 @@ button {
         </div>
 
 
-        <!-- ROOMS -->
-
         <div class="card">
 
-            <div class="card-title">
+            <div class="title">
                 Комнаты
             </div>
 
-            <div id="roomsList">
-                Загрузка...
+            <div id="rooms">
+                <div class="waiting">
+                    Загрузка комнат...
+                </div>
             </div>
 
         </div>
@@ -535,9 +588,9 @@ button {
     </div>
 
 
-    <!-- =====================================================
+    <!-- =================================================
          ROOM
-    ====================================================== -->
+    ================================================== -->
 
     <div
         id="roomScreen"
@@ -546,70 +599,62 @@ button {
 
         <div class="card">
 
-            <div class="card-title">
-                Комната
+            <div class="title">
+                Комната 1×1
             </div>
 
             <div
-                id="roomCode"
-                class="room-code"
+                id="bigCode"
+                class="big-code"
             >
                 ------
             </div>
 
             <div
                 id="roomStatus"
-                class="waiting"
+                class="center"
             >
                 Ожидание игрока...
             </div>
 
-
-            <!-- PLAYERS -->
-
             <div
-                id="playersContainer"
+                id="players"
                 class="players"
+                style="margin-top:16px;"
             >
             </div>
 
 
-            <!-- TURN -->
-
             <div
-                id="turnBox"
-                class="turn-box"
+                id="turn"
+                class="turn"
             >
 
                 <div
                     id="turnTitle"
                     class="turn-title"
                 >
-                    Ожидание
+                    ОЖИДАНИЕ
                 </div>
 
                 <div
-                    id="turnSubtitle"
-                    class="turn-subtitle"
+                    id="turnDescription"
+                    class="turn-description"
                 >
-                    Подождите второго игрока
+                    Ожидаем второго игрока
                 </div>
 
             </div>
 
 
-            <!-- TEST MOVE -->
-
             <button
-                id="testMoveBtn"
-                class="btn test-move"
+                id="moveBtn"
+                class="btn"
                 style="display:none;"
             >
                 Сделать тестовый ход
             </button>
 
-
-            <!-- MOVES -->
 
             <div
                 id="moves"
@@ -618,10 +663,8 @@ button {
             </div>
 
 
-            <!-- LEAVE -->
-
             <button
-                id="leaveRoomBtn"
+                id="leaveBtn"
                 class="btn danger"
             >
                 Покинуть комнату
@@ -631,60 +674,64 @@ button {
 
     </div>
 
-
-    <div
-        id="debug"
-        class="debug"
-    >
-    </div>
-
 </div>
 
 
 <div
     id="toast"
     class="toast"
->
-</div>
+></div>
 
 
 <script>
 
-/* =========================================================
-   TELEGRAM
-========================================================= */
+/*
+=========================================================
+TELEGRAM
+=========================================================
+*/
 
-const tg =
+const telegram =
     window.Telegram?.WebApp || null;
 
-if (tg) {
-    tg.ready();
-    tg.expand();
+if (telegram) {
+    telegram.ready();
+    telegram.expand();
 }
 
 
-/* =========================================================
-   SOCKET
-========================================================= */
+/*
+=========================================================
+VARIABLES
+=========================================================
+*/
 
 let socket = null;
 
-let currentProfile = null;
-let currentRoom = null;
+let profile = null;
+
+let currentGame = null;
 
 
-/* =========================================================
-   DOM
-========================================================= */
+/*
+=========================================================
+DOM
+=========================================================
+*/
 
-const lobbyScreen =
+const lobby =
     document.getElementById(
-        "lobbyScreen"
+        "lobby"
     );
 
 const roomScreen =
     document.getElementById(
         "roomScreen"
+    );
+
+const connection =
+    document.getElementById(
+        "connection"
     );
 
 const profileName =
@@ -697,19 +744,14 @@ const profileId =
         "profileId"
     );
 
-const roomsList =
+const rooms =
     document.getElementById(
-        "roomsList"
+        "rooms"
     );
 
-const connectionStatus =
+const bigCode =
     document.getElementById(
-        "connectionStatus"
-    );
-
-const roomCode =
-    document.getElementById(
-        "roomCode"
+        "bigCode"
     );
 
 const roomStatus =
@@ -717,14 +759,14 @@ const roomStatus =
         "roomStatus"
     );
 
-const playersContainer =
+const players =
     document.getElementById(
-        "playersContainer"
+        "players"
     );
 
-const turnBox =
+const turn =
     document.getElementById(
-        "turnBox"
+        "turn"
     );
 
 const turnTitle =
@@ -732,24 +774,19 @@ const turnTitle =
         "turnTitle"
     );
 
-const turnSubtitle =
+const turnDescription =
     document.getElementById(
-        "turnSubtitle"
+        "turnDescription"
     );
 
-const testMoveBtn =
+const moveBtn =
     document.getElementById(
-        "testMoveBtn"
+        "moveBtn"
     );
 
 const moves =
     document.getElementById(
         "moves"
-    );
-
-const debug =
-    document.getElementById(
-        "debug"
     );
 
 const toast =
@@ -758,130 +795,136 @@ const toast =
     );
 
 
-/* =========================================================
-   TOAST
-========================================================= */
+/*
+=========================================================
+TOAST
+=========================================================
+*/
 
-let toastTimer = null;
+let toastTimeout = null;
 
-function showToast(message) {
+function showToast(text) {
 
-    toast.textContent = message;
+    toast.textContent = text;
 
-    toast.classList.add("show");
+    toast.classList.add(
+        "show"
+    );
 
-    clearTimeout(toastTimer);
+    clearTimeout(
+        toastTimeout
+    );
 
-    toastTimer = setTimeout(() => {
+    toastTimeout =
+        setTimeout(
+            () => {
 
-        toast.classList.remove(
-            "show"
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            3000
         );
-
-    }, 3000);
 }
 
 
-/* =========================================================
-   TELEGRAM AUTH
-========================================================= */
+/*
+=========================================================
+SOCKET AUTH
+=========================================================
+*/
 
-function getSocketAuth() {
+function socketAuth() {
 
     const auth = {};
 
     if (
-        tg &&
-        tg.initData
+        telegram &&
+        telegram.initData
     ) {
 
         auth.initData =
-            tg.initData;
+            telegram.initData;
 
-    }
+    } else {
 
-    /*
-        Для тестирования вне Telegram
-        создаём постоянный test ID
-        в localStorage.
-    */
-
-    if (!auth.initData) {
-
-        let testPlayerId =
+        let testId =
             localStorage.getItem(
-                "hlc_test_player"
+                "hlc_test_id"
             );
 
-        if (!testPlayerId) {
+        if (!testId) {
 
-            testPlayerId =
+            testId =
                 "test_" +
                 Math.random()
                     .toString(36)
                     .slice(2, 10);
 
             localStorage.setItem(
-                "hlc_test_player",
-                testPlayerId
+                "hlc_test_id",
+                testId
             );
         }
 
         auth.testPlayerId =
-            testPlayerId;
+            testId;
     }
 
     return auth;
 }
 
 
-/* =========================================================
-   CONNECT
-========================================================= */
+/*
+=========================================================
+CONNECT
+=========================================================
+*/
 
-function connectSocket() {
+function connect() {
 
-    if (socket) {
+    socket =
+        io(
+            window.location.origin,
+            {
+                auth:
+                    socketAuth(),
 
-        socket.disconnect();
+                transports: [
+                    "websocket",
+                    "polling"
+                ],
 
-    }
+                reconnection: true,
 
-    socket = io(
-        window.location.origin,
-        {
-            auth: getSocketAuth(),
+                reconnectionAttempts:
+                    Infinity,
 
-            transports: [
-                "websocket",
-                "polling"
-            ],
+                reconnectionDelay:
+                    1000,
 
-            reconnection: true,
+                reconnectionDelayMax:
+                    5000,
 
-            reconnectionAttempts: Infinity,
-
-            reconnectionDelay: 1000,
-
-            reconnectionDelayMax: 5000,
-
-            timeout: 10000
-        }
-    );
+                timeout:
+                    10000
+            }
+        );
 
 
-    /* =====================================================
-       CONNECTED
-    ====================================================== */
+    /*
+    CONNECT
+    */
 
     socket.on(
         "connect",
         () => {
 
-            connectionStatus.textContent =
+            connection.textContent =
                 "Онлайн";
 
-            connectionStatus.classList.add(
+            connection.classList.add(
                 "online"
             );
 
@@ -892,147 +935,135 @@ function connectSocket() {
             socket.emit(
                 "get_rooms"
             );
-
-            /*
-                Если UI уже был в комнате,
-                сервер сам отправит game_state.
-            */
-
         }
     );
 
 
-    /* =====================================================
-       DISCONNECTED
-    ====================================================== */
+    /*
+    DISCONNECT
+    */
 
     socket.on(
         "disconnect",
         () => {
 
-            connectionStatus.textContent =
+            connection.textContent =
                 "Переподключение...";
 
-            connectionStatus.classList.remove(
+            connection.classList.remove(
                 "online"
             );
-
         }
     );
 
 
-    /* =====================================================
-       CONNECT ERROR
-    ====================================================== */
+    /*
+    ERROR
+    */
 
     socket.on(
         "connect_error",
         (error) => {
 
             console.error(
-                "Socket error:",
                 error
             );
 
-            connectionStatus.textContent =
-                "Ошибка подключения";
+            connection.textContent =
+                "Ошибка Socket.IO";
 
+            connection.classList.remove(
+                "online"
+            );
         }
     );
 
 
-    /* =====================================================
-       PROFILE
-    ====================================================== */
+    /*
+    PROFILE
+    */
 
     socket.on(
         "profile",
-        (profile) => {
+        (data) => {
 
-            currentProfile =
-                profile;
+            profile =
+                data;
 
             profileName.textContent =
-                profile.name ||
+                data.name ||
                 "Игрок";
 
             profileId.textContent =
                 "ID: " +
-                profile.playerId;
-
+                data.playerId;
         }
     );
 
 
-    /* =====================================================
-       ROOMS
-    ====================================================== */
+    /*
+    ROOM LIST
+    */
 
     socket.on(
         "rooms_list",
-        (rooms) => {
+        (list) => {
 
             renderRooms(
-                rooms
+                list
             );
-
         }
     );
 
 
-    /* =====================================================
-       ROOM CREATED
-    ====================================================== */
+    /*
+    ROOM CREATED
+    */
 
     socket.on(
         "room_created",
         (room) => {
 
-            showRoom();
+            openRoom();
 
-            roomCode.textContent =
+            bigCode.textContent =
                 room.id;
-
-            roomStatus.textContent =
-                "Ожидание второго игрока...";
 
             showToast(
                 "Комната создана"
             );
-
         }
     );
 
 
-    /* =====================================================
-       GAME STATE
-    ====================================================== */
+    /*
+    GAME STATE
+    */
 
     socket.on(
         "game_state",
         (state) => {
 
-            console.log(
-                "GAME STATE:",
-                state
-            );
-
-            currentRoom =
+            currentGame =
                 state;
 
-            showRoom();
+            openRoom();
 
-            renderGameState(
+            renderGame(
                 state
             );
 
+            console.log(
+                "GAME STATE",
+                state
+            );
         }
     );
 
 
-    /* =====================================================
-       ERRORS
-    ====================================================== */
+    /*
+    SERVER ERROR
+    */
 
     socket.on(
         "error_message",
@@ -1041,10 +1072,13 @@ function connectSocket() {
             showToast(
                 message
             );
-
         }
     );
 
+
+    /*
+    MOVE ERROR
+    */
 
     socket.on(
         "move_error",
@@ -1053,56 +1087,54 @@ function connectSocket() {
             showToast(
                 message
             );
-
         }
     );
 
 
-    /* =====================================================
-       LEFT ROOM
-    ====================================================== */
+    /*
+    LEFT ROOM
+    */
 
     socket.on(
         "left_room",
         () => {
 
-            currentRoom =
+            currentGame =
                 null;
 
-            showLobby();
+            closeRoom();
 
             socket.emit(
                 "get_rooms"
             );
-
         }
     );
-
 }
 
 
-/* =========================================================
-   RENDER ROOMS
-========================================================= */
+/*
+=========================================================
+ROOM LIST
+=========================================================
+*/
 
-function renderRooms(roomList) {
+function renderRooms(list) {
 
-    if (!roomList.length) {
+    if (!list.length) {
 
-        roomsList.innerHTML =
+        rooms.innerHTML =
             `
             <div class="waiting">
-                Сейчас нет комнат
+                Нет доступных комнат
             </div>
             `;
 
         return;
-
     }
 
-    roomsList.innerHTML = "";
+    rooms.innerHTML = "";
 
-    roomList.forEach(
+    list.forEach(
         (room) => {
 
             const element =
@@ -1113,37 +1145,42 @@ function renderRooms(roomList) {
             element.className =
                 "room";
 
-            const status =
-                room.status === "waiting"
-                    ? "Ожидание игрока"
-                    : "Игра идёт";
+            const full =
+                room.playersCount >= 2;
 
-            const disabled =
-                room.playersCount >= 2 ||
-                room.status !== "waiting";
+            const playing =
+                room.status ===
+                "playing";
 
             element.innerHTML =
                 `
-                <div class="room-top">
+                <div class="room-head">
 
-                    <div class="room-id">
+                    <div class="room-code">
                         ${escapeHtml(room.id)}
                     </div>
 
-                    <div class="room-status">
-                        ${status}
+                    <div>
+                        ${room.playersCount}/2
                     </div>
 
                 </div>
 
-                <div class="room-players">
-                    Игроков:
-                    ${room.playersCount}/2
+                <div class="room-info">
+                    ${
+                        playing
+                            ? "Игра идёт"
+                            : "Ожидание игрока"
+                    }
                 </div>
 
                 <button
                     class="btn secondary"
-                    ${disabled ? "disabled" : ""}
+                    ${
+                        full || playing
+                            ? "disabled"
+                            : ""
+                    }
                 >
                     Войти
                 </button>
@@ -1154,7 +1191,10 @@ function renderRooms(roomList) {
                     "button"
                 );
 
-            if (!disabled) {
+            if (
+                !full &&
+                !playing
+            ) {
 
                 button.addEventListener(
                     "click",
@@ -1164,69 +1204,69 @@ function renderRooms(roomList) {
                             "join_room",
                             room.id
                         );
-
                     }
                 );
-
             }
 
-            roomsList.appendChild(
+            rooms.appendChild(
                 element
             );
-
         }
     );
-
 }
 
 
-/* =========================================================
-   SHOW ROOM
-========================================================= */
+/*
+=========================================================
+OPEN ROOM
+=========================================================
+*/
 
-function showRoom() {
+function openRoom() {
 
-    lobbyScreen.classList.add(
+    lobby.classList.add(
         "hidden"
     );
 
     roomScreen.classList.add(
         "active"
     );
-
 }
 
 
-/* =========================================================
-   SHOW LOBBY
-========================================================= */
+/*
+=========================================================
+CLOSE ROOM
+=========================================================
+*/
 
-function showLobby() {
+function closeRoom() {
 
     roomScreen.classList.remove(
         "active"
     );
 
-    lobbyScreen.classList.remove(
+    lobby.classList.remove(
         "hidden"
     );
-
 }
 
 
-/* =========================================================
-   RENDER GAME STATE
-========================================================= */
+/*
+=========================================================
+RENDER GAME
+=========================================================
+*/
 
-function renderGameState(state) {
+function renderGame(state) {
 
-    roomCode.textContent =
-        state.roomId || "------";
+    bigCode.textContent =
+        state.roomId;
 
 
-    /* =====================================================
-       STATUS
-    ====================================================== */
+    /*
+    STATUS
+    */
 
     if (
         state.status ===
@@ -1236,34 +1276,25 @@ function renderGameState(state) {
         roomStatus.textContent =
             "Ожидание второго игрока...";
 
-    } else if (
-        state.status ===
-        "playing"
-    ) {
-
-        roomStatus.textContent =
-            "Игра началась";
-
     } else {
 
         roomStatus.textContent =
-            "Игра завершена";
-
+            "Игра началась";
     }
 
 
-    /* =====================================================
-       PLAYERS
-    ====================================================== */
+    /*
+    PLAYERS
+    */
 
-    playersContainer.innerHTML =
-        "";
+    players.innerHTML = "";
+
 
     if (state.me) {
 
-        playersContainer.innerHTML +=
+        players.innerHTML +=
             `
-            <div class="player-box">
+            <div class="player">
 
                 <div class="player-label">
                     Вы
@@ -1277,14 +1308,14 @@ function renderGameState(state) {
 
             </div>
             `;
-
     }
+
 
     if (state.opponent) {
 
-        playersContainer.innerHTML +=
+        players.innerHTML +=
             `
-            <div class="player-box">
+            <div class="player">
 
                 <div class="player-label">
                     Противник
@@ -1301,9 +1332,9 @@ function renderGameState(state) {
 
     } else {
 
-        playersContainer.innerHTML +=
+        players.innerHTML +=
             `
-            <div class="player-box">
+            <div class="player">
 
                 <div class="player-label">
                     Противник
@@ -1315,17 +1346,16 @@ function renderGameState(state) {
 
             </div>
             `;
-
     }
 
 
-    /* =====================================================
-       TURN
-    ====================================================== */
+    /*
+    TURN
+    */
 
-    turnBox.classList.remove(
-        "your-turn",
-        "opponent-turn"
+    turn.classList.remove(
+        "your",
+        "opponent"
     );
 
 
@@ -1334,20 +1364,20 @@ function renderGameState(state) {
         "YOUR_TURN"
     ) {
 
-        turnBox.classList.add(
-            "your-turn"
+        turn.classList.add(
+            "your"
         );
 
         turnTitle.textContent =
             "ВАШ ХОД";
 
-        turnSubtitle.textContent =
-            "Сервер разрешил вам сделать ход";
+        turnDescription.textContent =
+            "Сейчас вы можете сделать ход";
 
-        testMoveBtn.style.display =
+        moveBtn.style.display =
             "block";
 
-        testMoveBtn.disabled =
+        moveBtn.disabled =
             false;
 
     } else if (
@@ -1355,20 +1385,20 @@ function renderGameState(state) {
         "OPPONENT_TURN"
     ) {
 
-        turnBox.classList.add(
-            "opponent-turn"
+        turn.classList.add(
+            "opponent"
         );
 
         turnTitle.textContent =
             "ХОД ПРОТИВНИКА";
 
-        turnSubtitle.textContent =
-            "Ожидайте действия другого игрока";
+        turnDescription.textContent =
+            "Ожидайте действия противника";
 
-        testMoveBtn.style.display =
+        moveBtn.style.display =
             "block";
 
-        testMoveBtn.disabled =
+        moveBtn.disabled =
             true;
 
     } else {
@@ -1376,79 +1406,63 @@ function renderGameState(state) {
         turnTitle.textContent =
             "ОЖИДАНИЕ";
 
-        turnSubtitle.textContent =
-            "Ожидайте второго игрока";
+        turnDescription.textContent =
+            "Ожидаем второго игрока";
 
-        testMoveBtn.style.display =
+        moveBtn.style.display =
             "none";
-
     }
 
 
-    /* =====================================================
-       MOVES
-    ====================================================== */
+    /*
+    MOVES
+    */
 
-    moves.innerHTML =
-        "";
+    moves.innerHTML = "";
 
     if (
-        !state.moves ||
-        !state.moves.length
+        state.moves &&
+        state.moves.length
     ) {
 
-        return;
+        state.moves.forEach(
+            (move, index) => {
 
-    }
+                const item =
+                    document.createElement(
+                        "div"
+                    );
 
-    state.moves.forEach(
-        (move, index) => {
+                item.className =
+                    "move";
 
-            const div =
-                document.createElement(
-                    "div"
+                const who =
+                    move.playerId ===
+                    state.me?.playerId
+                        ? "Вы"
+                        : "Противник";
+
+                item.textContent =
+                    `${index + 1}. ${who} сделал ход`;
+
+                moves.appendChild(
+                    item
                 );
-
-            div.className =
-                "move-item";
-
-            const who =
-                move.playerId ===
-                state.me?.playerId
-                    ? "Вы"
-                    : "Противник";
-
-            div.textContent =
-                `${index + 1}. ${who} сделал ход`;
-
-            moves.appendChild(
-                div
-            );
-
-        }
-    );
-
-
-    /* =====================================================
-       DEBUG
-    ====================================================== */
-
-    debug.textContent =
-        `room=${state.roomId} | ` +
-        `status=${state.status} | ` +
-        `turn=${state.turn} | ` +
-        `turnPlayerId=${state.turnPlayerId}`;
-
+            }
+        );
+    }
 }
 
 
-/* =========================================================
-   CREATE ROOM
-========================================================= */
+/*
+=========================================================
+CREATE
+=========================================================
+*/
 
 document
     .getElementById(
-        "createRoomBtn"
+        "createBtn"
     )
     .addEventListener(
         "click",
@@ -1460,28 +1474,28 @@ document
             ) {
 
                 showToast(
-                    "Socket.IO ещё не подключён"
+                    "Socket.IO не подключён"
                 );
 
                 return;
-
             }
 
             socket.emit(
                 "create_room"
             );
-
         }
     );
 
 
-/* =========================================================
-   JOIN ROOM
-========================================================= */
+/*
+=========================================================
+JOIN
+=========================================================
+*/
 
 document
     .getElementById(
-        "joinRoomBtn"
+        "joinBtn"
     )
     .addEventListener(
         "click",
@@ -1492,33 +1506,33 @@ document
                     "roomInput"
                 );
 
-            const roomId =
+            const code =
                 input.value
                     .trim()
                     .toUpperCase();
 
-            if (!roomId) {
+            if (!code) {
 
                 showToast(
                     "Введите код комнаты"
                 );
 
                 return;
-
             }
 
             socket.emit(
                 "join_room",
-                roomId
+                code
             );
-
         }
     );
 
 
-/* =========================================================
-   ENTER KEY
-========================================================= */
+/*
+=========================================================
+ENTER
+=========================================================
+*/
 
 document
     .getElementById(
@@ -1535,27 +1549,32 @@ document
 
                 document
                     .getElementById(
-                        "joinRoomBtn"
+                        "joinBtn"
                     )
                     .click();
-
             }
-
         }
     );
 
 
-/* =========================================================
-   TEST MOVE
-========================================================= */
+/*
+=========================================================
+TEST MOVE
+=========================================================
+*/
 
-testMoveBtn.addEventListener(
+moveBtn.addEventListener(
     "click",
     () => {
 
         if (
-            !currentRoom ||
-            currentRoom.turn !==
+            !currentGame
+        ) {
+            return;
+        }
+
+        if (
+            currentGame.turn !==
             "YOUR_TURN"
         ) {
 
@@ -1564,60 +1583,51 @@ testMoveBtn.addEventListener(
             );
 
             return;
-
         }
-
-        /*
-            Это пока тестовый ход.
-
-            Позже здесь будет:
-
-                socket.emit(
-                    "play_card",
-                    {
-                        card: ...
-                    }
-                );
-        */
 
         socket.emit(
             "make_move",
             {
-                type: "test"
+                type:
+                    "test"
             }
         );
-
     }
 );
 
 
-/* =========================================================
-   LEAVE
-========================================================= */
+/*
+=========================================================
+LEAVE
+=========================================================
+*/
 
 document
     .getElementById(
-        "leaveRoomBtn"
+        "leaveBtn"
     )
     .addEventListener(
         "click",
         () => {
 
-            if (!socket) {
-                return;
+            if (
+                socket &&
+                socket.connected
+            ) {
+
+                socket.emit(
+                    "leave_room"
+                );
             }
-
-            socket.emit(
-                "leave_room"
-            );
-
         }
     );
 
 
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
+/*
+=========================================================
+ESCAPE
+=========================================================
+*/
 
 function escapeHtml(value) {
 
@@ -1644,15 +1654,16 @@ function escapeHtml(value) {
             /'/g,
             "&#039;"
         );
-
 }
 
 
-/* =========================================================
-   START
-========================================================= */
+/*
+=========================================================
+START
+=========================================================
+*/
 
-connectSocket();
+connect();
 
 </script>
 
