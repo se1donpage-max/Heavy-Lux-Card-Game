@@ -11,18 +11,13 @@ const server = http.createServer(app);
 
 const PORT = process.env.PORT || 10000;
 
-/*
-=========================================================
-MIDDLEWARE
-=========================================================
-*/
-
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
 /*
 =========================================================
-POSTGRESQL
+DATABASE
 =========================================================
 */
 
@@ -40,14 +35,6 @@ if (process.env.DATABASE_URL) {
         console.error("PostgreSQL error:", error);
     });
 }
-
-/*
-=========================================================
-STATIC FILES
-=========================================================
-*/
-
-app.use(express.static(__dirname));
 
 /*
 =========================================================
@@ -77,7 +64,7 @@ const io = new Server(server, {
 
 /*
 =========================================================
-GAME DATA
+DATA
 =========================================================
 */
 
@@ -85,7 +72,7 @@ const players = new Map();
 const rooms = new Map();
 
 /*
-PLAYER
+player:
 
 {
     playerId,
@@ -97,16 +84,54 @@ PLAYER
     roomId
 }
 
-ROOM
+room:
 
 {
     id,
-    players: [],
+    players: [playerId, playerId],
     status,
-    turnPlayerId,
-    moves
+    game
 }
 */
+
+/*
+=========================================================
+GAME CONSTANTS
+=========================================================
+*/
+
+const SUITS = [
+    "♠",
+    "♥",
+    "♦",
+    "♣"
+];
+
+const RANKS = [
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+    "A"
+];
+
+const RANK_VALUE = {
+    "6": 6,
+    "7": 7,
+    "8": 8,
+    "9": 9,
+    "10": 10,
+    "J": 11,
+    "Q": 12,
+    "K": 13,
+    "A": 14
+};
+
+const MAX_HAND = 6;
 
 /*
 =========================================================
@@ -137,9 +162,17 @@ function getRoom(roomId) {
     return rooms.get(roomId);
 }
 
+function getGame(room) {
+    return room?.game || null;
+}
+
+function playerInRoom(room, playerId) {
+    return room.players.includes(playerId);
+}
+
 /*
 =========================================================
-TELEGRAM USER
+TELEGRAM
 =========================================================
 */
 
@@ -150,20 +183,13 @@ function parseTelegramUser(initData) {
 
     try {
         const params = new URLSearchParams(initData);
-        const userJson = params.get("user");
+        const user = params.get("user");
 
-        if (!userJson) {
+        if (!user) {
             return null;
         }
 
-        const user = JSON.parse(userJson);
-
-        if (!user || !user.id) {
-            return null;
-        }
-
-        return user;
-
+        return JSON.parse(user);
     } catch (error) {
         console.error(
             "Telegram user parse error:",
@@ -176,73 +202,51 @@ function parseTelegramUser(initData) {
 
 /*
 =========================================================
-PLAYER FIND
-=========================================================
-*/
-
-function findPlayerByTelegramId(telegramId) {
-    for (const player of players.values()) {
-        if (
-            player.telegramId &&
-            player.telegramId === telegramId
-        ) {
-            return player;
-        }
-    }
-
-    return null;
-}
-
-/*
-=========================================================
 AUTHENTICATION
 =========================================================
 */
 
 function authenticate(socket) {
-
     const initData =
         socket.handshake.auth?.initData || "";
 
     const telegramUser =
         parseTelegramUser(initData);
 
-    /*
-    =====================================================
-    TELEGRAM
-    =====================================================
-    */
-
-    if (telegramUser) {
-
+    if (
+        telegramUser &&
+        telegramUser.id
+    ) {
         const telegramId =
             String(telegramUser.id);
 
-        let player =
-            findPlayerByTelegramId(
-                telegramId
-            );
+        let player = null;
+
+        for (const item of players.values()) {
+            if (
+                item.telegramId === telegramId
+            ) {
+                player = item;
+                break;
+            }
+        }
 
         if (!player) {
-
             player = {
-                playerId:
-                    createId(12),
+                playerId: createId(12),
 
                 telegramId,
 
-                name:
-                    cleanName(
-                        telegramUser.first_name ||
-                        telegramUser.username ||
-                        "Игрок"
-                    ),
+                name: cleanName(
+                    telegramUser.first_name ||
+                    telegramUser.username ||
+                    "Игрок"
+                ),
 
                 username:
                     telegramUser.username || "",
 
-                socketId:
-                    socket.id,
+                socketId: socket.id,
 
                 connected: true,
 
@@ -253,28 +257,15 @@ function authenticate(socket) {
                 player.playerId,
                 player
             );
-
         } else {
+            player.socketId = socket.id;
+            player.connected = true;
 
-            /*
-            Игрок уже существует.
-
-            Обновляем только
-            текущее соединение.
-            */
-
-            player.socketId =
-                socket.id;
-
-            player.connected =
-                true;
-
-            player.name =
-                cleanName(
-                    telegramUser.first_name ||
-                    telegramUser.username ||
-                    player.name
-                );
+            player.name = cleanName(
+                telegramUser.first_name ||
+                telegramUser.username ||
+                player.name
+            );
 
             player.username =
                 telegramUser.username ||
@@ -288,27 +279,19 @@ function authenticate(socket) {
     }
 
     /*
-    =====================================================
-    TEST MODE
-    =====================================================
+    Тестовый вход вне Telegram.
     */
 
     const testPlayerId =
-        String(
-            socket.handshake.auth?.testPlayerId ||
-            `test_${socket.id}`
-        );
+        socket.handshake.auth?.testPlayerId ||
+        `test_${socket.id}`;
 
     let player =
-        players.get(
-            testPlayerId
-        );
+        players.get(testPlayerId);
 
     if (!player) {
-
         player = {
-            playerId:
-                testPlayerId,
+            playerId: testPlayerId,
 
             telegramId: null,
 
@@ -318,8 +301,7 @@ function authenticate(socket) {
 
             username: "",
 
-            socketId:
-                socket.id,
+            socketId: socket.id,
 
             connected: true,
 
@@ -330,14 +312,9 @@ function authenticate(socket) {
             player.playerId,
             player
         );
-
     } else {
-
-        player.socketId =
-            socket.id;
-
-        player.connected =
-            true;
+        player.socketId = socket.id;
+        player.connected = true;
     }
 
     return player;
@@ -350,9 +327,7 @@ DATABASE
 */
 
 async function initDatabase() {
-
     if (!pool) {
-
         console.log(
             "PostgreSQL: DATABASE_URL not configured"
         );
@@ -361,7 +336,6 @@ async function initDatabase() {
     }
 
     try {
-
         await pool.query(`
             CREATE TABLE IF NOT EXISTS players (
                 player_id TEXT PRIMARY KEY,
@@ -376,9 +350,7 @@ async function initDatabase() {
         console.log(
             "PostgreSQL: ready"
         );
-
     } catch (error) {
-
         console.error(
             "PostgreSQL initialization error:",
             error
@@ -387,13 +359,11 @@ async function initDatabase() {
 }
 
 async function savePlayer(player) {
-
     if (!pool) {
         return;
     }
 
     try {
-
         await pool.query(
             `
             INSERT INTO players
@@ -421,9 +391,7 @@ async function savePlayer(player) {
                 player.name
             ]
         );
-
     } catch (error) {
-
         console.error(
             "savePlayer error:",
             error
@@ -433,7 +401,709 @@ async function savePlayer(player) {
 
 /*
 =========================================================
-PUBLIC ROOM
+DECK
+=========================================================
+*/
+
+function createDeck() {
+    const deck = [];
+
+    for (const suit of SUITS) {
+        for (const rank of RANKS) {
+            deck.push({
+                id:
+                    `${rank}_${suit}_${createId(4)}`,
+
+                suit,
+
+                rank
+            });
+        }
+    }
+
+    return deck;
+}
+
+function shuffle(array) {
+    for (
+        let i = array.length - 1;
+        i > 0;
+        i--
+    ) {
+        const j =
+            Math.floor(
+                Math.random() * (i + 1)
+            );
+
+        [
+            array[i],
+            array[j]
+        ] =
+        [
+            array[j],
+            array[i]
+        ];
+    }
+
+    return array;
+}
+
+/*
+=========================================================
+CARD HELPERS
+=========================================================
+*/
+
+function cardById(game, cardId) {
+    for (const playerId of game.players) {
+        const hand =
+            game.hands[playerId] || [];
+
+        const found =
+            hand.find(
+                card =>
+                    card.id === cardId
+            );
+
+        if (found) {
+            return found;
+        }
+    }
+
+    if (game.table) {
+        for (const pair of game.table) {
+            if (
+                pair.attack.id === cardId
+            ) {
+                return pair.attack;
+            }
+
+            if (
+                pair.defense &&
+                pair.defense.id === cardId
+            ) {
+                return pair.defense;
+            }
+        }
+    }
+
+    return null;
+}
+
+function cardIsTrump(game, card) {
+    return card.suit === game.trump;
+}
+
+function canBeat(game, defense, attack) {
+    if (!defense || !attack) {
+        return false;
+    }
+
+    /*
+    Козырь бьёт любую некозырную карту.
+    */
+
+    if (
+        cardIsTrump(game, defense) &&
+        !cardIsTrump(game, attack)
+    ) {
+        return true;
+    }
+
+    /*
+    Некозырная карта не может бить козырь.
+    */
+
+    if (
+        !cardIsTrump(game, defense) &&
+        cardIsTrump(game, attack)
+    ) {
+        return false;
+    }
+
+    /*
+    Одна масть — старшая карта бьёт младшую.
+    */
+
+    if (
+        defense.suit === attack.suit
+    ) {
+        return (
+            RANK_VALUE[defense.rank] >
+            RANK_VALUE[attack.rank]
+        );
+    }
+
+    return false;
+}
+
+function tableRanks(game) {
+    const ranks = new Set();
+
+    for (const pair of game.table) {
+        if (pair.attack) {
+            ranks.add(pair.attack.rank);
+        }
+
+        if (pair.defense) {
+            ranks.add(pair.defense.rank);
+        }
+    }
+
+    return ranks;
+}
+
+/*
+=========================================================
+GAME CREATION
+=========================================================
+*/
+
+function createGame(player1, player2) {
+    let deck =
+        shuffle(
+            createDeck()
+        );
+
+    const hands = {
+        [player1]: [],
+        [player2]: []
+    };
+
+    for (let i = 0; i < 6; i++) {
+        hands[player1].push(
+            deck.pop()
+        );
+
+        hands[player2].push(
+            deck.pop()
+        );
+    }
+
+    const trumpCard =
+        deck[deck.length - 1];
+
+    const game = {
+        players: [
+            player1,
+            player2
+        ],
+
+        hands,
+
+        deck,
+
+        trump: trumpCard.suit,
+
+        trumpCard,
+
+        table: [],
+
+        /*
+        Первый ход определяем
+        по младшей козырной карте.
+        */
+
+        attacker: null,
+
+        defender: null,
+
+        phase: "attack",
+
+        winner: null,
+
+        loser: null,
+
+        lastAction: null,
+
+        startedAt: Date.now()
+    };
+
+    const p1Trump =
+        hands[player1]
+            .filter(c =>
+                c.suit === game.trump
+            );
+
+    const p2Trump =
+        hands[player2]
+            .filter(c =>
+                c.suit === game.trump
+            );
+
+    let first = null;
+
+    if (
+        p1Trump.length &&
+        p2Trump.length
+    ) {
+        const p1Min =
+            Math.min(
+                ...p1Trump.map(
+                    c =>
+                        RANK_VALUE[c.rank]
+                )
+            );
+
+        const p2Min =
+            Math.min(
+                ...p2Trump.map(
+                    c =>
+                        RANK_VALUE[c.rank]
+                )
+            );
+
+        first =
+            p1Min <= p2Min
+                ? player1
+                : player2;
+
+    } else if (p1Trump.length) {
+
+        first = player1;
+
+    } else if (p2Trump.length) {
+
+        first = player2;
+
+    } else {
+
+        /*
+        Если ни у кого нет козыря,
+        случайно выбираем первого.
+        */
+
+        first =
+            Math.random() < 0.5
+                ? player1
+                : player2;
+    }
+
+    game.attacker = first;
+
+    game.defender =
+        first === player1
+            ? player2
+            : player1;
+
+    sortHand(
+        game.hands[player1],
+        game.trump
+    );
+
+    sortHand(
+        game.hands[player2],
+        game.trump
+    );
+
+    return game;
+}
+
+function sortHand(hand, trump) {
+    hand.sort((a, b) => {
+
+        const at =
+            a.suit === trump
+                ? 1
+                : 0;
+
+        const bt =
+            b.suit === trump
+                ? 1
+                : 0;
+
+        if (at !== bt) {
+            return at - bt;
+        }
+
+        return (
+            RANK_VALUE[a.rank] -
+            RANK_VALUE[b.rank]
+        );
+    });
+}
+
+/*
+=========================================================
+DRAW CARDS
+=========================================================
+*/
+
+function drawUpToSix(game) {
+
+    /*
+    В Дураке первым добирает атакующий,
+    затем остальные.
+
+    Здесь функция принимает порядок.
+    */
+
+}
+
+function refillHands(game, order) {
+
+    for (const playerId of order) {
+
+        const hand =
+            game.hands[playerId];
+
+        while (
+            hand.length < MAX_HAND &&
+            game.deck.length > 0
+        ) {
+            hand.push(
+                game.deck.pop()
+            );
+        }
+
+        sortHand(
+            hand,
+            game.trump
+        );
+    }
+}
+
+/*
+=========================================================
+ROUND END / TURN
+=========================================================
+*/
+
+function allCardsEmpty(game, playerId) {
+    return (
+        game.hands[playerId].length === 0 &&
+        game.deck.length === 0
+    );
+}
+
+function checkGameEnd(game) {
+
+    if (
+        game.deck.length > 0
+    ) {
+        return false;
+    }
+
+    const p1 =
+        game.players[0];
+
+    const p2 =
+        game.players[1];
+
+    const p1Empty =
+        game.hands[p1].length === 0;
+
+    const p2Empty =
+        game.hands[p2].length === 0;
+
+    if (!p1Empty && !p2Empty) {
+        return false;
+    }
+
+    if (
+        p1Empty &&
+        p2Empty
+    ) {
+        game.status = "draw";
+        game.phase = "finished";
+        game.winner = null;
+        game.loser = null;
+        return true;
+    }
+
+    const winner =
+        p1Empty
+            ? p1
+            : p2;
+
+    const loser =
+        winner === p1
+            ? p2
+            : p1;
+
+    game.status = "finished";
+    game.phase = "finished";
+    game.winner = winner;
+    game.loser = loser;
+
+    return true;
+}
+
+/*
+=========================================================
+AFTER SUCCESSFUL DEFENSE
+=========================================================
+*/
+
+function finishSuccessfulDefense(game) {
+
+    /*
+    Все карты со стола уходят
+    в сброс.
+
+    В данном прототипе сброс
+    хранится просто как счётчик.
+    */
+
+    game.table = [];
+
+    /*
+    Атакующим становится
+    бывший защитник.
+    */
+
+    const oldDefender =
+        game.defender;
+
+    const oldAttacker =
+        game.attacker;
+
+    game.attacker =
+        oldDefender;
+
+    game.defender =
+        oldAttacker;
+
+    game.phase = "attack";
+
+    game.lastAction =
+        "defended";
+
+    /*
+    Добор.
+
+    Сначала бывший атакующий
+    (теперь защитник), затем
+    бывший защитник (новый атакующий).
+
+    Для классической схемы важен
+    порядок: первым добирает тот,
+    у кого меньше карт.
+    */
+
+    refillHands(
+        game,
+        [
+            game.attacker,
+            game.defender
+        ]
+    );
+
+    if (checkGameEnd(game)) {
+        return;
+    }
+}
+
+/*
+=========================================================
+TAKE TABLE
+=========================================================
+*/
+
+function takeTable(game) {
+
+    const defender =
+        game.defender;
+
+    for (const pair of game.table) {
+
+        game.hands[defender].push(
+            pair.attack
+        );
+
+        if (pair.defense) {
+            game.hands[defender].push(
+                pair.defense
+            );
+        }
+    }
+
+    sortHand(
+        game.hands[defender],
+        game.trump
+    );
+
+    game.table = [];
+
+    /*
+    После того как защитник взял,
+    атакующий остаётся атакующим.
+    */
+
+    game.phase = "attack";
+
+    game.lastAction =
+        "taken";
+
+    refillHands(
+        game,
+        [
+            game.attacker,
+            game.defender
+        ]
+    );
+
+    if (checkGameEnd(game)) {
+        return;
+    }
+}
+
+/*
+=========================================================
+PUBLIC GAME STATE
+=========================================================
+*/
+
+function publicCard(card) {
+    return {
+        id: card.id,
+        suit: card.suit,
+        rank: card.rank
+    };
+}
+
+function publicGameState(
+    room,
+    playerId
+) {
+    const game =
+        getGame(room);
+
+    if (!game) {
+        return null;
+    }
+
+    const opponent =
+        game.players.find(
+            id =>
+                id !== playerId
+        );
+
+    const hand =
+        game.hands[playerId] || [];
+
+    const opponentHand =
+        game.hands[opponent] || [];
+
+    return {
+        roomId: room.id,
+
+        status:
+            game.status || "playing",
+
+        phase:
+            game.phase,
+
+        trump:
+            game.trump,
+
+        trumpCard:
+            publicCard(
+                game.trumpCard
+            ),
+
+        deckCount:
+            game.deck.length,
+
+        hand:
+            hand.map(publicCard),
+
+        opponent: {
+            playerId: opponent,
+
+            name:
+                getPlayer(opponent)?.name ||
+                "Игрок",
+
+            cards:
+                opponentHand.length,
+
+            connected:
+                getPlayer(opponent)?.connected !== false
+        },
+
+        table:
+            game.table.map(pair => ({
+                attack:
+                    publicCard(
+                        pair.attack
+                    ),
+
+                defense:
+                    pair.defense
+                        ? publicCard(
+                            pair.defense
+                        )
+                        : null
+            })),
+
+        isAttacker:
+            game.attacker ===
+            playerId,
+
+        isDefender:
+            game.defender ===
+            playerId,
+
+        attacker:
+            game.attacker,
+
+        defender:
+            game.defender,
+
+        winner:
+            game.winner,
+
+        loser:
+            game.loser,
+
+        lastAction:
+            game.lastAction
+    };
+}
+
+/*
+=========================================================
+SEND GAME STATE
+=========================================================
+*/
+
+function sendGameState(room) {
+
+    if (!room || !room.game) {
+        return;
+    }
+
+    for (
+        const playerId of room.players
+    ) {
+
+        const player =
+            getPlayer(playerId);
+
+        if (!player) {
+            continue;
+        }
+
+        if (!player.socketId) {
+            continue;
+        }
+
+        io.to(
+            player.socketId
+        ).emit(
+            "game_state",
+            publicGameState(
+                room,
+                playerId
+            )
+        );
+    }
+}
+
+/*
+=========================================================
+ROOM PUBLIC STATE
 =========================================================
 */
 
@@ -452,183 +1122,35 @@ function publicRoom(room) {
 
         players:
             room.players.map(
-                (player) => ({
-                    playerId:
-                        player.playerId,
+                playerId => {
 
-                    name:
-                        player.name,
+                    const player =
+                        getPlayer(
+                            playerId
+                        );
 
-                    connected:
-                        player.connected
-                })
+                    return {
+                        playerId,
+
+                        name:
+                            player?.name ||
+                            "Игрок",
+
+                        connected:
+                            player?.connected !== false
+                    };
+                }
             )
     };
 }
-
-/*
-=========================================================
-GAME STATE
-=========================================================
-*/
-
-function gameState(room, playerId) {
-
-    const me =
-        room.players.find(
-            (player) =>
-                player.playerId ===
-                playerId
-        );
-
-    const opponent =
-        room.players.find(
-            (player) =>
-                player.playerId !==
-                playerId
-        );
-
-    let turn = "WAITING";
-
-    if (
-        room.status === "playing" &&
-        room.turnPlayerId
-    ) {
-
-        turn =
-            room.turnPlayerId ===
-            playerId
-                ? "YOUR_TURN"
-                : "OPPONENT_TURN";
-    }
-
-    return {
-
-        roomId:
-            room.id,
-
-        status:
-            room.status,
-
-        turn,
-
-        turnPlayerId:
-            room.turnPlayerId,
-
-        me:
-            me
-                ? {
-                    playerId:
-                        me.playerId,
-
-                    name:
-                        me.name,
-
-                    connected:
-                        me.connected
-                }
-                : null,
-
-        opponent:
-            opponent
-                ? {
-                    playerId:
-                        opponent.playerId,
-
-                    name:
-                        opponent.name,
-
-                    connected:
-                        opponent.connected
-                }
-                : null,
-
-        players:
-            room.players.map(
-                (player) => ({
-                    playerId:
-                        player.playerId,
-
-                    name:
-                        player.name,
-
-                    connected:
-                        player.connected
-                })
-            ),
-
-        moves:
-            room.moves
-    };
-}
-
-/*
-=========================================================
-SEND ROOM STATE
-=========================================================
-*/
-
-function sendRoomState(room) {
-
-    if (!room) {
-        return;
-    }
-
-    for (
-        const roomPlayer
-        of room.players
-    ) {
-
-        const player =
-            players.get(
-                roomPlayer.playerId
-            );
-
-        if (!player) {
-            continue;
-        }
-
-        if (!player.socketId) {
-            continue;
-        }
-
-        const socket =
-            io.sockets.sockets.get(
-                player.socketId
-            );
-
-        if (!socket) {
-            continue;
-        }
-
-        socket.emit(
-            "game_state",
-            gameState(
-                room,
-                player.playerId
-            )
-        );
-    }
-}
-
-/*
-=========================================================
-ROOM LIST
-=========================================================
-*/
 
 function sendRoomList() {
 
-    const list =
-        Array.from(
-            rooms.values()
-        ).map(
-            publicRoom
-        );
-
     io.emit(
         "rooms_list",
-        list
+        Array.from(
+            rooms.values()
+        ).map(publicRoom)
     );
 }
 
@@ -641,7 +1163,6 @@ CREATE ROOM
 function createRoom(player) {
 
     if (player.roomId) {
-
         return {
             ok: false,
             error:
@@ -652,7 +1173,6 @@ function createRoom(player) {
     let roomId;
 
     do {
-
         roomId =
             createId(6)
                 .toUpperCase();
@@ -662,32 +1182,15 @@ function createRoom(player) {
     );
 
     const room = {
-
-        id:
-            roomId,
+        id: roomId,
 
         players: [
-            {
-                playerId:
-                    player.playerId,
-
-                name:
-                    player.name,
-
-                socketId:
-                    player.socketId,
-
-                connected: true
-            }
+            player.playerId
         ],
 
-        status:
-            "waiting",
+        status: "waiting",
 
-        turnPlayerId:
-            null,
-
-        moves: []
+        game: null
     };
 
     rooms.set(
@@ -715,18 +1218,15 @@ function joinRoom(
     roomId
 ) {
 
-    const normalizedRoomId =
+    roomId =
         String(roomId || "")
             .trim()
             .toUpperCase();
 
     const room =
-        rooms.get(
-            normalizedRoomId
-        );
+        rooms.get(roomId);
 
     if (!room) {
-
         return {
             ok: false,
             error:
@@ -735,7 +1235,6 @@ function joinRoom(
     }
 
     if (player.roomId) {
-
         return {
             ok: false,
             error:
@@ -746,7 +1245,6 @@ function joinRoom(
     if (
         room.players.length >= 2
     ) {
-
         return {
             ok: false,
             error:
@@ -754,40 +1252,21 @@ function joinRoom(
         };
     }
 
-    /*
-    Второй игрок добавляется
-    только здесь.
-    */
-
-    room.players.push({
-
-        playerId:
-            player.playerId,
-
-        name:
-            player.name,
-
-        socketId:
-            player.socketId,
-
-        connected: true
-    });
+    room.players.push(
+        player.playerId
+    );
 
     player.roomId =
         room.id;
 
-    /*
-    Первый игрок ВСЕГДА
-    получает первый ход.
-    */
-
-    room.turnPlayerId =
-        room.players[0].playerId;
-
     room.status =
         "playing";
 
-    room.moves = [];
+    room.game =
+        createGame(
+            room.players[0],
+            room.players[1]
+        );
 
     return {
         ok: true,
@@ -797,101 +1276,31 @@ function joinRoom(
 
 /*
 =========================================================
-SWITCH TURN
+VALIDATE ATTACK
 =========================================================
 */
 
-function switchTurn(room) {
-
-    if (
-        !room ||
-        room.players.length !== 2
-    ) {
-        return;
-    }
-
-    const currentIndex =
-        room.players.findIndex(
-            (player) =>
-                player.playerId ===
-                room.turnPlayerId
-        );
-
-    if (currentIndex === -1) {
-
-        room.turnPlayerId =
-            room.players[0].playerId;
-
-        return;
-    }
-
-    const nextIndex =
-        currentIndex === 0
-            ? 1
-            : 0;
-
-    room.turnPlayerId =
-        room.players[nextIndex]
-            .playerId;
-}
-
-/*
-=========================================================
-MAKE MOVE
-=========================================================
-*/
-
-function makeMove(
+function attackCard(
     player,
-    data
+    game,
+    cardId
 ) {
 
-    if (!player.roomId) {
-
-        return {
-            ok: false,
-            error:
-                "Вы не находитесь в комнате."
-        };
-    }
-
-    const room =
-        rooms.get(
-            player.roomId
-        );
-
-    if (!room) {
-
-        return {
-            ok: false,
-            error:
-                "Комната не найдена."
-        };
-    }
-
     if (
-        room.status !==
-        "playing"
+        game.phase !==
+        "attack"
     ) {
-
         return {
             ok: false,
             error:
-                "Игра ещё не началась."
+                "Сейчас нельзя атаковать."
         };
     }
 
-    /*
-    Сервер является
-    единственным источником
-    истины по ходу.
-    */
-
     if (
-        room.turnPlayerId !==
+        game.attacker !==
         player.playerId
     ) {
-
         return {
             ok: false,
             error:
@@ -899,20 +1308,82 @@ function makeMove(
         };
     }
 
-    room.moves.push({
+    const hand =
+        game.hands[player.playerId];
 
-        playerId:
-            player.playerId,
+    const index =
+        hand.findIndex(
+            card =>
+                card.id === cardId
+        );
 
-        type:
-            data?.type ||
-            "test",
+    if (index === -1) {
+        return {
+            ok: false,
+            error:
+                "Этой карты нет у вас."
+        };
+    }
 
-        timestamp:
-            Date.now()
+    const card =
+        hand[index];
+
+    /*
+    Первая карта атаки —
+    любая карта.
+
+    Последующие атаки —
+    только ранг, уже присутствующий
+    на столе.
+    */
+
+    if (
+        game.table.length > 0
+    ) {
+
+        const ranks =
+            tableRanks(game);
+
+        if (
+            !ranks.has(card.rank)
+        ) {
+            return {
+                ok: false,
+                error:
+                    "Можно подкинуть только карту номинала, уже присутствующего на столе."
+            };
+        }
+    }
+
+    /*
+    Максимум 6 атакующих карт
+    */
+
+    if (
+        game.table.length >= 6
+    ) {
+        return {
+            ok: false,
+            error:
+                "Больше шести карт атаковать нельзя."
+        };
+    }
+
+    hand.splice(
+        index,
+        1
+    );
+
+    game.table.push({
+        attack: card,
+        defense: null
     });
 
-    switchTurn(room);
+    game.phase =
+        "defense";
+
+    game.lastAction =
+        "attack";
 
     return {
         ok: true
@@ -921,7 +1392,226 @@ function makeMove(
 
 /*
 =========================================================
-SOCKET AUTH MIDDLEWARE
+VALIDATE DEFENSE
+=========================================================
+*/
+
+function defendCard(
+    player,
+    game,
+    cardId,
+    attackId
+) {
+
+    if (
+        game.phase !==
+        "defense"
+    ) {
+        return {
+            ok: false,
+            error:
+                "Сейчас нельзя отбиваться."
+        };
+    }
+
+    if (
+        game.defender !==
+        player.playerId
+    ) {
+        return {
+            ok: false,
+            error:
+                "Вы не защищаетесь."
+        };
+    }
+
+    const pair =
+        game.table.find(
+            p =>
+                p.attack.id ===
+                attackId
+        );
+
+    if (!pair) {
+        return {
+            ok: false,
+            error:
+                "Атакующая карта не найдена."
+        };
+    }
+
+    if (pair.defense) {
+        return {
+            ok: false,
+            error:
+                "Эта карта уже побита."
+        };
+    }
+
+    const hand =
+        game.hands[player.playerId];
+
+    const index =
+        hand.findIndex(
+            card =>
+                card.id === cardId
+        );
+
+    if (index === -1) {
+        return {
+            ok: false,
+            error:
+                "Этой карты нет у вас."
+        };
+    }
+
+    const defense =
+        hand[index];
+
+    if (
+        !canBeat(
+            game,
+            defense,
+            pair.attack
+        )
+    ) {
+        return {
+            ok: false,
+            error:
+                "Этой картой нельзя отбиться."
+        };
+    }
+
+    hand.splice(
+        index,
+        1
+    );
+
+    pair.defense =
+        defense;
+
+    /*
+    После отбивания игрок,
+    который атаковал, может:
+    - подкинуть;
+    - закончить атаку.
+    */
+
+    game.phase =
+        "attack";
+
+    game.lastAction =
+        "defense";
+
+    /*
+    Если все карты на столе побиты,
+    атакующий получает возможность
+    завершить раунд или подкинуть.
+    */
+
+    return {
+        ok: true
+    };
+}
+
+/*
+=========================================================
+FINISH ATTACK
+=========================================================
+*/
+
+function finishAttack(
+    player,
+    game
+) {
+
+    if (
+        game.attacker !==
+        player.playerId
+    ) {
+        return {
+            ok: false,
+            error:
+                "Только атакующий может закончить атаку."
+        };
+    }
+
+    if (
+        game.table.length === 0
+    ) {
+        return {
+            ok: false,
+            error:
+                "Сначала нужно положить карту."
+        };
+    }
+
+    const allDefended =
+        game.table.every(
+            pair =>
+                !!pair.defense
+        );
+
+    if (!allDefended) {
+        return {
+            ok: false,
+            error:
+                "Не все карты побиты."
+        };
+    }
+
+    finishSuccessfulDefense(
+        game
+    );
+
+    return {
+        ok: true
+    };
+}
+
+/*
+=========================================================
+TAKE
+=========================================================
+*/
+
+function defenderTake(
+    player,
+    game
+) {
+
+    if (
+        game.defender !==
+        player.playerId
+    ) {
+        return {
+            ok: false,
+            error:
+                "Вы не являетесь защищающимся."
+        };
+    }
+
+    if (
+        game.phase !==
+        "defense"
+    ) {
+        return {
+            ok: false,
+            error:
+                "Сейчас нельзя брать карты."
+        };
+    }
+
+    takeTable(game);
+
+    return {
+        ok: true
+    };
+}
+
+/*
+=========================================================
+SOCKET MIDDLEWARE
 =========================================================
 */
 
@@ -941,7 +1631,7 @@ io.use(
         } catch (error) {
 
             console.error(
-                "Socket authentication error:",
+                "Socket auth error:",
                 error
             );
 
@@ -987,58 +1677,34 @@ io.on(
         console.log(
             "Player connected:",
             player.playerId,
-            player.name,
-            socket.id
+            player.name
         );
 
         /*
-        =================================================
         RECONNECT
-        =================================================
         */
 
         if (player.roomId) {
 
             const room =
-                rooms.get(
+                getRoom(
                     player.roomId
                 );
 
             if (room) {
 
-                const roomPlayer =
-                    room.players.find(
-                        (item) =>
-                            item.playerId ===
-                            player.playerId
-                    );
-
-                if (roomPlayer) {
-
-                    roomPlayer.socketId =
-                        socket.id;
-
-                    roomPlayer.connected =
-                        true;
-
-                    roomPlayer.name =
-                        player.name;
-                }
-
                 socket.join(
                     room.id
                 );
 
-                sendRoomState(
+                sendGameState(
                     room
                 );
             }
         }
 
         /*
-        =================================================
         PROFILE
-        =================================================
         */
 
         socket.on(
@@ -1065,9 +1731,7 @@ io.on(
         );
 
         /*
-        =================================================
         ROOMS
-        =================================================
         */
 
         socket.on(
@@ -1087,9 +1751,7 @@ io.on(
         );
 
         /*
-        =================================================
         CREATE ROOM
-        =================================================
         */
 
         socket.on(
@@ -1123,30 +1785,17 @@ io.on(
                     publicRoom(room)
                 );
 
-                /*
-                Сразу отправляем
-                WAITING состояние.
-                */
-
-                sendRoomState(
-                    room
-                );
-
                 sendRoomList();
 
                 console.log(
                     "Room created:",
-                    room.id,
-                    "owner:",
-                    player.playerId
+                    room.id
                 );
             }
         );
 
         /*
-        =================================================
         JOIN ROOM
-        =================================================
         */
 
         socket.on(
@@ -1176,54 +1825,56 @@ io.on(
                     room.id
                 );
 
-                /*
-                Теперь сервер уже знает
-                обоих игроков и конкретный
-                playerId первого игрока.
-                */
-
-                console.log(
-                    "ROOM START:",
-                    room.id
-                );
-
-                console.log(
-                    "PLAYER 1:",
-                    room.players[0].playerId
-                );
-
-                console.log(
-                    "PLAYER 2:",
-                    room.players[1].playerId
-                );
-
-                console.log(
-                    "TURN:",
-                    room.turnPlayerId
-                );
-
-                sendRoomState(
+                sendGameState(
                     room
                 );
 
                 sendRoomList();
+
+                console.log(
+                    "Game started:",
+                    room.id
+                );
+
+                console.log(
+                    "Trump:",
+                    room.game.trump
+                );
+
+                console.log(
+                    "Attacker:",
+                    room.game.attacker
+                );
             }
         );
 
         /*
-        =================================================
-        MAKE MOVE
-        =================================================
+        ATTACK
         */
 
         socket.on(
-            "make_move",
+            "attack_card",
             (data) => {
 
+                const room =
+                    getRoom(
+                        player.roomId
+                    );
+
+                if (!room) {
+                    socket.emit(
+                        "move_error",
+                        "Комната не найдена."
+                    );
+
+                    return;
+                }
+
                 const result =
-                    makeMove(
+                    attackCard(
                         player,
-                        data
+                        room.game,
+                        data?.cardId
                     );
 
                 if (!result.ok) {
@@ -1236,8 +1887,68 @@ io.on(
                     return;
                 }
 
+                sendGameState(
+                    room
+                );
+            }
+        );
+
+        /*
+        DEFEND
+        */
+
+        socket.on(
+            "defend_card",
+            (data) => {
+
                 const room =
-                    rooms.get(
+                    getRoom(
+                        player.roomId
+                    );
+
+                if (!room) {
+                    socket.emit(
+                        "move_error",
+                        "Комната не найдена."
+                    );
+
+                    return;
+                }
+
+                const result =
+                    defendCard(
+                        player,
+                        room.game,
+                        data?.cardId,
+                        data?.attackId
+                    );
+
+                if (!result.ok) {
+
+                    socket.emit(
+                        "move_error",
+                        result.error
+                    );
+
+                    return;
+                }
+
+                sendGameState(
+                    room
+                );
+            }
+        );
+
+        /*
+        FINISH ATTACK
+        */
+
+        socket.on(
+            "finish_attack",
+            () => {
+
+                const room =
+                    getRoom(
                         player.roomId
                     );
 
@@ -1245,16 +1956,73 @@ io.on(
                     return;
                 }
 
-                sendRoomState(
+                const result =
+                    finishAttack(
+                        player,
+                        room.game
+                    );
+
+                if (!result.ok) {
+
+                    socket.emit(
+                        "move_error",
+                        result.error
+                    );
+
+                    return;
+                }
+
+                sendGameState(
                     room
                 );
+
+                sendRoomList();
             }
         );
 
         /*
-        =================================================
+        TAKE CARDS
+        */
+
+        socket.on(
+            "take_cards",
+            () => {
+
+                const room =
+                    getRoom(
+                        player.roomId
+                    );
+
+                if (!room) {
+                    return;
+                }
+
+                const result =
+                    defenderTake(
+                        player,
+                        room.game
+                    );
+
+                if (!result.ok) {
+
+                    socket.emit(
+                        "move_error",
+                        result.error
+                    );
+
+                    return;
+                }
+
+                sendGameState(
+                    room
+                );
+
+                sendRoomList();
+            }
+        );
+
+        /*
         LEAVE ROOM
-        =================================================
         */
 
         socket.on(
@@ -1269,14 +2037,12 @@ io.on(
         );
 
         /*
-        =================================================
         DISCONNECT
-        =================================================
         */
 
         socket.on(
             "disconnect",
-            (reason) => {
+            () => {
 
                 const current =
                     players.get(
@@ -1289,7 +2055,7 @@ io.on(
 
                 /*
                 Старый socket не должен
-                сбрасывать новое соединение.
+                отключать новое подключение.
                 */
 
                 if (
@@ -1304,8 +2070,7 @@ io.on(
 
                 console.log(
                     "Player disconnected:",
-                    current.playerId,
-                    reason
+                    current.playerId
                 );
 
                 if (
@@ -1313,34 +2078,12 @@ io.on(
                 ) {
 
                     const room =
-                        rooms.get(
+                        getRoom(
                             current.roomId
                         );
 
                     if (room) {
-
-                        const roomPlayer =
-                            room.players.find(
-                                (item) =>
-                                    item.playerId ===
-                                    current.playerId
-                            );
-
-                        if (roomPlayer) {
-
-                            roomPlayer.connected =
-                                false;
-
-                            roomPlayer.socketId =
-                                null;
-                        }
-
-                        /*
-                        Комнату сохраняем.
-                        Игрок может вернуться.
-                        */
-
-                        sendRoomState(
+                        sendGameState(
                             room
                         );
                     }
@@ -1352,7 +2095,7 @@ io.on(
 
 /*
 =========================================================
-LEAVE ROOM HELPER
+LEAVE ROOM
 =========================================================
 */
 
@@ -1374,9 +2117,7 @@ function leaveRoom(
     }
 
     const room =
-        rooms.get(
-            roomId
-        );
+        getRoom(roomId);
 
     if (!room) {
 
@@ -1387,50 +2128,69 @@ function leaveRoom(
             "left_room"
         );
 
-        sendRoomList();
-
         return;
     }
 
     room.players =
         room.players.filter(
-            (item) =>
-                item.playerId !==
+            id =>
+                id !==
                 player.playerId
         );
 
     player.roomId =
         null;
 
-    player.connected =
-        true;
-
     socket.leave(
         room.id
     );
 
+    /*
+    Если игрок вышел из игры,
+    оставшийся получает победу.
+    */
+
     if (
+        room.game &&
+        room.status === "playing" &&
+        room.players.length === 1
+    ) {
+
+        const winner =
+            room.players[0];
+
+        room.game.status =
+            "finished";
+
+        room.game.phase =
+            "finished";
+
+        room.game.winner =
+            winner;
+
+        room.game.loser =
+            player.playerId;
+
+        sendGameState(
+            room
+        );
+
+        /*
+        Комнату оставляем,
+        чтобы результат можно было
+        увидеть.
+        */
+
+        room.status =
+            "finished";
+
+    } else if (
         room.players.length === 0
     ) {
 
         rooms.delete(
             room.id
         );
-
-    } else {
-
-        /*
-        Остался один игрок.
-        Комната снова ждёт соперника.
-        */
-
-        room.status =
-            "waiting";
-
-        room.turnPlayerId =
-            null;
-
-        room.moves = [];
     }
 
     socket.emit(
@@ -1439,11 +2199,8 @@ function leaveRoom(
 
     sendRoomList();
 
-    if (
-        rooms.has(room.id)
-    ) {
-
-        sendRoomState(
+    if (rooms.has(room.id)) {
+        sendGameState(
             room
         );
     }
@@ -1494,11 +2251,13 @@ app.get(
         }
 
         res.json({
-
             ok: true,
 
             service:
                 "Heavy Lux Card",
+
+            game:
+                "Durak 36 cards 1x1",
 
             database,
 
@@ -1507,9 +2266,6 @@ app.get(
 
             players:
                 players.size,
-
-            socket:
-                "ready",
 
             time:
                 new Date().toISOString()
@@ -1533,20 +2289,8 @@ async function start() {
         () => {
 
             console.log(
-                "================================"
-            );
-
-            console.log(
-                "Heavy Lux Card server started"
-            );
-
-            console.log(
-                "Port:",
+                "Heavy Lux Card server started on port",
                 PORT
-            );
-
-            console.log(
-                "HTTP: ready"
             );
 
             console.log(
@@ -1554,18 +2298,15 @@ async function start() {
             );
 
             console.log(
-                "PostgreSQL:",
-                pool
-                    ? "configured"
-                    : "disabled"
+                "HTTP: ready"
+            );
+
+            console.log(
+                "Durak 36 cards: ready"
             );
 
             console.log(
                 "Telegram authentication: configured"
-            );
-
-            console.log(
-                "================================"
             );
         }
     );
