@@ -8,15 +8,15 @@
 <meta
     name="viewport"
     content="width=device-width,
-             initial-scale=1,
-             maximum-scale=1,
-             user-scalable=no,
-             viewport-fit=cover"
+    initial-scale=1,
+    maximum-scale=1,
+    user-scalable=no,
+    viewport-fit=cover"
 >
 
 <meta
     name="theme-color"
-    content="#080808"
+    content="#070707"
 >
 
 <title>Heavy Lux Card</title>
@@ -41,14 +41,13 @@ body {
     width: 100%;
     min-height: 100%;
 
-    background: #080808;
+    background: #070707;
     color: #fff;
 
     font-family:
         -apple-system,
         BlinkMacSystemFont,
         "Segoe UI",
-        Roboto,
         Arial,
         sans-serif;
 }
@@ -64,44 +63,43 @@ input {
 }
 
 button {
-    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .app {
     width: 100%;
     max-width: 540px;
 
+    margin: 0 auto;
+
     min-height: 100vh;
     min-height: 100dvh;
 
-    margin: 0 auto;
-
     padding:
-        calc(16px + env(safe-area-inset-top))
-        15px
-        calc(24px + env(safe-area-inset-bottom));
+        calc(15px + env(safe-area-inset-top))
+        14px
+        calc(25px + env(safe-area-inset-bottom));
 }
 
 
-/*
-=========================================================
+/* =====================================================
 HEADER
-=========================================================
-*/
+===================================================== */
 
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .logo {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 900;
 
-    letter-spacing: -.7px;
+    letter-spacing: -.6px;
 }
 
 .connection {
@@ -110,24 +108,24 @@ HEADER
 
     gap: 6px;
 
-    padding: 7px 10px;
+    padding: 7px 9px;
 
     border:
-        1px solid #252525;
+        1px solid #292929;
 
     border-radius: 999px;
 
-    background: #101010;
+    background: #111;
 
     color: #666;
 
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 900;
 }
 
 .connection-dot {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
 
     border-radius: 50%;
 
@@ -144,11 +142,9 @@ HEADER
 }
 
 
-/*
-=========================================================
+/* =====================================================
 SCREENS
-=========================================================
-*/
+===================================================== */
 
 .screen {
     display: none;
@@ -159,26 +155,23 @@ SCREENS
 }
 
 
-/*
-=========================================================
+/* =====================================================
 PROFILE
-=========================================================
-*/
+===================================================== */
 
-.profile-card {
-    padding: 19px;
+.profile {
+    padding: 17px;
 
     border:
         1px solid #242424;
 
-    border-radius: 22px;
+    border-radius: 20px;
 
     background:
-        radial-gradient(
-            circle at top right,
-            #202020 0,
-            #141414 38%,
-            #101010 75%
+        linear-gradient(
+            145deg,
+            #181818,
+            #0e0e0e
         );
 }
 
@@ -186,14 +179,12 @@ PROFILE
     display: flex;
     align-items: center;
 
-    gap: 13px;
+    gap: 12px;
 }
 
 .avatar {
-    width: 57px;
-    height: 57px;
-
-    flex-shrink: 0;
+    width: 55px;
+    height: 55px;
 
     display: flex;
     align-items: center;
@@ -201,98 +192,90 @@ PROFILE
 
     overflow: hidden;
 
-    border-radius: 17px;
+    border-radius: 16px;
 
-    background: #262626;
+    background: #292929;
 
-    font-size: 18px;
     font-weight: 900;
 }
 
 .avatar img {
     width: 100%;
     height: 100%;
-
     object-fit: cover;
 }
 
-.player-name {
-    font-size: 18px;
+.name {
+    font-size: 17px;
     font-weight: 900;
 }
 
-.player-username {
-    margin-top: 4px;
+.username {
+    margin-top: 3px;
 
     color: #666;
 
-    font-size: 11px;
+    font-size: 10px;
 }
 
 .balance {
-    margin-top: 19px;
+    margin-top: 15px;
 
-    padding: 15px;
+    padding: 13px;
 
-    border-radius: 15px;
+    border-radius: 13px;
 
-    background: #0a0a0a;
+    background: #090909;
 }
 
 .balance-label {
     color: #666;
 
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 900;
-
     text-transform: uppercase;
 }
 
 .balance-value {
     margin-top: 3px;
 
-    font-size: 26px;
+    font-size: 25px;
     font-weight: 900;
-
-    letter-spacing: -1px;
 }
 
 .currency {
     color: #777;
 
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .level-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
 
-    margin-top: 16px;
+    margin-top: 14px;
 }
 
-.level-title {
-    font-size: 13px;
+.level {
+    font-size: 12px;
     font-weight: 900;
 }
 
-.level-xp {
+.xp {
     color: #666;
-
-    font-size: 10px;
+    font-size: 9px;
 }
 
 .xp-bar {
-    width: 100%;
-    height: 6px;
+    height: 5px;
 
-    margin-top: 8px;
+    margin-top: 7px;
 
     overflow: hidden;
 
     border-radius: 999px;
 
-    background: #242424;
+    background: #252525;
 }
 
 .xp-progress {
@@ -302,8 +285,6 @@ PROFILE
     background: #fff;
 
     border-radius: inherit;
-
-    transition: width .35s ease;
 }
 
 .stats {
@@ -311,204 +292,168 @@ PROFILE
     grid-template-columns:
         repeat(3, 1fr);
 
-    gap: 7px;
+    gap: 6px;
 
-    margin-top: 16px;
+    margin-top: 12px;
 }
 
 .stat {
-    padding: 12px 5px;
+    padding: 10px 4px;
 
-    border-radius: 13px;
+    border-radius: 11px;
 
     background: #111;
 
     text-align: center;
 }
 
-.stat-value {
-    font-size: 16px;
-    font-weight: 900;
-}
-
-.stat-label {
-    margin-top: 3px;
-
-    color: #666;
-
-    font-size: 8px;
-    font-weight: 800;
-
-    text-transform: uppercase;
-}
-
-.title-card {
-    margin-top: 15px;
-
-    padding: 12px 14px;
-
-    border:
-        1px solid #242424;
-
-    border-radius: 13px;
-
-    background: #101010;
-}
-
-.title-label {
-    color: #666;
-
-    font-size: 8px;
-    font-weight: 900;
-
-    text-transform: uppercase;
-}
-
-.title-value {
-    margin-top: 4px;
-
-    font-size: 13px;
-    font-weight: 900;
-}
-
-
-/*
-=========================================================
-SECTION
-=========================================================
-*/
-
-.section-title {
-    margin-top: 24px;
-    margin-bottom: 10px;
-
+.stat-number {
     font-size: 15px;
     font-weight: 900;
 }
 
+.stat-label {
+    margin-top: 2px;
 
-/*
-=========================================================
-MAIN GAME
-=========================================================
-*/
+    color: #666;
+
+    font-size: 7px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.title {
+    margin-top: 11px;
+
+    padding: 10px 12px;
+
+    border-radius: 11px;
+
+    background: #111;
+
+    font-size: 11px;
+    font-weight: 900;
+}
+
+
+/* =====================================================
+GAME BUTTON
+===================================================== */
+
+.section-title {
+    margin:
+        20px
+        0
+        9px;
+
+    font-size: 14px;
+    font-weight: 900;
+}
 
 .game-card {
-    padding: 18px;
+    padding: 17px;
 
     border:
         1px solid #242424;
 
-    border-radius: 19px;
+    border-radius: 17px;
 
-    background:
-        linear-gradient(
-            145deg,
-            #161616,
-            #0e0e0e
-        );
+    background: #111;
 }
 
 .game-title {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 900;
 }
 
-.game-description {
-    margin-top: 6px;
+.game-subtitle {
+    margin-top: 5px;
 
-    color: #777;
+    color: #666;
 
-    font-size: 11px;
+    font-size: 10px;
     line-height: 1.5;
 }
 
-.primary-button {
+.primary {
     width: 100%;
 
-    margin-top: 15px;
+    margin-top: 13px;
 
-    padding: 15px;
+    padding: 14px;
 
     border: 0;
-    border-radius: 13px;
+
+    border-radius: 12px;
 
     background: #fff;
     color: #000;
 
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 900;
 }
 
-.primary-button:active {
-    transform: scale(.98);
+.primary:disabled {
+    opacity: .4;
 }
 
 
-/*
-=========================================================
+/* =====================================================
 LOBBY
-=========================================================
-*/
+===================================================== */
 
-.lobby-head {
+.page-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    margin-bottom: 15px;
-}
+    margin-bottom: 13px;
 
-.back-button {
-    padding: 8px 11px;
-
-    border:
-        1px solid #282828;
-
-    border-radius: 10px;
-
-    background: #111;
-    color: #aaa;
-
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.lobby-title {
     font-size: 20px;
     font-weight: 900;
 }
 
-.lobby-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-
-    gap: 8px;
-}
-
-.secondary-button {
-    width: 100%;
-
-    padding: 14px 8px;
+.back {
+    padding: 8px 10px;
 
     border:
         1px solid #292929;
 
-    border-radius: 13px;
+    border-radius: 9px;
 
-    background: #121212;
-    color: #fff;
+    background: #111;
+    color: #aaa;
 
-    font-size: 11px;
+    font-size: 9px;
     font-weight: 900;
 }
 
-.secondary-button:active {
-    transform: scale(.98);
+.lobby-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 7px;
 }
 
-.room-list {
-    margin-top: 15px;
+.secondary {
+    width: 100%;
+
+    padding: 13px 6px;
+
+    border:
+        1px solid #292929;
+
+    border-radius: 12px;
+
+    background: #111;
+    color: #fff;
+
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.rooms {
+    margin-top: 13px;
 }
 
 .room-item {
@@ -516,77 +461,72 @@ LOBBY
     align-items: center;
     justify-content: space-between;
 
-    gap: 10px;
+    padding: 13px;
 
-    padding: 14px;
-
-    margin-bottom: 8px;
+    margin-bottom: 7px;
 
     border:
-        1px solid #242424;
+        1px solid #252525;
 
-    border-radius: 14px;
+    border-radius: 13px;
 
     background: #111;
 }
 
-.room-code {
-    font-size: 13px;
+.room-code-small {
+    font-size: 12px;
     font-weight: 900;
 }
 
-.room-players {
-    margin-top: 4px;
+.room-count {
+    margin-top: 3px;
 
     color: #666;
 
-    font-size: 10px;
+    font-size: 9px;
 }
 
-.room-join {
-    padding: 10px 13px;
+.join {
+    padding: 9px 12px;
 
     border: 0;
-    border-radius: 10px;
+
+    border-radius: 9px;
 
     background: #fff;
     color: #000;
 
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 900;
 }
 
 .empty {
-    padding: 28px 15px;
+    padding: 28px 10px;
 
     border:
         1px dashed #292929;
 
-    border-radius: 15px;
+    border-radius: 13px;
 
     color: #666;
 
     text-align: center;
 
-    font-size: 11px;
+    font-size: 10px;
 }
 
 
-/*
-=========================================================
+/* =====================================================
 ROOM
-=========================================================
-*/
+===================================================== */
 
-.room-code-big {
-    margin-top: 6px;
-
-    padding: 17px;
+.room-code {
+    padding: 16px;
 
     border:
         1px solid #292929;
 
-    border-radius: 17px;
+    border-radius: 15px;
 
     background: #101010;
 
@@ -596,128 +536,386 @@ ROOM
 .room-code-label {
     color: #666;
 
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 900;
-
-    text-transform: uppercase;
 }
 
 .room-code-value {
-    margin-top: 5px;
+    margin-top: 4px;
 
-    font-size: 27px;
+    font-size: 25px;
     font-weight: 900;
 
     letter-spacing: 2px;
 }
 
 .room-status {
-    margin-top: 10px;
+    margin-top: 8px;
 
     color: #777;
 
     text-align: center;
 
-    font-size: 11px;
+    font-size: 10px;
 }
 
-.players-box {
-    margin-top: 15px;
+.players {
+    margin-top: 13px;
 }
 
-.room-player {
+.player {
     display: flex;
     align-items: center;
 
-    padding: 15px;
+    padding: 13px;
 
-    margin-bottom: 7px;
+    margin-bottom: 6px;
 
     border:
-        1px solid #252525;
+        1px solid #242424;
 
-    border-radius: 14px;
+    border-radius: 12px;
 
     background: #111;
 }
 
-.room-player-dot {
-    width: 9px;
-    height: 9px;
+.player-dot {
+    width: 8px;
+    height: 8px;
 
-    margin-right: 10px;
+    margin-right: 9px;
 
     border-radius: 50%;
 
     background: #555;
 }
 
-.room-player-dot.ready {
+.player-dot.ready {
     background: #fff;
 }
 
-.room-player-name {
-    font-size: 13px;
+.player-name {
+    font-size: 11px;
     font-weight: 900;
 }
 
-.room-player-state {
+.player-state {
     margin-left: auto;
 
     color: #666;
 
-    font-size: 9px;
-    font-weight: 800;
+    font-size: 8px;
+    font-weight: 900;
 }
 
-.room-buttons {
+.room-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
 
-    gap: 8px;
+    gap: 7px;
 
-    margin-top: 15px;
+    margin-top: 12px;
 }
 
-.danger-button {
+.danger {
     width: 100%;
 
-    padding: 14px;
+    padding: 13px;
 
     border:
         1px solid #382020;
 
-    border-radius: 13px;
+    border-radius: 11px;
 
-    background: #170f0f;
+    background: #160d0d;
     color: #d66;
 
-    font-size: 11px;
+    font-size: 9px;
     font-weight: 900;
 }
 
-.ready-button {
-    width: 100%;
 
-    padding: 14px;
+/* =====================================================
+GAME
+===================================================== */
 
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.game-room {
+    color: #777;
+    font-size: 9px;
+}
+
+.trump {
+    margin-top: 10px;
+
+    padding: 10px;
+
+    border:
+        1px solid #292929;
+
+    border-radius: 12px;
+
+    background: #111;
+
+    text-align: center;
+}
+
+.trump-label {
+    color: #666;
+
+    font-size: 7px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.trump-value {
+    margin-top: 2px;
+
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+
+    margin-top: 8px;
+
+    color: #777;
+
+    font-size: 8px;
+}
+
+.table {
+    min-height: 180px;
+
+    margin-top: 12px;
+
+    padding: 15px;
+
+    border:
+        1px solid #202020;
+
+    border-radius: 18px;
+
+    background:
+        radial-gradient(
+            circle,
+            #151515,
+            #0a0a0a
+        );
+}
+
+.table-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 150px;
+
+    color: #333;
+
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.table-cards {
+    display: flex;
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 12px;
+}
+
+.pair {
+    position: relative;
+
+    width: 64px;
+    height: 84px;
+}
+
+.card {
+    position: relative;
+
+    width: 64px;
+    height: 84px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    padding: 7px;
+
+    border:
+        1px solid #333;
+
+    border-radius: 8px;
+
+    background: #f3f3f3;
+    color: #080808;
+
+    box-shadow:
+        0 5px 15px rgba(0,0,0,.45);
+
+    user-select: none;
+}
+
+.card.red {
+    color: #b21d1d;
+}
+
+.card-rank {
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.card-suit {
+    align-self: center;
+
+    font-size: 22px;
+}
+
+.card-button {
     border: 0;
 
-    border-radius: 13px;
+    padding: 0;
 
+    background: transparent;
+}
+
+.card-button .card {
+    transition:
+        transform .12s ease;
+}
+
+.card-button:active .card {
+    transform:
+        translateY(-5px)
+        scale(.98);
+}
+
+.hand {
+    display: flex;
+
+    gap: 5px;
+
+    overflow-x: auto;
+
+    padding:
+        12px 3px
+        5px;
+
+    scrollbar-width: none;
+}
+
+.hand::-webkit-scrollbar {
+    display: none;
+}
+
+.hand .card {
+    width: 53px;
+    height: 72px;
+
+    flex-shrink: 0;
+
+    padding: 5px;
+
+    border-radius: 7px;
+}
+
+.hand .card-rank {
+    font-size: 14px;
+}
+
+.hand .card-suit {
+    font-size: 18px;
+}
+
+.opponent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 11px;
+
+    border-radius: 12px;
+
+    background: #111;
+}
+
+.opponent-name {
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.opponent-cards {
+    color: #777;
+
+    font-size: 9px;
+}
+
+.game-message {
+    margin-top: 9px;
+
+    padding: 10px;
+
+    border-radius: 10px;
+
+    background: #111;
+
+    color: #aaa;
+
+    text-align: center;
+
+    font-size: 9px;
+}
+
+.game-actions {
+    display: grid;
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 6px;
+
+    margin-top: 8px;
+}
+
+.game-action {
+    padding: 12px 5px;
+
+    border:
+        1px solid #292929;
+
+    border-radius: 10px;
+
+    background: #111;
+    color: #fff;
+
+    font-size: 9px;
+    font-weight: 900;
+}
+
+.game-action.primary-action {
     background: #fff;
     color: #000;
 
-    font-size: 11px;
-    font-weight: 900;
+    border-color: #fff;
+}
+
+.game-action:disabled {
+    opacity: .3;
 }
 
 
-/*
-=========================================================
+/* =====================================================
 MODAL
-=========================================================
-*/
+===================================================== */
 
 .modal {
     position: fixed;
@@ -728,18 +926,17 @@ MODAL
 
     display: none;
     align-items: flex-end;
-    justify-content: center;
 
     padding:
-        15px
-        15px
+        14px
+        14px
         calc(
-            15px +
+            14px +
             env(safe-area-inset-bottom)
         );
 
     background:
-        rgba(0,0,0,.72);
+        rgba(0,0,0,.75);
 }
 
 .modal.active {
@@ -748,77 +945,73 @@ MODAL
 
 .modal-box {
     width: 100%;
-    max-width: 520px;
 
-    padding: 19px;
+    padding: 17px;
 
     border:
         1px solid #292929;
 
-    border-radius: 20px;
+    border-radius: 18px;
 
     background: #121212;
 }
 
 .modal-title {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 900;
 }
 
 .modal-input {
     width: 100%;
 
-    margin-top: 14px;
+    margin-top: 12px;
 
-    padding: 14px;
+    padding: 13px;
 
     outline: none;
 
     border:
         1px solid #292929;
 
-    border-radius: 12px;
+    border-radius: 11px;
 
     background: #080808;
     color: #fff;
 
     text-align: center;
 
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 900;
 
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-.modal-buttons {
+.modal-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
 
-    gap: 8px;
+    gap: 6px;
 
-    margin-top: 10px;
+    margin-top: 7px;
 }
 
 
-/*
-=========================================================
+/* =====================================================
 STATUS
-=========================================================
-*/
+===================================================== */
 
 .status {
-    margin-top: 20px;
+    margin-top: 14px;
 
     color: #555;
 
     text-align: center;
 
-    font-size: 9px;
+    font-size: 8px;
 }
 
 .error {
-    color: #e66 !important;
+    color: #d66 !important;
 }
 
 .hidden {
@@ -836,9 +1029,9 @@ STATUS
 <div class="app">
 
 
-<!-- =====================================================
+<!-- ===================================================
 HEADER
-===================================================== -->
+=================================================== -->
 
 <div class="header">
 
@@ -855,9 +1048,7 @@ HEADER
             class="connection-dot"
         ></span>
 
-        <span
-            id="connectionText"
-        >
+        <span id="connectionText">
             CONNECTING
         </span>
 
@@ -866,158 +1057,149 @@ HEADER
 </div>
 
 
-<!-- =====================================================
+<!-- ===================================================
 HOME
-===================================================== -->
+=================================================== -->
 
 <section
     class="screen active"
-    id="homeScreen"
+    id="home"
 >
 
+    <div class="profile">
 
-<div class="profile-card">
-
-    <div class="profile-top">
-
-        <div
-            class="avatar"
-            id="avatar"
-        >
-            HL
-        </div>
-
-        <div>
+        <div class="profile-top">
 
             <div
-                class="player-name"
-                id="playerName"
+                class="avatar"
+                id="avatar"
             >
-                Загрузка...
+                HL
+            </div>
+
+            <div>
+
+                <div
+                    class="name"
+                    id="name"
+                >
+                    Загрузка...
+                </div>
+
+                <div
+                    class="username"
+                    id="username"
+                >
+                    Авторизация
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="balance">
+
+            <div class="balance-label">
+                Баланс
+            </div>
+
+            <div class="balance-value">
+
+                <span id="money">
+                    10 000
+                </span>
+
+                <span class="currency">
+                    HC
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="level-row">
+
+            <div
+                class="level"
+                id="level"
+            >
+                Уровень 1
             </div>
 
             <div
-                class="player-username"
-                id="playerUsername"
+                class="xp"
+                id="xp"
             >
-                Авторизация
+                0 XP
             </div>
 
         </div>
 
-    </div>
 
-
-    <div class="balance">
-
-        <div class="balance-label">
-            Баланс
-        </div>
-
-        <div class="balance-value">
-
-            <span id="money">
-                10 000
-            </span>
-
-            <span class="currency">
-                HC
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <div class="level-row">
-
-        <div
-            class="level-title"
-            id="level"
-        >
-            Уровень 1
-        </div>
-
-        <div
-            class="level-xp"
-            id="xpText"
-        >
-            0 XP
-        </div>
-
-    </div>
-
-
-    <div class="xp-bar">
-
-        <div
-            class="xp-progress"
-            id="xpProgress"
-        ></div>
-
-    </div>
-
-
-    <div class="stats">
-
-        <div class="stat">
+        <div class="xp-bar">
 
             <div
-                class="stat-value"
-                id="games"
-            >
-                0
-            </div>
-
-            <div class="stat-label">
-                Игр
-            </div>
+                class="xp-progress"
+                id="xpProgress"
+            ></div>
 
         </div>
 
 
-        <div class="stat">
+        <div class="stats">
 
-            <div
-                class="stat-value"
-                id="wins"
-            >
-                0
+            <div class="stat">
+
+                <div
+                    class="stat-number"
+                    id="games"
+                >
+                    0
+                </div>
+
+                <div class="stat-label">
+                    Игр
+                </div>
+
             </div>
 
-            <div class="stat-label">
-                Побед
+            <div class="stat">
+
+                <div
+                    class="stat-number"
+                    id="wins"
+                >
+                    0
+                </div>
+
+                <div class="stat-label">
+                    Побед
+                </div>
+
+            </div>
+
+            <div class="stat">
+
+                <div
+                    class="stat-number"
+                    id="losses"
+                >
+                    0
+                </div>
+
+                <div class="stat-label">
+                    Поражений
+                </div>
+
             </div>
 
         </div>
 
-
-        <div class="stat">
-
-            <div
-                class="stat-value"
-                id="losses"
-            >
-                0
-            </div>
-
-            <div class="stat-label">
-                Поражений
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="title-card">
-
-        <div class="title-label">
-            Титул
-        </div>
 
         <div
-            class="title-value"
+            class="title"
             id="title"
         >
             Новичок
@@ -1025,189 +1207,298 @@ HOME
 
     </div>
 
-</div>
 
-
-<div class="section-title">
-    Игра
-</div>
-
-
-<div class="game-card">
-
-    <div class="game-title">
-        Дурак · 36 карт
+    <div class="section-title">
+        Игра
     </div>
 
-    <div class="game-description">
-        Онлайн один на один.
-        Только реальные игроки.
-        Сервер контролирует игру.
+
+    <div class="game-card">
+
+        <div class="game-title">
+            Дурак · 36 карт
+        </div>
+
+        <div class="game-subtitle">
+            Онлайн 1×1 · только реальные игроки
+        </div>
+
+        <button
+            class="primary"
+            id="playButton"
+            disabled
+        >
+            ПОДКЛЮЧЕНИЕ...
+        </button>
+
     </div>
 
-    <button
-        class="primary-button"
-        id="playButton"
-        disabled
-    >
-        ПОДКЛЮЧЕНИЕ...
-    </button>
-
-</div>
-
-
-<div class="status" id="status">
-    Подключение...
-</div>
-
-
-</section>
-
-
-<!-- =====================================================
-LOBBY
-===================================================== -->
-
-<section
-    class="screen"
-    id="lobbyScreen"
->
-
-
-<div class="lobby-head">
-
-    <div class="lobby-title">
-        Лобби
-    </div>
-
-    <button
-        class="back-button"
-        id="lobbyBack"
-    >
-        НАЗАД
-    </button>
-
-</div>
-
-
-<div class="lobby-actions">
-
-    <button
-        class="secondary-button"
-        id="createRoom"
-    >
-        + СОЗДАТЬ
-    </button>
-
-    <button
-        class="secondary-button"
-        id="joinByCode"
-    >
-        ВОЙТИ ПО КОДУ
-    </button>
-
-</div>
-
-
-<div class="section-title">
-    Открытые комнаты
-</div>
-
-
-<div
-    class="room-list"
-    id="roomList"
->
-</div>
-
-
-<div
-    class="status"
-    id="lobbyStatus"
->
-    Загрузка комнат...
-</div>
-
-
-</section>
-
-
-<!-- =====================================================
-ROOM
-===================================================== -->
-
-<section
-    class="screen"
-    id="roomScreen"
->
-
-
-<div class="lobby-head">
-
-    <div class="lobby-title">
-        Комната
-    </div>
-
-</div>
-
-
-<div class="room-code-big">
-
-    <div class="room-code-label">
-        Код комнаты
-    </div>
 
     <div
-        class="room-code-value"
-        id="roomCode"
+        class="status"
+        id="homeStatus"
     >
-        HL-0000
+        Подключение...
     </div>
 
-</div>
+</section>
 
 
-<div
-    class="room-status"
-    id="roomStatus"
+<!-- ===================================================
+LOBBY
+=================================================== -->
+
+<section
+    class="screen"
+    id="lobby"
 >
-    Ожидание игрока...
-</div>
+
+    <div class="page-title">
+
+        <span>
+            Лобби
+        </span>
+
+        <button
+            class="back"
+            id="lobbyBack"
+        >
+            НАЗАД
+        </button>
+
+    </div>
 
 
-<div
-    class="players-box"
-    id="playersBox"
->
-</div>
+    <div class="lobby-buttons">
+
+        <button
+            class="secondary"
+            id="createRoom"
+        >
+            + СОЗДАТЬ
+        </button>
+
+        <button
+            class="secondary"
+            id="joinCode"
+        >
+            ВОЙТИ ПО КОДУ
+        </button>
+
+    </div>
 
 
-<div class="room-buttons">
+    <div class="section-title">
+        Открытые комнаты
+    </div>
 
-    <button
-        class="ready-button"
-        id="readyButton"
+
+    <div
+        class="rooms"
+        id="rooms"
+    ></div>
+
+
+    <div
+        class="status"
+        id="lobbyStatus"
     >
-        ГОТОВ
-    </button>
+        Загрузка...
+    </div>
 
-    <button
-        class="danger-button"
-        id="leaveRoom"
-    >
-        ПОКИНУТЬ
-    </button>
-
-</div>
+</section>
 
 
-<div
-    class="status"
-    id="roomStatusBottom"
+<!-- ===================================================
+ROOM
+=================================================== -->
+
+<section
+    class="screen"
+    id="room"
 >
-    Комната создана.
-</div>
 
+    <div class="page-title">
+
+        <span>
+            Комната
+        </span>
+
+    </div>
+
+
+    <div class="room-code">
+
+        <div class="room-code-label">
+            Код комнаты
+        </div>
+
+        <div
+            class="room-code-value"
+            id="roomCode"
+        >
+            HL-XX-XXXX
+        </div>
+
+    </div>
+
+
+    <div
+        class="room-status"
+        id="roomStatus"
+    >
+        Ожидание соперника...
+    </div>
+
+
+    <div
+        class="players"
+        id="players"
+    ></div>
+
+
+    <div class="room-actions">
+
+        <button
+            class="secondary"
+            id="readyButton"
+        >
+            ГОТОВ
+        </button>
+
+        <button
+            class="danger"
+            id="leaveButton"
+        >
+            ПОКИНУТЬ
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- ===================================================
+GAME
+=================================================== -->
+
+<section
+    class="screen"
+    id="game"
+>
+
+    <div class="game-header">
+
+        <div class="page-title">
+            Дурак
+        </div>
+
+        <div
+            class="game-room"
+            id="gameRoom"
+        >
+            HL-XX-XXXX
+        </div>
+
+    </div>
+
+
+    <div class="opponent">
+
+        <div
+            class="opponent-name"
+            id="opponentName"
+        >
+            Соперник
+        </div>
+
+        <div
+            class="opponent-cards"
+            id="opponentCards"
+        >
+            6 карт
+        </div>
+
+    </div>
+
+
+    <div class="trump">
+
+        <div class="trump-label">
+            Козырь
+        </div>
+
+        <div
+            class="trump-value"
+            id="trump"
+        >
+            —
+        </div>
+
+    </div>
+
+
+    <div class="game-info">
+
+        <span id="deck">
+            Колода: 24
+        </span>
+
+        <span id="turn">
+            —
+        </span>
+
+    </div>
+
+
+    <div
+        class="table"
+        id="table"
+    >
+
+        <div class="table-empty">
+            Стол пуст
+        </div>
+
+    </div>
+
+
+    <div
+        class="game-message"
+        id="gameMessage"
+    >
+        Ожидание...
+    </div>
+
+
+    <div class="game-actions">
+
+        <button
+            class="game-action"
+            id="takeButton"
+        >
+            БЕРУ
+        </button>
+
+        <button
+            class="game-action"
+            id="endAttackButton"
+        >
+            БИТО
+        </button>
+
+    </div>
+
+
+    <div class="section-title">
+        Мои карты
+    </div>
+
+
+    <div
+        class="hand"
+        id="hand"
+    ></div>
 
 </section>
 
@@ -1215,53 +1506,52 @@ ROOM
 </div>
 
 
-<!-- =====================================================
+<!-- ===================================================
 JOIN MODAL
-===================================================== -->
+=================================================== -->
 
 <div
     class="modal"
-    id="joinModal"
+    id="modal"
 >
 
-<div class="modal-box">
+    <div class="modal-box">
 
-    <div class="modal-title">
-        Войти в комнату
-    </div>
-
-
-    <input
-        class="modal-input"
-        id="roomCodeInput"
-        type="text"
-        maxlength="9"
-        placeholder="HL-AB-1234"
-        autocomplete="off"
-        autocapitalize="characters"
-    >
+        <div class="modal-title">
+            Войти в комнату
+        </div>
 
 
-    <div class="modal-buttons">
-
-        <button
-            class="secondary-button"
-            id="cancelJoin"
+        <input
+            class="modal-input"
+            id="roomInput"
+            maxlength="9"
+            placeholder="HL-XX-XXXX"
+            autocomplete="off"
+            autocapitalize="characters"
         >
-            ОТМЕНА
-        </button>
 
-        <button
-            class="primary-button"
-            id="confirmJoin"
-            style="margin-top:0"
-        >
-            ВОЙТИ
-        </button>
+
+        <div class="modal-actions">
+
+            <button
+                class="secondary"
+                id="cancelModal"
+            >
+                ОТМЕНА
+            </button>
+
+            <button
+                class="primary"
+                id="confirmModal"
+                style="margin-top:0"
+            >
+                ВОЙТИ
+            </button>
+
+        </div>
 
     </div>
-
-</div>
 
 </div>
 
@@ -1271,11 +1561,9 @@ JOIN MODAL
 "use strict";
 
 
-/*
-=========================================================
+/* =====================================================
 TELEGRAM
-=========================================================
-*/
+===================================================== */
 
 const tg =
     window.Telegram &&
@@ -1290,66 +1578,49 @@ if (tg) {
 
     tg.expand();
 
-    if (
-        typeof tg.setBackgroundColor ===
-        "function"
-    ) {
-
-        tg.setBackgroundColor(
-            "#080808"
-        );
-
-    }
-
-    if (
-        typeof tg.setHeaderColor ===
-        "function"
-    ) {
-
-        tg.setHeaderColor(
-            "#080808"
-        );
-
-    }
-
 }
 
 
-/*
-=========================================================
+/* =====================================================
 STATE
-=========================================================
-*/
-
-let currentPlayer = null;
+===================================================== */
 
 let socket = null;
 
-let currentRoom = null;
+let player = null;
 
-let reconnecting = false;
+let gameState = null;
+
+let roomCode = null;
 
 
-/*
-=========================================================
+/* =====================================================
 ELEMENTS
-=========================================================
-*/
+===================================================== */
 
-const homeScreen =
-    document.getElementById(
-        "homeScreen"
-    );
+const screens = {
 
-const lobbyScreen =
-    document.getElementById(
-        "lobbyScreen"
-    );
+    home:
+        document.getElementById(
+            "home"
+        ),
 
-const roomScreen =
-    document.getElementById(
-        "roomScreen"
-    );
+    lobby:
+        document.getElementById(
+            "lobby"
+        ),
+
+    room:
+        document.getElementById(
+            "room"
+        ),
+
+    game:
+        document.getElementById(
+            "game"
+        )
+
+};
 
 
 const connection =
@@ -1363,65 +1634,32 @@ const connectionText =
     );
 
 
-const status =
-    document.getElementById(
-        "status"
-    );
-
-const lobbyStatus =
-    document.getElementById(
-        "lobbyStatus"
-    );
-
-
-const roomStatus =
-    document.getElementById(
-        "roomStatus"
-    );
-
-const roomStatusBottom =
-    document.getElementById(
-        "roomStatusBottom"
-    );
-
-
-const roomList =
-    document.getElementById(
-        "roomList"
-    );
-
-
-const playersBox =
-    document.getElementById(
-        "playersBox"
-    );
-
-
-const roomCode =
-    document.getElementById(
-        "roomCode"
-    );
-
-
-const roomCodeInput =
-    document.getElementById(
-        "roomCodeInput"
-    );
-
-
-const joinModal =
-    document.getElementById(
-        "joinModal"
-    );
-
-
-/*
-=========================================================
+/* =====================================================
 HELPERS
-=========================================================
-*/
+===================================================== */
 
-function formatMoney(
+function show(
+    name
+) {
+
+    Object.values(
+        screens
+    ).forEach(
+        screen =>
+            screen.classList.remove(
+                "active"
+            )
+    );
+
+
+    screens[name].classList.add(
+        "active"
+    );
+
+}
+
+
+function money(
     value
 ) {
 
@@ -1434,232 +1672,118 @@ function formatMoney(
 }
 
 
-function getTitle(
-    levelValue
+function title(
+    level
 ) {
 
-    const lvl =
-        Number(
-            levelValue || 1
-        );
-
-
-    if (lvl >= 100) {
-
+    if (level >= 100)
         return "Покровитель";
 
-    }
-
-
-    if (lvl >= 80) {
-
+    if (level >= 80)
         return "Попечитель";
 
-    }
-
-
-    if (lvl >= 60) {
-
+    if (level >= 60)
         return "Почётный член клуба";
 
-    }
-
-
-    if (lvl >= 40) {
-
+    if (level >= 40)
         return "Старший член клуба";
 
-    }
-
-
-    if (lvl >= 20) {
-
+    if (level >= 20)
         return "Член клуба";
-
-    }
-
 
     return "Новичок";
 
 }
 
 
-function xpProgress(
-    xpValue,
-    levelValue
-) {
-
-    const xp =
-        Number(
-            xpValue || 0
-        );
-
-    const lvl =
-        Number(
-            levelValue || 1
-        );
-
-
-    if (lvl >= 100) {
-
-        return 100;
-
-    }
-
-
-    const current =
-        (lvl - 1) * 100;
-
-    const next =
-        lvl * 100;
-
-
-    return Math.max(
-        0,
-        Math.min(
-            100,
-            (
-                (
-                    xp - current
-                ) /
-                (
-                    next - current
-                )
-            ) * 100
-        )
-    );
-
-}
-
-
-/*
-=========================================================
-SCREEN
-=========================================================
-*/
-
-function showScreen(
-    screen
-) {
-
-    homeScreen.classList.remove(
-        "active"
-    );
-
-    lobbyScreen.classList.remove(
-        "active"
-    );
-
-    roomScreen.classList.remove(
-        "active"
-    );
-
-
-    screen.classList.add(
-        "active"
-    );
-
-}
-
-
-/*
-=========================================================
-PLAYER RENDER
-=========================================================
-*/
-
 function renderPlayer(
-    player
+    p
 ) {
 
-    currentPlayer =
-        player;
-
-
-    const first =
-        player.firstName ||
-        "";
-
-    const last =
-        player.lastName ||
-        "";
-
-
-    const name =
-        `${first} ${last}`
-            .trim();
+    player = p;
 
 
     document.getElementById(
-        "playerName"
+        "name"
     ).textContent =
-        name ||
-        player.displayName ||
+        p.displayName ||
         "Игрок";
 
 
     document.getElementById(
-        "playerUsername"
+        "username"
     ).textContent =
-        player.username
-            ? "@" +
-              player.username
+        p.username
+            ? "@" + p.username
             : "Heavy Lux Card";
 
 
     document.getElementById(
         "money"
     ).textContent =
-        formatMoney(
-            player.money
+        money(
+            p.money
         );
 
 
     document.getElementById(
         "level"
     ).textContent =
-        `Уровень ${player.level}`;
+        `Уровень ${p.level}`;
 
 
     document.getElementById(
-        "xpText"
+        "xp"
     ).textContent =
-        `${player.xp} XP`;
-
-
-    document.getElementById(
-        "xpProgress"
-    ).style.width =
-        xpProgress(
-            player.xp,
-            player.level
-        ) + "%";
+        `${p.xp} XP`;
 
 
     document.getElementById(
         "games"
     ).textContent =
-        player.gamesPlayed || 0;
+        p.gamesPlayed || 0;
 
 
     document.getElementById(
         "wins"
     ).textContent =
-        player.wins || 0;
+        p.wins || 0;
 
 
     document.getElementById(
         "losses"
     ).textContent =
-        player.losses || 0;
+        p.losses || 0;
 
 
     document.getElementById(
         "title"
     ).textContent =
-        getTitle(
-            player.level
+        title(
+            p.level
         );
+
+
+    const progress =
+        Math.min(
+            100,
+            (
+                p.xp -
+                ((p.level - 1) * 100)
+            )
+            /
+            100
+            * 100
+        );
+
+
+    document.getElementById(
+        "xpProgress"
+    ).style.width =
+        Math.max(
+            0,
+            progress
+        ) + "%";
 
 
     const avatar =
@@ -1668,78 +1792,68 @@ function renderPlayer(
         );
 
 
-    const telegramUser =
+    const user =
         tg?.initDataUnsafe?.user;
 
 
     if (
-        telegramUser &&
-        telegramUser.photo_url
+        user?.photo_url
     ) {
 
         avatar.innerHTML =
             `
             <img
-                src="${telegramUser.photo_url}"
+                src="${user.photo_url}"
                 alt=""
             >
             `;
 
     } else {
 
-        const initials =
-            (
-                first[0] || ""
-            ) +
-            (
-                last[0] || ""
-            );
+        const parts =
+            (p.displayName || "HL")
+                .split(" ")
+                .filter(Boolean);
 
 
         avatar.textContent =
-            initials
-                .toUpperCase() ||
-                "HL";
+            parts
+                .slice(0, 2)
+                .map(
+                    x => x[0]
+                )
+                .join("")
+                .toUpperCase();
 
     }
 
 }
 
 
-/*
-=========================================================
+/* =====================================================
 AUTH
-=========================================================
-*/
+===================================================== */
 
 async function authenticate() {
 
     if (!tg) {
 
-        status.textContent =
-            "Открой Heavy Lux Card через Telegram.";
-
-        status.classList.add(
-            "error"
-        );
+        document.getElementById(
+            "homeStatus"
+        ).textContent =
+            "Открой игру через Telegram.";
 
         return false;
 
     }
 
 
-    const initData =
-        tg.initData;
+    if (!tg.initData) {
 
-
-    if (!initData) {
-
-        status.textContent =
-            "Telegram не передал initData.";
-
-        status.classList.add(
-            "error"
-        );
+        document.getElementById(
+            "homeStatus"
+        ).textContent =
+            "Telegram initData отсутствует.";
 
         return false;
 
@@ -1747,10 +1861,6 @@ async function authenticate() {
 
 
     try {
-
-        status.textContent =
-            "Авторизация...";
-
 
         const response =
             await fetch(
@@ -1769,7 +1879,10 @@ async function authenticate() {
 
                     body:
                         JSON.stringify({
-                            initData
+
+                            initData:
+                                tg.initData
+
                         })
 
                 }
@@ -1787,7 +1900,7 @@ async function authenticate() {
 
             throw new Error(
                 data.error ||
-                "Ошибка авторизации"
+                "Авторизация не удалась."
             );
 
         }
@@ -1798,7 +1911,21 @@ async function authenticate() {
         );
 
 
-        status.textContent =
+        document.getElementById(
+            "playButton"
+        ).disabled =
+            false;
+
+
+        document.getElementById(
+            "playButton"
+        ).textContent =
+            "ИГРАТЬ";
+
+
+        document.getElementById(
+            "homeStatus"
+        ).textContent =
             "Профиль загружен";
 
 
@@ -1811,14 +1938,10 @@ async function authenticate() {
         );
 
 
-        status.textContent =
-            "Ошибка: " +
+        document.getElementById(
+            "homeStatus"
+        ).textContent =
             error.message;
-
-
-        status.classList.add(
-            "error"
-        );
 
 
         return false;
@@ -1828,30 +1951,14 @@ async function authenticate() {
 }
 
 
-/*
-=========================================================
+/* =====================================================
 SOCKET
-=========================================================
-*/
+===================================================== */
 
 function connectSocket() {
 
-    if (!tg) {
-
-        return;
-
-    }
-
-
-    if (!tg.initData) {
-
-        return;
-
-    }
-
-
     socket =
-        window.io({
+        io({
 
             auth: {
 
@@ -1891,22 +1998,15 @@ function connectSocket() {
                 "ONLINE";
 
 
-            reconnecting =
-                false;
+            if (
+                gameState
+            ) {
 
+                socket.emit(
+                    "game:request_state"
+                );
 
-            status.textContent =
-                "Соединение установлено";
-
-
-            /*
-            Если пользователь уже был
-            в комнате, сервер создаст
-            новую socket-сессию.
-
-            На этом этапе комнаты
-            привязаны к текущему socket.
-            */
+            }
 
         }
     );
@@ -1921,24 +2021,39 @@ function connectSocket() {
             );
 
             connectionText.textContent =
-                "OFFLINE";
+                "RECONNECTING";
+
+        }
+    );
 
 
-            reconnecting =
-                true;
+    socket.on(
+        "connect_error",
+        error => {
 
+            console.error(
+                "Socket error:",
+                error
+            );
+
+            connectionText.textContent =
+                "ERROR";
+
+        }
+    );
+
+
+    socket.on(
+        "server:hello",
+        data => {
 
             if (
-                currentRoom
+                data.player
             ) {
 
-                roomStatusBottom.textContent =
-                    "Соединение потеряно. Переподключение...";
-
-            } else {
-
-                status.textContent =
-                    "Соединение потеряно. Переподключение...";
+                renderPlayer(
+                    data.player
+                );
 
             }
 
@@ -1947,48 +2062,8 @@ function connectSocket() {
 
 
     socket.on(
-        "connect_error",
-        (error) => {
-
-            console.error(
-                "Socket error:",
-                error
-            );
-
-
-            connection.classList.remove(
-                "online"
-            );
-
-            connectionText.textContent =
-                "RECONNECTING";
-
-        }
-    );
-
-
-    socket.on(
-        "server:hello",
-        (data) => {
-
-            console.log(
-                "Server:",
-                data
-            );
-
-        }
-    );
-
-
-    /*
-    =====================================================
-    LOBBY ROOMS
-    =====================================================
-    */
-
-    socket.on(
         "lobby:rooms",
-        (data) => {
+        data => {
 
             renderRooms(
                 data?.rooms || []
@@ -1998,187 +2073,174 @@ function connectSocket() {
     );
 
 
-    /*
-    =====================================================
-    ROOM CREATED
-    =====================================================
-    */
-
     socket.on(
         "room:created",
-        (data) => {
+        data => {
 
-            if (
-                data?.state
-            ) {
+            roomCode =
+                data.code;
 
-                currentRoom =
-                    data.state;
+            renderRoomWaiting();
 
-                renderRoom(
-                    data.state
-                );
-
-                showScreen(
-                    roomScreen
-                );
-
-            }
+            show(
+                "room"
+            );
 
         }
     );
 
-
-    /*
-    =====================================================
-    ROOM JOINED
-    =====================================================
-    */
 
     socket.on(
         "room:joined",
-        (data) => {
+        data => {
 
-            if (
-                data?.state
-            ) {
+            roomCode =
+                data.code;
 
-                currentRoom =
-                    data.state;
+            renderRoomWaiting();
 
-                renderRoom(
-                    data.state
-                );
-
-                showScreen(
-                    roomScreen
-                );
-
-            }
+            show(
+                "room"
+            );
 
         }
     );
 
-
-    /*
-    =====================================================
-    ROOM STATE
-    =====================================================
-    */
 
     socket.on(
         "room:state",
-        (state) => {
+        state => {
 
-            currentRoom =
-                state;
+            roomCode =
+                state.code;
 
-            renderRoom(
+            renderRoomState(
                 state
             );
 
-            showScreen(
-                roomScreen
+            show(
+                "room"
             );
 
         }
     );
 
-
-    /*
-    =====================================================
-    ROOM READY
-    =====================================================
-    */
-
-    socket.on(
-        "room:ready",
-        (data) => {
-
-            roomStatus.textContent =
-                "Оба игрока готовы. Следующий этап — запуск Дурака.";
-
-            roomStatusBottom.textContent =
-                data?.message ||
-                "Комната готова.";
-
-        }
-    );
-
-
-    /*
-    =====================================================
-    OPPONENT LEFT
-    =====================================================
-    */
 
     socket.on(
         "room:opponent_left",
-        (data) => {
+        data => {
 
-            roomStatus.textContent =
-                "Ожидание нового соперника...";
-
-            roomStatusBottom.textContent =
+            alert(
                 data?.message ||
-                "Соперник покинул комнату.";
-
-        }
-    );
-
-
-    /*
-    =====================================================
-    ROOM LEFT
-    =====================================================
-    */
-
-    socket.on(
-        "room:left",
-        () => {
-
-            currentRoom =
-                null;
-
-            showScreen(
-                lobbyScreen
+                "Соперник покинул комнату."
             );
 
-            lobbyStatus.textContent =
-                "Вы покинули комнату.";
+
+            show(
+                "lobby"
+            );
+
+
+            socket.emit(
+                "lobby:request"
+            );
 
         }
     );
 
-
-    /*
-    =====================================================
-    ROOM ERROR
-    =====================================================
-    */
 
     socket.on(
         "room:error",
-        (data) => {
+        data => {
 
-            const message =
+            alert(
                 data?.error ||
-                "Ошибка комнаты";
+                "Ошибка комнаты."
+            );
+
+        }
+    );
 
 
-            if (
-                currentRoom
-            ) {
+    socket.on(
+        "game:started",
+        data => {
 
-                roomStatusBottom.textContent =
-                    message;
+            console.log(
+                data
+            );
 
-            } else {
+        }
+    );
 
-                lobbyStatus.textContent =
-                    message;
 
-            }
+    socket.on(
+        "game:state",
+        state => {
+
+            gameState =
+                state;
+
+            renderGame(
+                state
+            );
+
+            show(
+                "game"
+            );
+
+        }
+    );
+
+
+    socket.on(
+        "game:error",
+        data => {
+
+            document.getElementById(
+                "gameMessage"
+            ).textContent =
+                data?.error ||
+                "Недопустимое действие.";
+
+        }
+    );
+
+
+    socket.on(
+        "game:finished",
+        data => {
+
+            renderGame(
+                gameState
+            );
+
+
+            setTimeout(
+                () => {
+
+                    alert(
+                        data?.message ||
+                        "Игра завершена."
+                    );
+
+
+                    show(
+                        "home"
+                    );
+
+
+                    /*
+                    Обновляем профиль
+                    через повторную авторизацию.
+                    */
+
+                    authenticate();
+
+                },
+
+                300
+            );
 
         }
     );
@@ -2186,33 +2248,62 @@ function connectSocket() {
 }
 
 
-/*
-=========================================================
-RENDER ROOMS
-=========================================================
-*/
+/* =====================================================
+LOBBY
+===================================================== */
+
+function openLobby() {
+
+    if (
+        !socket ||
+        !socket.connected
+    ) {
+
+        alert(
+            "Нет соединения с сервером."
+        );
+
+        return;
+
+    }
+
+
+    show(
+        "lobby"
+    );
+
+
+    socket.emit(
+        "lobby:request"
+    );
+
+}
+
 
 function renderRooms(
     rooms
 ) {
 
-    roomList.innerHTML =
+    const container =
+        document.getElementById(
+            "rooms"
+        );
+
+
+    container.innerHTML =
         "";
 
 
     if (!rooms.length) {
 
-        roomList.innerHTML =
+        container.innerHTML =
             `
             <div class="empty">
-                Сейчас нет открытых комнат.<br>
-                Создай первую комнату.
+                Открытых комнат нет.<br>
+                Создай первую.
             </div>
             `;
 
-
-        lobbyStatus.textContent =
-            "Открытых комнат нет.";
 
         return;
 
@@ -2232,227 +2323,102 @@ function renderRooms(
                 "room-item";
 
 
-            const left =
-                document.createElement(
-                    "div"
-                );
+            item.innerHTML =
+                `
+                <div>
+
+                    <div
+                        class="room-code-small"
+                    >
+                        ${room.code}
+                    </div>
+
+                    <div
+                        class="room-count"
+                    >
+                        ${room.players} / 2 игрока
+                    </div>
+
+                </div>
+
+                <button
+                    class="join"
+                >
+                    ВОЙТИ
+                </button>
+                `;
 
 
-            const code =
-                document.createElement(
-                    "div"
-                );
+            item
+                .querySelector(
+                    ".join"
+                )
+                .onclick =
+                    () => {
+
+                        socket.emit(
+                            "room:join",
+                            {
+                                code:
+                                    room.code
+                            }
+                        );
+
+                    };
 
 
-            code.className =
-                "room-code";
-
-
-            code.textContent =
-                room.code;
-
-
-            const players =
-                document.createElement(
-                    "div"
-                );
-
-
-            players.className =
-                "room-players";
-
-
-            players.textContent =
-                `${room.players} / ${room.maxPlayers} игрока`;
-
-
-            left.appendChild(
-                code
-            );
-
-            left.appendChild(
-                players
-            );
-
-
-            const join =
-                document.createElement(
-                    "button"
-                );
-
-
-            join.className =
-                "room-join";
-
-
-            join.textContent =
-                "ВОЙТИ";
-
-
-            join.addEventListener(
-                "click",
-                () => {
-
-                    joinRoom(
-                        room.code
-                    );
-
-                }
-            );
-
-
-            item.appendChild(
-                left
-            );
-
-            item.appendChild(
-                join
-            );
-
-
-            roomList.appendChild(
+            container.appendChild(
                 item
             );
 
         }
     );
 
+}
 
-    lobbyStatus.textContent =
-        `${rooms.length} открытых комнат.`;
+
+/* =====================================================
+ROOM
+===================================================== */
+
+function renderRoomWaiting() {
+
+    document.getElementById(
+        "roomCode"
+    ).textContent =
+        roomCode;
+
+
+    document.getElementById(
+        "roomStatus"
+    ).textContent =
+        "Ожидание соперника...";
 
 }
 
 
-/*
-=========================================================
-OPEN LOBBY
-=========================================================
-*/
-
-function openLobby() {
-
-    if (
-        !socket ||
-        !socket.connected
-    ) {
-
-        status.textContent =
-            "Нет соединения с сервером.";
-
-        return;
-
-    }
-
-
-    showScreen(
-        lobbyScreen
-    );
-
-
-    lobbyStatus.textContent =
-        "Загрузка комнат...";
-
-
-    socket.emit(
-        "lobby:request"
-    );
-
-}
-
-
-/*
-=========================================================
-CREATE ROOM
-=========================================================
-*/
-
-function createRoom() {
-
-    if (
-        !socket ||
-        !socket.connected
-    ) {
-
-        lobbyStatus.textContent =
-            "Нет соединения с сервером.";
-
-        return;
-
-    }
-
-
-    socket.emit(
-        "room:create"
-    );
-
-}
-
-
-/*
-=========================================================
-JOIN ROOM
-=========================================================
-*/
-
-function joinRoom(
-    code
-) {
-
-    if (
-        !socket ||
-        !socket.connected
-    ) {
-
-        lobbyStatus.textContent =
-            "Нет соединения с сервером.";
-
-        return;
-
-    }
-
-
-    socket.emit(
-        "room:join",
-        {
-            code
-        }
-    );
-
-}
-
-
-/*
-=========================================================
-ROOM RENDER
-=========================================================
-*/
-
-function renderRoom(
+function renderRoomState(
     state
 ) {
 
-    if (!state) {
-
-        return;
-
-    }
-
-
-    roomCode.textContent =
+    document.getElementById(
+        "roomCode"
+    ).textContent =
         state.code;
 
 
-    playersBox.innerHTML =
+    const players =
+        document.getElementById(
+            "players"
+        );
+
+
+    players.innerHTML =
         "";
 
 
-    const players =
-        state.players || [];
-
-
-    players.forEach(
-        player => {
+    state.players.forEach(
+        p => {
 
             const item =
                 document.createElement(
@@ -2461,75 +2427,35 @@ function renderRoom(
 
 
             item.className =
-                "room-player";
+                "player";
 
 
-            const dot =
-                document.createElement(
-                    "span"
-                );
+            item.innerHTML =
+                `
+                <span
+                    class="player-dot
+                    ${p.ready ? "ready" : ""}"
+                ></span>
+
+                <span
+                    class="player-name"
+                >
+                    ${escapeHtml(
+                        p.displayName
+                    )}
+                </span>
+
+                <span
+                    class="player-state"
+                >
+                    ${p.ready
+                        ? "ГОТОВ"
+                        : "НЕ ГОТОВ"}
+                </span>
+                `;
 
 
-            dot.className =
-                "room-player-dot";
-
-
-            if (
-                player.ready
-            ) {
-
-                dot.classList.add(
-                    "ready"
-                );
-
-            }
-
-
-            const name =
-                document.createElement(
-                    "div"
-                );
-
-
-            name.className =
-                "room-player-name";
-
-
-            name.textContent =
-                player.displayName ||
-                "Игрок";
-
-
-            const playerState =
-                document.createElement(
-                    "div"
-                );
-
-
-            playerState.className =
-                "room-player-state";
-
-
-            playerState.textContent =
-                player.ready
-                    ? "ГОТОВ"
-                    : "НЕ ГОТОВ";
-
-
-            item.appendChild(
-                dot
-            );
-
-            item.appendChild(
-                name
-            );
-
-            item.appendChild(
-                playerState
-            );
-
-
-            playersBox.appendChild(
+            players.appendChild(
                 item
             );
 
@@ -2537,139 +2463,749 @@ function renderRoom(
     );
 
 
+    const status =
+        document.getElementById(
+            "roomStatus"
+        );
+
+
     if (
-        players.length < 2
+        state.players.length < 2
     ) {
 
-        roomStatus.textContent =
+        status.textContent =
             "Ожидание соперника...";
-
-    } else if (
-        state.status ===
-        "preparing"
-    ) {
-
-        roomStatus.textContent =
-            "Соперник найден. Подготовка...";
-
-    } else if (
-        state.status ===
-        "ready"
-    ) {
-
-        roomStatus.textContent =
-            "Оба игрока в комнате.";
 
     } else {
 
-        roomStatus.textContent =
-            "Комната готова.";
+        status.textContent =
+            "Соперник найден. Запуск игры...";
+
+    }
+
+}
+
+
+/* =====================================================
+GAME
+===================================================== */
+
+function cardHtml(
+    card,
+    button = false
+) {
+
+    const red =
+        card.suit === "hearts" ||
+        card.suit === "diamonds";
+
+
+    const suit =
+        {
+
+            hearts: "♥",
+            diamonds: "♦",
+            clubs: "♣",
+            spades: "♠"
+
+        }[
+            card.suit
+        ] || "";
+
+
+    const rank =
+        card.rank === 11
+            ? "J"
+            : card.rank === 12
+                ? "Q"
+                : card.rank === 13
+                    ? "K"
+                    : card.rank === 14
+                        ? "A"
+                        : card.rank;
+
+
+    const html =
+        `
+        <div
+            class="card
+            ${red ? "red" : ""}"
+        >
+
+            <div
+                class="card-rank"
+            >
+                ${rank}
+            </div>
+
+            <div
+                class="card-suit"
+            >
+                ${suit}
+            </div>
+
+        </div>
+        `;
+
+
+    if (!button)
+        return html;
+
+
+    return `
+        <button
+            class="card-button"
+            data-card-id="${card.id}"
+        >
+            ${html}
+        </button>
+    `;
+
+}
+
+
+function renderGame(
+    state
+) {
+
+    if (!state)
+        return;
+
+
+    document.getElementById(
+        "gameRoom"
+    ).textContent =
+        state.code;
+
+
+    document.getElementById(
+        "opponentName"
+    ).textContent =
+        state.opponent.displayName;
+
+
+    document.getElementById(
+        "opponentCards"
+    ).textContent =
+        `${state.opponent.cardCount} карт`;
+
+
+    const trumpSuit =
+        {
+
+            hearts: "♥",
+            diamonds: "♦",
+            clubs: "♣",
+            spades: "♠"
+
+        }[
+            state.trumpSuit
+        ] || "—";
+
+
+    document.getElementById(
+        "trump"
+    ).textContent =
+        trumpSuit;
+
+
+    document.getElementById(
+        "deck"
+    ).textContent =
+        `Колода: ${state.deckCount}`;
+
+
+    const myTurn =
+        state.waitingFor ===
+        state.myPlayerId;
+
+
+    const attacker =
+        state.attackerId ===
+        state.myPlayerId;
+
+
+    let turnText;
+
+
+    if (myTurn) {
+
+        turnText =
+            attacker
+                ? "ВАША АТАКА"
+                : "ВАША ЗАЩИТА";
+
+    } else {
+
+        turnText =
+            attacker
+                ? "Атакует соперник"
+                : "Защищается соперник";
+
+    }
+
+
+    document.getElementById(
+        "turn"
+    ).textContent =
+        turnText;
+
+
+    renderTable(
+        state
+    );
+
+
+    renderHand(
+        state
+    );
+
+
+    const take =
+        document.getElementById(
+            "takeButton"
+        );
+
+
+    const end =
+        document.getElementById(
+            "endAttackButton"
+        );
+
+
+    take.disabled =
+        !(
+            state.waitingFor ===
+            state.myPlayerId &&
+            state.defenderId ===
+            state.myPlayerId
+        );
+
+
+    end.disabled =
+        !(
+            state.waitingFor ===
+            state.myPlayerId &&
+            state.attackerId ===
+            state.myPlayerId &&
+            state.table.length > 0 &&
+            state.table.every(
+                x =>
+                    Boolean(
+                        x.defense
+                    )
+            )
+        );
+
+
+    let message;
+
+
+    if (
+        state.waitingFor ===
+        state.myPlayerId
+    ) {
+
+        if (
+            state.defenderId ===
+            state.myPlayerId
+        ) {
+
+            message =
+                "Ваш ход: побейте карту или возьмите.";
+
+        } else {
+
+            message =
+                state.table.length
+                    ? "Ваш ход: подкиньте карту или нажмите «Бито»."
+                    : "Ваш ход: выберите карту для атаки.";
+
+        }
+
+    } else {
+
+        message =
+            "Ожидание хода соперника...";
+
+    }
+
+
+    document.getElementById(
+        "gameMessage"
+    ).textContent =
+        message;
+
+}
+
+
+function renderTable(
+    state
+) {
+
+    const table =
+        document.getElementById(
+            "table"
+        );
+
+
+    table.innerHTML =
+        "";
+
+
+    if (!state.table.length) {
+
+        table.innerHTML =
+            `
+            <div class="table-empty">
+                Стол пуст
+            </div>
+            `;
+
+        return;
+
+    }
+
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+
+    wrapper.className =
+        "table-cards";
+
+
+    state.table.forEach(
+        pair => {
+
+            const pairEl =
+                document.createElement(
+                    "div"
+                );
+
+
+            pairEl.className =
+                "pair";
+
+
+            pairEl.innerHTML =
+                cardHtml(
+                    pair.attack
+                );
+
+
+            if (
+                pair.defense
+            ) {
+
+                const defense =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                defense.style.position =
+                    "absolute";
+
+                defense.style.left =
+                    "16px";
+
+                defense.style.top =
+                    "16px";
+
+
+                defense.innerHTML =
+                    cardHtml(
+                        pair.defense
+                    );
+
+
+                pairEl.appendChild(
+                    defense
+                );
+
+            }
+
+
+            /*
+            При клике по атакующей карте
+            защитник выбирает карту защиты.
+            */
+
+            pairEl
+                .addEventListener(
+                    "click",
+                    () => {
+
+                        if (
+                            state.waitingFor !==
+                            state.myPlayerId
+                        )
+                            return;
+
+
+                        if (
+                            state.defenderId !==
+                            state.myPlayerId
+                        )
+                            return;
+
+
+                        if (
+                            pair.defense
+                        )
+                            return;
+
+
+                        window.selectedAttackCard =
+                            pair.attack.id;
+
+
+                        document.getElementById(
+                            "gameMessage"
+                        ).textContent =
+                            "Теперь выберите карту из руки для защиты.";
+
+                    }
+                );
+
+
+            wrapper.appendChild(
+                pairEl
+            );
+
+        }
+    );
+
+
+    table.appendChild(
+        wrapper
+    );
+
+}
+
+
+function renderHand(
+    state
+) {
+
+    const hand =
+        document.getElementById(
+            "hand"
+        );
+
+
+    hand.innerHTML =
+        "";
+
+
+    state.myHand.forEach(
+        card => {
+
+            const button =
+                document.createElement(
+                    "div"
+                );
+
+
+            button.innerHTML =
+                cardHtml(
+                    card,
+                    true
+                );
+
+
+            const element =
+                button.firstElementChild;
+
+
+            element.addEventListener(
+                "click",
+                () => {
+
+                    handleCardClick(
+                        card
+                    );
+
+                }
+            );
+
+
+            hand.appendChild(
+                element
+            );
+
+        }
+    );
+
+}
+
+
+function handleCardClick(
+    card
+) {
+
+    if (!gameState)
+        return;
+
+
+    if (
+        gameState.waitingFor !==
+        gameState.myPlayerId
+    ) {
+
+        return;
 
     }
 
 
     /*
-    Пока второй игрок не вошёл,
-    кнопка READY остаётся доступной.
-
-    Реальный старт игры появится
-    на следующем этапе.
+    Если мы защитник
+    и выбрали карту атаки —
+    отправляем защиту.
     */
 
-    document.getElementById(
-        "readyButton"
-    ).textContent =
-        state.myReady
-            ? "ГОТОВ ✓"
-            : "НЕ ГОТОВ";
+    if (
+        gameState.defenderId ===
+        gameState.myPlayerId
+    ) {
 
-}
+        if (
+            !window.selectedAttackCard
+        ) {
 
-
-/*
-=========================================================
-JOIN MODAL
-=========================================================
-*/
-
-function openJoinModal() {
-
-    roomCodeInput.value =
-        "";
-
-    joinModal.classList.add(
-        "active"
-    );
-
-
-    setTimeout(
-        () => {
-
-            roomCodeInput.focus();
-
-        },
-        100
-    );
-
-}
-
-
-function closeJoinModal() {
-
-    joinModal.classList.remove(
-        "active"
-    );
-
-}
-
-
-document.getElementById(
-    "joinByCode"
-).addEventListener(
-    "click",
-    openJoinModal
-);
-
-
-document.getElementById(
-    "cancelJoin"
-).addEventListener(
-    "click",
-    closeJoinModal
-);
-
-
-document.getElementById(
-    "confirmJoin"
-).addEventListener(
-    "click",
-    () => {
-
-        const code =
-            roomCodeInput.value
-                .trim()
-                .toUpperCase();
-
-
-        if (!code) {
+            document.getElementById(
+                "gameMessage"
+            ).textContent =
+                "Сначала выберите карту атаки на столе.";
 
             return;
 
         }
 
 
-        closeJoinModal();
+        socket.emit(
+            "game:defend",
+            {
+
+                defenseCardId:
+                    card.id,
+
+                attackCardId:
+                    window.selectedAttackCard
+
+            }
+        );
 
 
-        joinRoom(
-            code
+        window.selectedAttackCard =
+            null;
+
+
+        return;
+
+    }
+
+
+    /*
+    Иначе мы атакующий.
+    */
+
+    if (
+        gameState.attackerId ===
+        gameState.myPlayerId
+    ) {
+
+        socket.emit(
+            "game:attack",
+            {
+
+                cardId:
+                    card.id
+
+            }
         );
 
     }
-);
+
+}
 
 
-roomCodeInput.addEventListener(
+/* =====================================================
+BUTTONS
+===================================================== */
+
+document.getElementById(
+    "playButton"
+).onclick =
+    openLobby;
+
+
+document.getElementById(
+    "lobbyBack"
+).onclick =
+    () => {
+
+        show(
+            "home"
+        );
+
+    };
+
+
+document.getElementById(
+    "createRoom"
+).onclick =
+    () => {
+
+        socket.emit(
+            "room:create"
+        );
+
+    };
+
+
+document.getElementById(
+    "leaveButton"
+).onclick =
+    () => {
+
+        socket.emit(
+            "room:leave"
+        );
+
+
+        gameState =
+            null;
+
+        roomCode =
+            null;
+
+
+        show(
+            "lobby"
+        );
+
+
+        socket.emit(
+            "lobby:request"
+        );
+
+    };
+
+
+document.getElementById(
+    "readyButton"
+).onclick =
+    () => {
+
+        socket.emit(
+            "room:ready"
+        );
+
+    };
+
+
+document.getElementById(
+    "takeButton"
+).onclick =
+    () => {
+
+        socket.emit(
+            "game:take"
+        );
+
+    };
+
+
+document.getElementById(
+    "endAttackButton"
+).onclick =
+    () => {
+
+        socket.emit(
+            "game:end_attack"
+        );
+
+    };
+
+
+/* =====================================================
+MODAL
+===================================================== */
+
+const modal =
+    document.getElementById(
+        "modal"
+    );
+
+
+document.getElementById(
+    "joinCode"
+).onclick =
+    () => {
+
+        modal.classList.add(
+            "active"
+        );
+
+
+        document.getElementById(
+            "roomInput"
+        ).focus();
+
+    };
+
+
+document.getElementById(
+    "cancelModal"
+).onclick =
+    () => {
+
+        modal.classList.remove(
+            "active"
+        );
+
+    };
+
+
+document.getElementById(
+    "confirmModal"
+).onclick =
+    () => {
+
+        const code =
+            document.getElementById(
+                "roomInput"
+            ).value
+            .trim()
+            .toUpperCase();
+
+
+        if (!code)
+            return;
+
+
+        modal.classList.remove(
+            "active"
+        );
+
+
+        socket.emit(
+            "room:join",
+            {
+                code
+            }
+        );
+
+    };
+
+
+document.getElementById(
+    "roomInput"
+).addEventListener(
     "keydown",
     event => {
 
@@ -2680,7 +3216,7 @@ roomCodeInput.addEventListener(
 
             document
                 .getElementById(
-                    "confirmJoin"
+                    "confirmModal"
                 )
                 .click();
 
@@ -2690,136 +3226,56 @@ roomCodeInput.addEventListener(
 );
 
 
-/*
-=========================================================
-BUTTONS
-=========================================================
-*/
+/* =====================================================
+ESCAPE HTML
+===================================================== */
 
-document.getElementById(
-    "playButton"
-).addEventListener(
-    "click",
-    () => {
+function escapeHtml(
+    value
+) {
 
-        openLobby();
-
-    }
-);
-
-
-document.getElementById(
-    "createRoom"
-).addEventListener(
-    "click",
-    createRoom
-);
-
-
-document.getElementById(
-    "lobbyBack"
-).addEventListener(
-    "click",
-    () => {
-
-        showScreen(
-            homeScreen
-        );
-
-    }
-);
-
-
-document.getElementById(
-    "leaveRoom"
-).addEventListener(
-    "click",
-    () => {
-
-        if (
-            socket &&
-            socket.connected
-        ) {
-
-            socket.emit(
-                "room:leave"
-            );
-
-        }
-
-    }
-);
-
-
-document.getElementById(
-    "readyButton"
-).addEventListener(
-    "click",
-    () => {
-
-        if (
-            socket &&
-            socket.connected
-        ) {
-
-            socket.emit(
-                "room:ready"
-            );
-
-        }
-
-    }
-);
-
-
-/*
-=========================================================
-OTHER MENU PLACEHOLDERS
-=========================================================
-*/
-
-document
-    .getElementById(
-        "garageButton"
+    return String(
+        value || ""
     )
-    ?.addEventListener(
-        "click",
-        () => {}
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
     );
 
+}
 
-/*
-=========================================================
+
+/* =====================================================
 START
-=========================================================
-*/
+===================================================== */
 
 async function start() {
 
-    const authenticated =
+    const ok =
         await authenticate();
 
 
-    if (!authenticated) {
-
+    if (!ok)
         return;
-
-    }
 
 
     connectSocket();
-
-
-    document.getElementById(
-        "playButton"
-    ).disabled =
-        false;
-
-
-    document.getElementById(
-        "playButton"
-    ).textContent =
-        "ИГРАТЬ";
 
 }
 
