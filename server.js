@@ -6,12 +6,26 @@ const path = require("path");
 const { Pool } = require("pg");
 const { Server } = require("socket.io");
 
-const app = express();
-const httpServer = http.createServer(app);
 
-const PORT = process.env.PORT || 3000;
-const BOT_TOKEN = process.env.BOT_TOKEN;
-const DATABASE_URL = process.env.DATABASE_URL;
+/*
+=========================================================
+HEAVY LUX CARD
+SERVER.JS
+LOBBY + 1x1 ROOMS
+=========================================================
+
+Telegram
+PostgreSQL
+Express
+Socket.IO
+
+NO AI
+NO BOT PLAYER
+NO SINGLE PLAYER
+
+SERVER AUTHORITATIVE
+=========================================================
+*/
 
 
 /*
@@ -20,9 +34,26 @@ CONFIG
 =========================================================
 */
 
+const app = express();
+
+const httpServer =
+    http.createServer(app);
+
+const PORT =
+    process.env.PORT || 3000;
+
+const BOT_TOKEN =
+    process.env.BOT_TOKEN;
+
+const DATABASE_URL =
+    process.env.DATABASE_URL;
+
+
 const START_MONEY = 10000;
 const START_XP = 0;
 const START_LEVEL = 1;
+
+const MAX_ROOMS = 1000;
 
 
 /*
@@ -40,29 +71,21 @@ if (!DATABASE_URL) {
 }
 
 
-const pool = new Pool({
-    connectionString: DATABASE_URL,
+const pool =
+    new Pool({
 
-    ssl: DATABASE_URL
-        ? {
-            rejectUnauthorized: false
-        }
-        : undefined
-});
+        connectionString:
+            DATABASE_URL,
 
+        ssl:
+            DATABASE_URL
+                ? {
+                    rejectUnauthorized:
+                        false
+                }
+                : undefined
 
-/*
-=========================================================
-SOCKET.IO
-=========================================================
-*/
-
-const io = new Server(httpServer, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
+    });
 
 
 /*
@@ -77,14 +100,361 @@ app.use(express.json());
 
 app.use(
     express.static(
-        path.join(__dirname, "public")
+        path.join(
+            __dirname,
+            "public"
+        )
     )
 );
 
 
 /*
 =========================================================
-DATABASE INITIALIZATION
+SOCKET.IO
+=========================================================
+*/
+
+const io =
+    new Server(
+        httpServer,
+        {
+
+            cors: {
+
+                origin: "*",
+
+                methods: [
+                    "GET",
+                    "POST"
+                ]
+
+            },
+
+            transports: [
+                "websocket",
+                "polling"
+            ],
+
+            pingInterval: 25000,
+
+            pingTimeout: 20000
+
+        }
+    );
+
+
+/*
+=========================================================
+IN-MEMORY ROOMS
+=========================================================
+
+Комнаты живут в памяти сервера.
+
+Профили и экономика находятся
+в PostgreSQL.
+
+При перезапуске Render комнаты
+очищаются — это нормально на этом
+этапе.
+
+Позже при необходимости добавим
+persistent matchmaking.
+=========================================================
+*/
+
+const rooms =
+    new Map();
+
+
+const socketPlayers =
+    new Map();
+
+
+/*
+=========================================================
+ROOM ID
+=========================================================
+*/
+
+function generateRoomCode() {
+
+    const letters =
+        "ABCDEFGHJKLMNPQRSTUVWXYZ";
+
+    const numbers =
+        "23456789";
+
+
+    let code = "HL-";
+
+
+    for (
+        let i = 0;
+        i < 2;
+        i++
+    ) {
+
+        code +=
+            letters[
+                Math.floor(
+                    Math.random() *
+                    letters.length
+                )
+            ];
+
+    }
+
+
+    code += "-";
+
+
+    for (
+        let i = 0;
+        i < 4;
+        i++
+    ) {
+
+        code +=
+            numbers[
+                Math.floor(
+                    Math.random() *
+                    numbers.length
+                )
+            ];
+
+    }
+
+
+    return code;
+
+}
+
+
+function createUniqueRoomCode() {
+
+    let code;
+
+
+    do {
+
+        code =
+            generateRoomCode();
+
+    } while (
+        rooms.has(code)
+    );
+
+
+    return code;
+
+}
+
+
+/*
+=========================================================
+TELEGRAM AUTH
+=========================================================
+*/
+
+function validateTelegramInitData(
+    initData
+) {
+
+    if (!BOT_TOKEN) {
+
+        return {
+
+            valid: false,
+
+            error:
+                "BOT_TOKEN is not configured"
+
+        };
+
+    }
+
+
+    if (
+        !initData ||
+        typeof initData !== "string"
+    ) {
+
+        return {
+
+            valid: false,
+
+            error:
+                "Missing Telegram initData"
+
+        };
+
+    }
+
+
+    const params =
+        new URLSearchParams(
+            initData
+        );
+
+
+    const receivedHash =
+        params.get("hash");
+
+
+    if (!receivedHash) {
+
+        return {
+
+            valid: false,
+
+            error:
+                "Missing Telegram hash"
+
+        };
+
+    }
+
+
+    params.delete("hash");
+
+
+    const dataCheckString =
+        Array
+            .from(
+                params.entries()
+            )
+            .sort(
+                ([a], [b]) =>
+                    a.localeCompare(b)
+            )
+            .map(
+                ([key, value]) =>
+                    `${key}=${value}`
+            )
+            .join("\n");
+
+
+    const secretKey =
+        crypto
+            .createHmac(
+                "sha256",
+                "WebAppData"
+            )
+            .update(BOT_TOKEN)
+            .digest();
+
+
+    const calculatedHash =
+        crypto
+            .createHmac(
+                "sha256",
+                secretKey
+            )
+            .update(dataCheckString)
+            .digest("hex");
+
+
+    if (
+        calculatedHash.length !==
+        receivedHash.length
+    ) {
+
+        return {
+
+            valid: false,
+
+            error:
+                "Invalid Telegram signature"
+
+        };
+
+    }
+
+
+    let valid = false;
+
+
+    try {
+
+        valid =
+            crypto.timingSafeEqual(
+                Buffer.from(
+                    calculatedHash,
+                    "hex"
+                ),
+                Buffer.from(
+                    receivedHash,
+                    "hex"
+                )
+            );
+
+    } catch {
+
+        valid = false;
+
+    }
+
+
+    if (!valid) {
+
+        return {
+
+            valid: false,
+
+            error:
+                "Invalid Telegram signature"
+
+        };
+
+    }
+
+
+    let user = null;
+
+
+    const userString =
+        params.get("user");
+
+
+    if (userString) {
+
+        try {
+
+            user =
+                JSON.parse(
+                    userString
+                );
+
+        } catch {
+
+            return {
+
+                valid: false,
+
+                error:
+                    "Invalid Telegram user data"
+
+            };
+
+        }
+
+    }
+
+
+    return {
+
+        valid: true,
+
+        user
+
+    };
+
+}
+
+
+/*
+=========================================================
+DATABASE
 =========================================================
 */
 
@@ -134,6 +504,11 @@ async function initializeDatabase() {
     `);
 
 
+    await pool.query(
+        "SELECT 1"
+    );
+
+
     console.log(
         "PostgreSQL connected"
     );
@@ -148,167 +523,192 @@ async function initializeDatabase() {
 
 /*
 =========================================================
-TELEGRAM INIT DATA
+PLAYER
 =========================================================
 */
 
-function validateTelegramInitData(
-    initData
+function getPlayerDisplayName(
+    player
 ) {
 
-    if (!BOT_TOKEN) {
-
-        return {
-            valid: false,
-            error:
-                "BOT_TOKEN is not configured"
-        };
-
-    }
-
-
     if (
-        !initData ||
-        typeof initData !== "string"
+        player.firstName &&
+        player.lastName
     ) {
 
-        return {
-            valid: false,
-            error:
-                "Missing Telegram initData"
-        };
+        return (
+            `${player.firstName} ` +
+            `${player.lastName}`
+        ).trim();
 
     }
 
 
-    const params =
-        new URLSearchParams(
-            initData
+    if (player.firstName) {
+
+        return player.firstName;
+
+    }
+
+
+    if (player.username) {
+
+        return (
+            "@" +
+            player.username
+        );
+
+    }
+
+
+    return "Игрок";
+
+}
+
+
+async function getOrCreatePlayer(
+    user
+) {
+
+    const telegramId =
+        String(user.id);
+
+    const username =
+        user.username ||
+        null;
+
+    const firstName =
+        user.first_name ||
+        "";
+
+    const lastName =
+        user.last_name ||
+        "";
+
+
+    const result =
+        await pool.query(
+
+            `
+            INSERT INTO heavy_lux_players
+            (
+                telegram_id,
+                username,
+                first_name,
+                last_name,
+                last_login
+            )
+
+            VALUES
+            (
+                $1,
+                $2,
+                $3,
+                $4,
+                NOW()
+            )
+
+            ON CONFLICT
+            (
+                telegram_id
+            )
+
+            DO UPDATE SET
+
+                username =
+                    EXCLUDED.username,
+
+                first_name =
+                    EXCLUDED.first_name,
+
+                last_name =
+                    EXCLUDED.last_name,
+
+                last_login =
+                    NOW()
+
+            RETURNING
+                id,
+                telegram_id,
+                username,
+                first_name,
+                last_name,
+                money,
+                xp,
+                level,
+                wins,
+                losses,
+                games_played,
+                created_at,
+                last_login
+            `,
+
+            [
+                telegramId,
+                username,
+                firstName,
+                lastName
+            ]
+
         );
 
 
-    const receivedHash =
-        params.get("hash");
+    return result.rows[0];
+
+}
 
 
-    if (!receivedHash) {
-
-        return {
-            valid: false,
-            error:
-                "Missing Telegram hash"
-        };
-
-    }
-
-
-    params.delete("hash");
-
-
-    const dataCheckString =
-        Array
-            .from(params.entries())
-            .sort(
-                ([a], [b]) =>
-                    a.localeCompare(b)
-            )
-            .map(
-                ([key, value]) =>
-                    `${key}=${value}`
-            )
-            .join("\n");
-
-
-    const secretKey =
-        crypto
-            .createHmac(
-                "sha256",
-                "WebAppData"
-            )
-            .update(BOT_TOKEN)
-            .digest();
-
-
-    const calculatedHash =
-        crypto
-            .createHmac(
-                "sha256",
-                secretKey
-            )
-            .update(dataCheckString)
-            .digest("hex");
-
-
-    if (
-        calculatedHash.length !==
-        receivedHash.length
-    ) {
-
-        return {
-            valid: false,
-            error:
-                "Invalid Telegram signature"
-        };
-
-    }
-
-
-    const valid =
-        crypto.timingSafeEqual(
-            Buffer.from(
-                calculatedHash,
-                "hex"
-            ),
-            Buffer.from(
-                receivedHash,
-                "hex"
-            )
-        );
-
-
-    if (!valid) {
-
-        return {
-            valid: false,
-            error:
-                "Invalid Telegram signature"
-        };
-
-    }
-
-
-    let user = null;
-
-
-    const userString =
-        params.get("user");
-
-
-    if (userString) {
-
-        try {
-
-            user =
-                JSON.parse(
-                    userString
-                );
-
-        } catch {
-
-            return {
-                valid: false,
-                error:
-                    "Invalid Telegram user data"
-            };
-
-        }
-
-    }
-
+function serializePlayer(
+    player
+) {
 
     return {
-        valid: true,
-        user
+
+        id:
+            Number(player.id),
+
+        telegramId:
+            player.telegram_id,
+
+        username:
+            player.username,
+
+        firstName:
+            player.first_name,
+
+        lastName:
+            player.last_name,
+
+        displayName:
+            getPlayerDisplayName({
+                username:
+                    player.username,
+
+                firstName:
+                    player.first_name,
+
+                lastName:
+                    player.last_name
+            }),
+
+        money:
+            Number(player.money),
+
+        xp:
+            Number(player.xp),
+
+        level:
+            Number(player.level),
+
+        wins:
+            Number(player.wins),
+
+        losses:
+            Number(player.losses),
+
+        gamesPlayed:
+            Number(player.games_played)
+
     };
 
 }
@@ -316,7 +716,1046 @@ function validateTelegramInitData(
 
 /*
 =========================================================
-GET /api/health
+ROOM HELPERS
+=========================================================
+*/
+
+function getRoomPlayer(
+    room,
+    playerId
+) {
+
+    return room.players.find(
+        player =>
+            player.playerId ===
+            playerId
+    );
+
+}
+
+
+function getPublicRoom(
+    room
+) {
+
+    return {
+
+        code:
+            room.code,
+
+        status:
+            room.status,
+
+        players:
+            room.players.length,
+
+        maxPlayers:
+            2,
+
+        createdAt:
+            room.createdAt
+
+    };
+
+}
+
+
+function getRoomStateForPlayer(
+    room,
+    playerId
+) {
+
+    const me =
+        getRoomPlayer(
+            room,
+            playerId
+        );
+
+
+    return {
+
+        code:
+            room.code,
+
+        status:
+            room.status,
+
+        players:
+            room.players.map(
+                player => ({
+
+                    playerId:
+                        player.playerId,
+
+                    displayName:
+                        player.displayName,
+
+                    username:
+                        player.username,
+
+                    ready:
+                        Boolean(
+                            player.ready
+                        )
+
+                })
+            ),
+
+        myPlayerId:
+            playerId,
+
+        myReady:
+            Boolean(
+                me?.ready
+            )
+
+    };
+
+}
+
+
+/*
+=========================================================
+ROOM LIST
+=========================================================
+*/
+
+function getOpenRooms() {
+
+    return Array
+        .from(
+            rooms.values()
+        )
+        .filter(
+            room =>
+                room.status ===
+                "waiting" &&
+                room.players.length < 2
+        )
+        .map(
+            getPublicRoom
+        );
+
+}
+
+
+/*
+=========================================================
+BROADCAST LOBBY
+=========================================================
+*/
+
+function broadcastLobby() {
+
+    io.emit(
+        "lobby:rooms",
+        {
+            rooms:
+                getOpenRooms()
+        }
+    );
+
+}
+
+
+/*
+=========================================================
+ROOM SOCKET UPDATE
+=========================================================
+*/
+
+function broadcastRoom(
+    room
+) {
+
+    for (
+        const player of room.players
+    ) {
+
+        io.to(
+            player.socketId
+        ).emit(
+            "room:state",
+            getRoomStateForPlayer(
+                room,
+                player.playerId
+            )
+        );
+
+    }
+
+}
+
+
+/*
+=========================================================
+CREATE ROOM
+=========================================================
+*/
+
+function createRoom(
+    socket,
+    player
+) {
+
+    if (
+        rooms.size >=
+        MAX_ROOMS
+    ) {
+
+        socket.emit(
+            "room:error",
+            {
+                error:
+                    "Сервер комнат временно заполнен."
+            }
+        );
+
+        return;
+
+    }
+
+
+    /*
+    Игрок не может одновременно
+    находиться в нескольких комнатах.
+    */
+
+    if (player.roomCode) {
+
+        socket.emit(
+            "room:error",
+            {
+                error:
+                    "Вы уже находитесь в комнате."
+            }
+        );
+
+        return;
+
+    }
+
+
+    const code =
+        createUniqueRoomCode();
+
+
+    const room = {
+
+        code,
+
+        status:
+            "waiting",
+
+        createdAt:
+            Date.now(),
+
+        players: []
+
+    };
+
+
+    room.players.push({
+
+        playerId:
+            String(player.id),
+
+        socketId:
+            socket.id,
+
+        displayName:
+            player.displayName,
+
+        username:
+            player.username,
+
+        ready:
+            true
+
+    });
+
+
+    rooms.set(
+        code,
+        room
+    );
+
+
+    player.roomCode =
+        code;
+
+
+    socket.join(
+        code
+    );
+
+
+    socket.emit(
+        "room:created",
+        {
+
+            code,
+
+            state:
+                getRoomStateForPlayer(
+                    room,
+                    String(player.id)
+                )
+
+        }
+    );
+
+
+    broadcastRoom(
+        room
+    );
+
+
+    broadcastLobby();
+
+
+    console.log(
+        `Room created ${code} by ${player.displayName}`
+    );
+
+}
+
+
+/*
+=========================================================
+JOIN ROOM
+=========================================================
+*/
+
+function joinRoom(
+    socket,
+    player,
+    rawCode
+) {
+
+    if (player.roomCode) {
+
+        socket.emit(
+            "room:error",
+            {
+                error:
+                    "Вы уже находитесь в комнате."
+            }
+        );
+
+        return;
+
+    }
+
+
+    const code =
+        String(
+            rawCode || ""
+        )
+        .trim()
+        .toUpperCase();
+
+
+    if (!code) {
+
+        socket.emit(
+            "room:error",
+            {
+                error:
+                    "Введите код комнаты."
+            }
+        );
+
+        return;
+
+    }
+
+
+    const room =
+        rooms.get(code);
+
+
+    if (!room) {
+
+        socket.emit(
+            "room:error",
+            {
+                error:
+                    "Комната не найдена."
+            }
+        );
+
+        return;
+
+    }
+
+
+    if (
+        room.status !==
+        "waiting"
+    ) {
+
+        socket.emit(
+            "room:error",
+            {
+                error:
+                    "Игра в этой комнате уже началась."
+            }
+        );
+
+        return;
+
+    }
+
+
+    if (
+        room.players.length >=
+        2
+    ) {
+
+        socket.emit(
+            "room:error",
+            {
+                error:
+                    "Комната уже заполнена."
+            }
+        );
+
+        return;
+
+    }
+
+
+    room.players.push({
+
+        playerId:
+            String(player.id),
+
+        socketId:
+            socket.id,
+
+        displayName:
+            player.displayName,
+
+        username:
+            player.username,
+
+        ready:
+            true
+
+    });
+
+
+    player.roomCode =
+        code;
+
+
+    socket.join(
+        code
+    );
+
+
+    /*
+    После входа второго игрока
+    переводим комнату в preparing.
+    */
+
+    if (
+        room.players.length ===
+        2
+    ) {
+
+        room.status =
+            "preparing";
+
+    }
+
+
+    socket.emit(
+        "room:joined",
+        {
+
+            code,
+
+            state:
+                getRoomStateForPlayer(
+                    room,
+                    String(player.id)
+                )
+
+        }
+    );
+
+
+    broadcastRoom(
+        room
+    );
+
+
+    broadcastLobby();
+
+
+    /*
+    Пока не запускаем карты.
+    Отправляем событие,
+    что комната готова к старту.
+    */
+
+    if (
+        room.players.length ===
+        2
+    ) {
+
+        setTimeout(
+            () => {
+
+                /*
+                Проверяем, что комната
+                всё ещё существует
+                и оба игрока на месте.
+                */
+
+                const currentRoom =
+                    rooms.get(code);
+
+
+                if (
+                    !currentRoom
+                ) {
+
+                    return;
+
+                }
+
+
+                if (
+                    currentRoom.players.length !==
+                    2
+                ) {
+
+                    return;
+
+                }
+
+
+                currentRoom.status =
+                    "ready";
+
+
+                broadcastRoom(
+                    currentRoom
+                );
+
+
+                io.to(code).emit(
+                    "room:ready",
+                    {
+
+                        code,
+
+                        message:
+                            "Оба игрока в комнате. Игра готова к запуску."
+
+                    }
+                );
+
+
+                broadcastLobby();
+
+            },
+
+            500
+        );
+
+    }
+
+
+    console.log(
+        `${player.displayName} joined ${code}`
+    );
+
+}
+
+
+/*
+=========================================================
+LEAVE ROOM
+=========================================================
+*/
+
+function leaveRoom(
+    socket,
+    player,
+    notify = true
+) {
+
+    const code =
+        player.roomCode;
+
+
+    if (!code) {
+
+        return;
+
+    }
+
+
+    const room =
+        rooms.get(code);
+
+
+    player.roomCode =
+        null;
+
+
+    if (!room) {
+
+        socket.leave(code);
+
+        return;
+
+    }
+
+
+    room.players =
+        room.players.filter(
+            p =>
+                p.socketId !==
+                socket.id
+        );
+
+
+    socket.leave(
+        code
+    );
+
+
+    if (notify) {
+
+        socket.emit(
+            "room:left",
+            {
+                code
+            }
+        );
+
+    }
+
+
+    if (
+        room.players.length ===
+        0
+    ) {
+
+        rooms.delete(
+            code
+        );
+
+    } else {
+
+        room.status =
+            "waiting";
+
+
+        /*
+        Сбрасываем ready
+        оставшегося игрока.
+        */
+
+        for (
+            const p of room.players
+        ) {
+
+            p.ready = true;
+
+
+            io.to(
+                p.socketId
+            ).emit(
+                "room:opponent_left",
+                {
+
+                    message:
+                        "Соперник покинул комнату."
+
+                }
+            );
+
+        }
+
+
+        broadcastRoom(
+            room
+        );
+
+    }
+
+
+    broadcastLobby();
+
+
+    console.log(
+        `Player left room ${code}`
+    );
+
+}
+
+
+/*
+=========================================================
+READY
+=========================================================
+*/
+
+function toggleReady(
+    socket,
+    player
+) {
+
+    if (!player.roomCode) {
+
+        return;
+
+    }
+
+
+    const room =
+        rooms.get(
+            player.roomCode
+        );
+
+
+    if (!room) {
+
+        player.roomCode =
+            null;
+
+        return;
+
+    }
+
+
+    const roomPlayer =
+        getRoomPlayer(
+            room,
+            String(player.id)
+        );
+
+
+    if (!roomPlayer) {
+
+        return;
+
+    }
+
+
+    roomPlayer.ready =
+        !roomPlayer.ready;
+
+
+    broadcastRoom(
+        room
+    );
+
+
+    /*
+    На этом этапе ready только
+    визуальный статус.
+
+    Реальный запуск Дурака
+    добавим после подключения
+    игровой движок.
+    */
+
+}
+
+
+/*
+=========================================================
+SOCKET AUTH
+=========================================================
+*/
+
+io.use(
+    async (
+        socket,
+        next
+    ) => {
+
+        try {
+
+            const initData =
+                socket.handshake
+                    .auth
+                    ?.initData;
+
+
+            const result =
+                validateTelegramInitData(
+                    initData
+                );
+
+
+            if (!result.valid) {
+
+                return next(
+                    new Error(
+                        result.error
+                    )
+                );
+
+            }
+
+
+            if (
+                !result.user ||
+                !result.user.id
+            ) {
+
+                return next(
+                    new Error(
+                        "Telegram user not found"
+                    )
+                );
+
+            }
+
+
+            const dbPlayer =
+                await getOrCreatePlayer(
+                    result.user
+                );
+
+
+            const player =
+                serializePlayer(
+                    dbPlayer
+                );
+
+
+            socket.data.player =
+                player;
+
+
+            socket.data.roomCode =
+                null;
+
+
+            next();
+
+        } catch (error) {
+
+            console.error(
+                "Socket auth error:",
+                error
+            );
+
+
+            next(
+                new Error(
+                    "Socket authentication failed"
+                )
+            );
+
+        }
+
+    }
+);
+
+
+/*
+=========================================================
+SOCKET CONNECTION
+=========================================================
+*/
+
+io.on(
+    "connection",
+    (socket) => {
+
+        const player =
+            socket.data.player;
+
+
+        player.roomCode =
+            null;
+
+
+        socketPlayers.set(
+            socket.id,
+            player
+        );
+
+
+        console.log(
+            `Socket connected: ${socket.id} / ${player.displayName}`
+        );
+
+
+        /*
+        HELLO
+        */
+
+        socket.emit(
+            "server:hello",
+            {
+
+                ok: true,
+
+                project:
+                    "Heavy Lux Card",
+
+                socketId:
+                    socket.id,
+
+                player
+
+            }
+        );
+
+
+        /*
+        CURRENT LOBBY
+        */
+
+        socket.emit(
+            "lobby:rooms",
+            {
+
+                rooms:
+                    getOpenRooms()
+
+            }
+        );
+
+
+        /*
+        CREATE ROOM
+        */
+
+        socket.on(
+            "room:create",
+            () => {
+
+                createRoom(
+                    socket,
+                    player
+                );
+
+            }
+        );
+
+
+        /*
+        JOIN ROOM
+        */
+
+        socket.on(
+            "room:join",
+            (data) => {
+
+                joinRoom(
+                    socket,
+                    player,
+                    data?.code
+                );
+
+            }
+        );
+
+
+        /*
+        LEAVE ROOM
+        */
+
+        socket.on(
+            "room:leave",
+            () => {
+
+                leaveRoom(
+                    socket,
+                    player,
+                    true
+                );
+
+            }
+        );
+
+
+        /*
+        READY
+        */
+
+        socket.on(
+            "room:ready",
+            () => {
+
+                toggleReady(
+                    socket,
+                    player
+                );
+
+            }
+        );
+
+
+        /*
+        REQUEST LOBBY
+        */
+
+        socket.on(
+            "lobby:request",
+            () => {
+
+                socket.emit(
+                    "lobby:rooms",
+                    {
+
+                        rooms:
+                            getOpenRooms()
+
+                    }
+                );
+
+            }
+        );
+
+
+        /*
+        DISCONNECT
+        */
+
+        socket.on(
+            "disconnect",
+            (reason) => {
+
+                console.log(
+                    `Socket disconnected: ${socket.id}`,
+                    reason
+                );
+
+
+                leaveRoom(
+                    socket,
+                    player,
+                    false
+                );
+
+
+                socketPlayers.delete(
+                    socket.id
+                );
+
+            }
+        );
+
+    }
+);
+
+
+/*
+=========================================================
+API HEALTH
 =========================================================
 */
 
@@ -324,7 +1763,9 @@ app.get(
     "/api/health",
     async (req, res) => {
 
-        let database = false;
+        let database =
+            false;
+
 
         try {
 
@@ -332,7 +1773,8 @@ app.get(
                 "SELECT 1"
             );
 
-            database = true;
+            database =
+                true;
 
         } catch (error) {
 
@@ -352,15 +1794,20 @@ app.get(
                 "Heavy Lux Card",
 
             version:
-                "2.0.0",
+                "3.0.0",
 
             telegram:
-                Boolean(BOT_TOKEN),
+                Boolean(
+                    BOT_TOKEN
+                ),
 
             socket:
                 true,
 
-            database
+            database,
+
+            rooms:
+                rooms.size
 
         });
 
@@ -370,7 +1817,7 @@ app.get(
 
 /*
 =========================================================
-TELEGRAM AUTH
+API TELEGRAM AUTH
 =========================================================
 */
 
@@ -380,9 +1827,9 @@ app.post(
 
         try {
 
-            const {
-                initData
-            } = req.body || {};
+            const initData =
+                req.body
+                    ?.initData;
 
 
             const result =
@@ -407,13 +1854,9 @@ app.post(
             }
 
 
-            const user =
-                result.user;
-
-
             if (
-                !user ||
-                !user.id
+                !result.user ||
+                !result.user.id
             ) {
 
                 return res
@@ -430,147 +1873,22 @@ app.post(
             }
 
 
-            const telegramId =
-                String(user.id);
-
-
-            const username =
-                user.username ||
-                null;
-
-
-            const firstName =
-                user.first_name ||
-                "";
-
-
-            const lastName =
-                user.last_name ||
-                "";
-
-
-            /*
-            =============================================
-            CREATE / UPDATE PLAYER
-            =============================================
-            */
-
-            const resultPlayer =
-                await pool.query(
-
-                    `
-                    INSERT INTO heavy_lux_players
-                    (
-                        telegram_id,
-                        username,
-                        first_name,
-                        last_name,
-                        last_login
-                    )
-
-                    VALUES
-                    (
-                        $1,
-                        $2,
-                        $3,
-                        $4,
-                        NOW()
-                    )
-
-                    ON CONFLICT
-                    (
-                        telegram_id
-                    )
-
-                    DO UPDATE SET
-
-                        username =
-                            EXCLUDED.username,
-
-                        first_name =
-                            EXCLUDED.first_name,
-
-                        last_name =
-                            EXCLUDED.last_name,
-
-                        last_login =
-                            NOW()
-
-                    RETURNING
-                        id,
-                        telegram_id,
-                        username,
-                        first_name,
-                        last_name,
-                        money,
-                        xp,
-                        level,
-                        wins,
-                        losses,
-                        games_played,
-                        created_at,
-                        last_login
-                    `,
-
-                    [
-                        telegramId,
-                        username,
-                        firstName,
-                        lastName
-                    ]
-
-                );
-
-
             const player =
-                resultPlayer.rows[0];
+                await getOrCreatePlayer(
+                    result.user
+                );
 
 
             return res.json({
 
                 ok: true,
 
-                player: {
-
-                    id:
-                        player.id,
-
-                    telegramId:
-                        player.telegram_id,
-
-                    username:
-                        player.username,
-
-                    firstName:
-                        player.first_name,
-
-                    lastName:
-                        player.last_name,
-
-                    money:
-                        Number(
-                            player.money
-                        ),
-
-                    xp:
-                        player.xp,
-
-                    level:
-                        player.level,
-
-                    wins:
-                        player.wins,
-
-                    losses:
-                        player.losses,
-
-                    gamesPlayed:
-                        player.games_played
-
-                }
+                player:
+                    serializePlayer(
+                        player
+                    )
 
             });
-
 
         } catch (error) {
 
@@ -599,56 +1917,7 @@ app.post(
 
 /*
 =========================================================
-SOCKET.IO
-=========================================================
-*/
-
-io.on(
-    "connection",
-    (socket) => {
-
-        console.log(
-            "Socket connected:",
-            socket.id
-        );
-
-
-        socket.emit(
-            "server:hello",
-            {
-
-                ok: true,
-
-                project:
-                    "Heavy Lux Card",
-
-                socketId:
-                    socket.id
-
-            }
-        );
-
-
-        socket.on(
-            "disconnect",
-            (reason) => {
-
-                console.log(
-                    "Socket disconnected:",
-                    socket.id,
-                    reason
-                );
-
-            }
-        );
-
-    }
-);
-
-
-/*
-=========================================================
-START
+START SERVER
 =========================================================
 */
 
