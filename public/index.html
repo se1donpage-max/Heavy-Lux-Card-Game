@@ -12,8 +12,6 @@
                  viewport-fit=cover"
     >
 
-    <meta name="theme-color" content="#080808">
-
     <title>Heavy Lux Card</title>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -21,19 +19,16 @@
     <style>
         * {
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
         html,
         body {
             margin: 0;
             padding: 0;
-            width: 100%;
             min-height: 100%;
             background: #080808;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                         Roboto, Arial, sans-serif;
+            color: #fff;
+            font-family: Arial, sans-serif;
         }
 
         body {
@@ -41,238 +36,132 @@
             min-height: 100dvh;
         }
 
-        button {
-            font: inherit;
-        }
-
         .app {
             width: 100%;
             max-width: 520px;
-            min-height: 100vh;
-            min-height: 100dvh;
-            margin: 0 auto;
-            padding:
-                calc(24px + env(safe-area-inset-top))
-                18px
-                calc(24px + env(safe-area-inset-bottom));
-
-            display: flex;
-            flex-direction: column;
+            margin: auto;
+            padding: 24px 18px;
         }
 
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #777;
             margin-bottom: 24px;
         }
 
-        .logo {
-            font-size: 22px;
-            font-weight: 900;
-            letter-spacing: -0.8px;
-        }
-
-        .online {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-
-            padding: 7px 10px;
-
-            border: 1px solid #222;
-            border-radius: 999px;
-
-            background: #111;
-            color: #aaa;
-
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .online-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #777;
-        }
-
-        .profile {
-            padding: 20px;
-
-            border: 1px solid #242424;
-            border-radius: 20px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #171717,
-                    #0e0e0e
-                );
-
-            box-shadow:
-                0 15px 40px rgba(0, 0, 0, 0.35);
-        }
-
-        .profile-top {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .avatar {
-            width: 56px;
-            height: 56px;
-
+        .panel {
+            padding: 18px;
+            border: 1px solid #252525;
             border-radius: 16px;
+            background: #111;
+        }
 
-            background: #222;
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .step:last-child {
+            border-bottom: 0;
+        }
+
+        .icon {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            border-radius: 50%;
+            background: #252525;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            font-size: 22px;
-            font-weight: 900;
-
-            overflow: hidden;
+            font-size: 13px;
+            font-weight: bold;
         }
 
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .name {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .result {
+            margin-left: auto;
+            font-size: 12px;
+            color: #777;
+        }
+
+        .ok {
+            color: #fff;
+        }
+
+        .bad {
+            color: #ff6464;
+        }
+
+        .waiting {
+            color: #777;
+        }
+
+        .details {
+            margin-top: 18px;
+            padding: 14px;
+
+            border-radius: 12px;
+            background: #0b0b0b;
+
+            color: #777;
+            font-size: 11px;
+            line-height: 1.6;
+
+            word-break: break-word;
+        }
+
+        .profile {
+            margin-top: 18px;
+            padding: 18px;
+
+            border-radius: 16px;
+            background: #111;
+
+            display: none;
+        }
+
+        .profile.visible {
+            display: block;
         }
 
         .profile-name {
-            font-size: 18px;
+            font-size: 19px;
             font-weight: 800;
         }
 
-        .profile-rank {
-            margin-top: 4px;
-
+        .profile-id {
+            margin-top: 7px;
             color: #777;
-
             font-size: 12px;
         }
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-
-            margin-top: 18px;
-        }
-
-        .stat {
-            padding: 12px 8px;
-
-            border-radius: 12px;
-
-            background: #111;
-
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 16px;
-            font-weight: 800;
-        }
-
-        .stat-label {
-            margin-top: 4px;
-
-            color: #666;
-
-            font-size: 10px;
-            text-transform: uppercase;
-        }
-
-        .welcome {
-            margin-top: 28px;
-        }
-
-        .welcome h1 {
-            margin: 0;
-
-            font-size: 30px;
-            line-height: 1.05;
-            letter-spacing: -1.2px;
-        }
-
-        .welcome p {
-            margin: 10px 0 0;
-
-            color: #777;
-
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .game-card {
-            margin-top: 22px;
-
-            padding: 22px;
-
-            border: 1px solid #242424;
-            border-radius: 20px;
-
-            background: #101010;
-        }
-
-        .game-title {
-            font-size: 21px;
-            font-weight: 900;
-        }
-
-        .game-description {
-            margin-top: 8px;
-
-            color: #777;
-
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .play-button {
+        button {
             width: 100%;
-
             margin-top: 18px;
-            padding: 16px;
+            padding: 15px;
 
             border: 0;
-            border-radius: 14px;
+            border-radius: 12px;
 
-            background: #ffffff;
-            color: #000000;
+            background: #fff;
+            color: #000;
 
-            font-size: 16px;
-            font-weight: 900;
-
-            cursor: pointer;
-        }
-
-        .play-button:active {
-            transform: scale(0.98);
-        }
-
-        .status {
-            margin-top: auto;
-            padding-top: 24px;
-
-            color: #555;
-
-            font-size: 11px;
-            text-align: center;
-        }
-
-        .error {
-            color: #ff6b6b;
-        }
-
-        .loading {
-            opacity: 0.65;
+            font-size: 15px;
+            font-weight: 800;
         }
     </style>
 </head>
@@ -281,183 +170,116 @@
 
 <div class="app">
 
-    <div class="header">
+    <h1>Heavy Lux Card</h1>
 
-        <div class="logo">
-            HEAVY LUX CARD
+    <div class="subtitle">
+        Диагностика Mini App
+    </div>
+
+    <div class="panel">
+
+        <div class="step">
+            <div class="icon">1</div>
+            <div class="name">Telegram WebApp</div>
+            <div
+                class="result waiting"
+                id="telegramStatus"
+            >
+                CHECKING
+            </div>
         </div>
 
-        <div class="online">
-            <span
-                class="online-dot"
-                id="onlineDot"
-            ></span>
+        <div class="step">
+            <div class="icon">2</div>
+            <div class="name">Telegram initData</div>
+            <div
+                class="result waiting"
+                id="initDataStatus"
+            >
+                WAITING
+            </div>
+        </div>
 
-            <span id="onlineText">
-                CONNECTING
-            </span>
+        <div class="step">
+            <div class="icon">3</div>
+            <div class="name">Socket.IO</div>
+            <div
+                class="result waiting"
+                id="socketStatus"
+            >
+                WAITING
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="icon">4</div>
+            <div class="name">Render API</div>
+            <div
+                class="result waiting"
+                id="serverStatus"
+            >
+                WAITING
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="icon">5</div>
+            <div class="name">Telegram Auth</div>
+            <div
+                class="result waiting"
+                id="authStatus"
+            >
+                WAITING
+            </div>
         </div>
 
     </div>
-
-
-    <section class="profile">
-
-        <div class="profile-top">
-
-            <div
-                class="avatar"
-                id="avatar"
-            >
-                HL
-            </div>
-
-            <div>
-
-                <div
-                    class="profile-name"
-                    id="profileName"
-                >
-                    Загрузка...
-                </div>
-
-                <div
-                    class="profile-rank"
-                    id="profileRank"
-                >
-                    Игрок
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="stats">
-
-            <div class="stat">
-
-                <div
-                    class="stat-value"
-                    id="level"
-                >
-                    1
-                </div>
-
-                <div class="stat-label">
-                    Level
-                </div>
-
-            </div>
-
-
-            <div class="stat">
-
-                <div
-                    class="stat-value"
-                    id="xp"
-                >
-                    0
-                </div>
-
-                <div class="stat-label">
-                    XP
-                </div>
-
-            </div>
-
-
-            <div class="stat">
-
-                <div
-                    class="stat-value"
-                    id="money"
-                >
-                    0 ₽
-                </div>
-
-                <div class="stat-label">
-                    Balance
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <section class="welcome">
-
-        <h1>
-            Добро пожаловать.
-        </h1>
-
-        <p>
-            Здесь начинается новая история Heavy Lux Card.
-            Живые игроки, честная игра и собственная экономика.
-        </p>
-
-    </section>
-
-
-    <section class="game-card">
-
-        <div class="game-title">
-            Дурак · 36 карт
-        </div>
-
-        <div class="game-description">
-            Онлайн-игра один на один.
-            Только реальные игроки.
-            Без AI.
-        </div>
-
-        <button
-            class="play-button"
-            id="playButton"
-        >
-            ИГРАТЬ
-        </button>
-
-    </section>
 
 
     <div
-        class="status"
-        id="status"
+        class="details"
+        id="details"
     >
-        Подключение к Heavy Lux Card...
+        Запуск диагностики...
     </div>
+
+
+    <div
+        class="profile"
+        id="profile"
+    >
+
+        <div
+            class="profile-name"
+            id="profileName"
+        >
+            —
+        </div>
+
+        <div
+            class="profile-id"
+            id="profileId"
+        >
+            —
+        </div>
+
+    </div>
+
+
+    <button
+        id="reloadButton"
+    >
+        ПОВТОРИТЬ ПРОВЕРКУ
+    </button>
 
 </div>
 
 
 <script>
 
-    /*
-    =====================================================
-    TELEGRAM
-    =====================================================
-    */
+(function () {
 
-    const tg = window.Telegram?.WebApp || null;
-
-    if (tg) {
-
-        tg.ready();
-
-        tg.expand();
-
-        if (tg.setHeaderColor) {
-            tg.setHeaderColor("#080808");
-        }
-
-        if (tg.setBackgroundColor) {
-            tg.setBackgroundColor("#080808");
-        }
-
-    }
+    "use strict";
 
 
     /*
@@ -466,372 +288,359 @@
     =====================================================
     */
 
+    const telegramStatus =
+        document.getElementById("telegramStatus");
+
+    const initDataStatus =
+        document.getElementById("initDataStatus");
+
+    const socketStatus =
+        document.getElementById("socketStatus");
+
+    const serverStatus =
+        document.getElementById("serverStatus");
+
+    const authStatus =
+        document.getElementById("authStatus");
+
+    const details =
+        document.getElementById("details");
+
+    const profile =
+        document.getElementById("profile");
+
     const profileName =
         document.getElementById("profileName");
 
-    const profileRank =
-        document.getElementById("profileRank");
+    const profileId =
+        document.getElementById("profileId");
 
-    const avatar =
-        document.getElementById("avatar");
-
-    const level =
-        document.getElementById("level");
-
-    const xp =
-        document.getElementById("xp");
-
-    const money =
-        document.getElementById("money");
-
-    const status =
-        document.getElementById("status");
-
-    const onlineText =
-        document.getElementById("onlineText");
-
-    const onlineDot =
-        document.getElementById("onlineDot");
-
-    const playButton =
-        document.getElementById("playButton");
+    const reloadButton =
+        document.getElementById("reloadButton");
 
 
     /*
     =====================================================
-    TELEGRAM USER
+    HELPERS
     =====================================================
     */
 
-    function getTelegramUser() {
+    function setStatus(element, text, type) {
 
-        if (!tg) {
-            return null;
-        }
+        element.textContent = text;
 
-        return tg.initDataUnsafe?.user || null;
+        element.classList.remove(
+            "ok",
+            "bad",
+            "waiting"
+        );
+
+        element.classList.add(type);
+
+    }
+
+
+    function log(message) {
+
+        console.log(
+            "[Heavy Lux Card]",
+            message
+        );
+
+        details.textContent =
+            message;
 
     }
 
 
     /*
     =====================================================
-    DISPLAY USER
+    1. TELEGRAM WEB APP
     =====================================================
     */
 
-    function displayTelegramUser(user) {
+    let tg = null;
 
-        if (!user) {
+    try {
 
-            profileName.textContent =
-                "Откройте игру через Telegram";
+        tg =
+            window.Telegram &&
+            window.Telegram.WebApp
+                ? window.Telegram.WebApp
+                : null;
 
-            profileRank.textContent =
-                "Telegram Mini App";
+
+        if (!tg) {
+
+            setStatus(
+                telegramStatus,
+                "ERROR",
+                "bad"
+            );
+
+            log(
+                "Telegram WebApp API не найден. " +
+                "Проверьте, что приложение открыто именно внутри Telegram."
+            );
 
             return;
 
         }
 
 
-        const firstName =
-            user.first_name || "";
+        tg.ready();
 
-        const lastName =
-            user.last_name || "";
+        tg.expand();
 
-        const username =
-            user.username
-                ? "@" + user.username
-                : "";
 
-
-        profileName.textContent =
-            `${firstName} ${lastName}`.trim()
-            || username
-            || "Игрок";
-
-
-        profileRank.textContent =
-            username || "Игрок";
-
-
-        if (user.photo_url) {
-
-            avatar.innerHTML =
-                `<img src="${user.photo_url}" alt="">`;
-
-        } else {
-
-            const letters =
-                (
-                    (firstName[0] || "") +
-                    (lastName[0] || "")
-                ).toUpperCase();
-
-            avatar.textContent =
-                letters || "HL";
-
-        }
-
-    }
-
-
-    /*
-    =====================================================
-    SERVER AUTH
-    =====================================================
-    */
-
-    async function authenticateTelegram() {
-
-    status.classList.remove("error");
-    status.textContent = "Проверяем Telegram...";
-
-    if (!window.Telegram || !window.Telegram.WebApp) {
-
-        status.textContent =
-            "Telegram WebApp API не найден.";
-
-        status.classList.add("error");
-
-        profileName.textContent =
-            "Ошибка Telegram";
-
-        profileRank.textContent =
-            "WebApp API не найден";
-
-        return;
-    }
-
-    const telegramApp = window.Telegram.WebApp;
-
-    telegramApp.ready();
-    telegramApp.expand();
-
-    const initData = telegramApp.initData;
-
-    console.log("Telegram initData:", initData);
-
-    if (!initData) {
-
-        status.textContent =
-            "Telegram не передал initData.";
-
-        status.classList.add("error");
-
-        profileName.textContent =
-            "Нет данных Telegram";
-
-        profileRank.textContent =
-            "Открой игру через Mini App";
-
-        return;
-    }
-
-    status.textContent =
-        "Авторизация на сервере...";
-
-    try {
-
-        const controller =
-            new AbortController();
-
-        const timeout =
-            setTimeout(() => {
-                controller.abort();
-            }, 10000);
-
-
-        const response =
-            await fetch("/api/auth/telegram", {
-
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    initData: initData
-                }),
-
-                signal: controller.signal
-
-            });
-
-
-        clearTimeout(timeout);
-
-
-        const text =
-            await response.text();
-
-        console.log(
-            "Auth response:",
-            response.status,
-            text
-        );
-
-
-        let data;
-
-        try {
-
-            data = JSON.parse(text);
-
-        } catch {
-
-            throw new Error(
-                "Сервер вернул не JSON: " + text
-            );
-
-        }
-
-
-        if (!response.ok || !data.ok) {
-
-            throw new Error(
-                data.error ||
-                `HTTP ${response.status}`
-            );
-
-        }
-
-
-        const player =
-            data.player;
-
-
-        const firstName =
-            player.firstName || "";
-
-        const lastName =
-            player.lastName || "";
-
-        const username =
-            player.username || "";
-
-
-        profileName.textContent =
-            `${firstName} ${lastName}`.trim()
-            || (
-                username
-                    ? "@" + username
-                    : "Игрок"
-            );
-
-
-        profileRank.textContent =
-            username
-                ? "@" + username
-                : "Игрок";
-
-
-        const initials =
-            (
-                (firstName[0] || "") +
-                (lastName[0] || "")
-            ).toUpperCase();
-
-
-        avatar.textContent =
-            initials || "HL";
-
-
-        level.textContent =
-            "1";
-
-        xp.textContent =
-            "0";
-
-        money.textContent =
-            "0 ₽";
-
-
-        status.textContent =
-            "Авторизация успешна";
-
-
-        status.classList.remove("error");
-
-
-        console.log(
-            "HEAVY LUX PLAYER:",
-            player
+        setStatus(
+            telegramStatus,
+            "OK",
+            "ok"
         );
 
 
     } catch (error) {
 
-        console.error(
-            "Telegram authorization error:",
-            error
+        setStatus(
+            telegramStatus,
+            "ERROR",
+            "bad"
         );
 
+        log(
+            "Ошибка Telegram WebApp: " +
+            error.message
+        );
 
-        if (error.name === "AbortError") {
-
-            status.textContent =
-                "Сервер не ответил за 10 секунд.";
-
-        } else {
-
-            status.textContent =
-                "Ошибка: " + error.message;
-
-        }
-
-
-        status.classList.add("error");
-
-
-        profileName.textContent =
-            "Ошибка авторизации";
-
-        profileRank.textContent =
-            "Смотрите сообщение ниже";
+        return;
 
     }
 
-}
 
-        if (!tg) {
+    /*
+    =====================================================
+    2. INIT DATA
+    =====================================================
+    */
 
-            status.textContent =
-                "Откройте Heavy Lux Card внутри Telegram.";
-
-            status.classList.add("error");
-
-            displayTelegramUser(null);
-
-            return;
-
-        }
+    const initData =
+        tg.initData;
 
 
-        const initData =
-            tg.initData;
+    if (!initData) {
+
+        setStatus(
+            initDataStatus,
+            "EMPTY",
+            "bad"
+        );
+
+        log(
+            "Telegram WebApp найден, но tg.initData пустой."
+        );
+
+    } else {
+
+        setStatus(
+            initDataStatus,
+            "OK",
+            "ok"
+        );
+
+        log(
+            "Telegram initData получен."
+        );
+
+    }
 
 
-        if (!initData) {
+    /*
+    =====================================================
+    3. SOCKET.IO
+    =====================================================
+    */
 
-            status.textContent =
-                "Telegram не передал данные авторизации.";
+    if (
+        typeof window.io !==
+        "function"
+    ) {
 
-            status.classList.add("error");
+        setStatus(
+            socketStatus,
+            "NOT FOUND",
+            "bad"
+        );
 
-            return;
+        log(
+            "Socket.IO client не загружен."
+        );
 
-        }
-
+    } else {
 
         try {
 
-            const response =
-                await fetch("/api/auth/telegram", {
+            const socket =
+                window.io();
 
+
+            socket.on(
+                "connect",
+                function () {
+
+                    setStatus(
+                        socketStatus,
+                        "OK",
+                        "ok"
+                    );
+
+                    log(
+                        "Socket.IO подключён. ID: " +
+                        socket.id
+                    );
+
+                }
+            );
+
+
+            socket.on(
+                "connect_error",
+                function (error) {
+
+                    setStatus(
+                        socketStatus,
+                        "ERROR",
+                        "bad"
+                    );
+
+                    log(
+                        "Socket.IO ошибка: " +
+                        error.message
+                    );
+
+                }
+            );
+
+
+            socket.on(
+                "disconnect",
+                function (reason) {
+
+                    setStatus(
+                        socketStatus,
+                        "OFFLINE",
+                        "bad"
+                    );
+
+                    log(
+                        "Socket.IO отключён: " +
+                        reason
+                    );
+
+                }
+            );
+
+
+        } catch (error) {
+
+            setStatus(
+                socketStatus,
+                "ERROR",
+                "bad"
+            );
+
+            log(
+                "Не удалось запустить Socket.IO: " +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    /*
+    =====================================================
+    4. SERVER API
+    =====================================================
+    */
+
+    fetch("/api/health")
+
+        .then(function (response) {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "HTTP " +
+                    response.status
+                );
+
+            }
+
+            return response.json();
+
+        })
+
+        .then(function (data) {
+
+            if (!data.ok) {
+
+                throw new Error(
+                    "API returned ok=false"
+                );
+
+            }
+
+
+            setStatus(
+                serverStatus,
+                "OK",
+                "ok"
+            );
+
+
+            log(
+                "Render API работает. " +
+                "Telegram configured: " +
+                data.telegram
+            );
+
+
+            /*
+            =============================================
+            5. TELEGRAM AUTH
+            =============================================
+            */
+
+            if (!initData) {
+
+                setStatus(
+                    authStatus,
+                    "NO DATA",
+                    "bad"
+                );
+
+                log(
+                    "Авторизацию выполнить нельзя: " +
+                    "Telegram initData отсутствует."
+                );
+
+                return;
+
+            }
+
+
+            setStatus(
+                authStatus,
+                "CHECKING",
+                "waiting"
+            );
+
+
+            return fetch(
+                "/api/auth/telegram",
+                {
                     method: "POST",
 
                     headers: {
@@ -840,174 +649,158 @@
                     },
 
                     body: JSON.stringify({
-                        initData
+                        initData: initData
                     })
+                }
+            );
+
+        })
+
+        .then(function (response) {
+
+            if (!response) {
+                return null;
+            }
+
+            return response
+                .text()
+                .then(function (text) {
+
+                    let data;
+
+                    try {
+
+                        data =
+                            JSON.parse(text);
+
+                    } catch {
+
+                        throw new Error(
+                            "Server returned: " +
+                            text
+                        );
+
+                    }
+
+
+                    if (
+                        !response.ok ||
+                        !data.ok
+                    ) {
+
+                        throw new Error(
+                            data.error ||
+                            "Authorization failed"
+                        );
+
+                    }
+
+
+                    return data;
 
                 });
 
+        })
 
-            const data =
-                await response.json();
+        .then(function (data) {
 
-
-            if (!response.ok || !data.ok) {
-
-                throw new Error(
-                    data.error ||
-                    "Telegram authorization failed"
-                );
-
+            if (!data) {
+                return;
             }
+
+
+            setStatus(
+                authStatus,
+                "OK",
+                "ok"
+            );
 
 
             const player =
                 data.player;
 
 
-            profileName.textContent =
+            const name =
                 (
-                    `${player.firstName} ${player.lastName}`
-                ).trim()
-                || (
+                    player.firstName +
+                    " " +
+                    player.lastName
+                ).trim();
+
+
+            profileName.textContent =
+                name ||
+                (
                     player.username
                         ? "@" + player.username
                         : "Игрок"
                 );
 
 
-            profileRank.textContent =
-                player.username
-                    ? "@" + player.username
-                    : "Игрок";
+            profileId.textContent =
+                "Telegram ID: " +
+                player.telegramId;
 
 
-            const initials =
-                (
-                    (player.firstName?.[0] || "") +
-                    (player.lastName?.[0] || "")
-                ).toUpperCase();
-
-
-            avatar.textContent =
-                initials || "HL";
-
-
-            level.textContent =
-                "1";
-
-            xp.textContent =
-                "0";
-
-            money.textContent =
-                "0 ₽";
-
-
-            status.textContent =
-                "Авторизация успешна";
-
-            status.classList.remove("error");
-
-
-            console.log(
-                "Heavy Lux Card player:",
-                player
+            profile.classList.add(
+                "visible"
             );
 
-        } catch (error) {
 
-            console.error(error);
+            log(
+                "Авторизация успешна. " +
+                "Telegram ID: " +
+                player.telegramId
+            );
 
-            status.textContent =
-                "Ошибка авторизации Telegram";
+        })
 
-            status.classList.add("error");
+        .catch(function (error) {
 
-        }
-
-    }
-
-
-    /*
-    =====================================================
-    SOCKET.IO
-    =====================================================
-    */
-
-    const socket =
-        io();
+            setStatus(
+                serverStatus,
+                "ERROR",
+                "bad"
+            );
 
 
-    socket.on("connect", () => {
-
-        onlineText.textContent =
-            "ONLINE";
-
-        onlineDot.style.background =
-            "#ffffff";
-
-    });
+            setStatus(
+                authStatus,
+                "ERROR",
+                "bad"
+            );
 
 
-    socket.on("disconnect", () => {
+            log(
+                "ОШИБКА: " +
+                error.message
+            );
 
-        onlineText.textContent =
-            "OFFLINE";
-
-        onlineDot.style.background =
-            "#777";
-
-    });
-
-
-    socket.on("server:hello", (data) => {
-
-        console.log(
-            "Server:",
-            data
-        );
-
-    });
+        });
 
 
     /*
     =====================================================
-    PLAY BUTTON
+    RELOAD
     =====================================================
     */
 
-    playButton.addEventListener(
+    reloadButton.addEventListener(
         "click",
-        () => {
+        function () {
 
-            if (tg?.HapticFeedback) {
-
-                tg.HapticFeedback.impactOccurred(
-                    "medium"
-                );
-
-            }
-
-            alert(
-                "Игровые комнаты подключим следующим этапом."
-            );
+            window.location.reload();
 
         }
     );
 
-
-    /*
-    =====================================================
-    START
-    =====================================================
-    */
-
-    displayTelegramUser(
-        getTelegramUser()
-    );
-
-    authenticateTelegram();
+})();
 
 </script>
+
+
+<!-- Socket.IO client -->
+<script src="/socket.io/socket.io.js"></script>
 
 </body>
 </html>
